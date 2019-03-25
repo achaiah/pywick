@@ -1,0 +1,27 @@
+last_linear
+----------
+NOTE: Some pretrained models contain '.fc' as the name of the last layer. Simply rename it to 'last_linear' before loading the weights.
+
+inceptionresnetv2
+inceptionv4
+nasnetalarge
+nasnetamobile
+pnasnet
+polynet
+resnet_swish
+resnext101_x
+SENet / se_resnet50, se_resnet101, se_resnet152 etc
+WideResNet
+
+
+Conv2D (1x1 kernel)
+-----------
+DPN (dpn68, dpn68b, dpn92, dpn98, dpn107, dpn131)
+
+
+Multiple FC
+-----------
+inception (torchvision)  (fc)
+pyramid_resnet (fc2, fc3, fc4)
+resnet (torchvision) (fc)
+se_resnet (relies on resnet) (fc)

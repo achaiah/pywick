@@ -1,0 +1,25 @@
+.git/
+sandbox/
+
+*.DS_Store
+*__pycache__*
+__pycache__
+*.pyc
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+*.bkbn
+.spyderworkspace
+.spyderproject
+
+# setup.py working directory
+build
+# sphinx build directory
+doc/_build
+# setup.py dist directory
+dist
+# Egg metadata
+*.egg-info
+.eggs
+
+.idea
+/pywick.egg-info/
