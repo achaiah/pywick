@@ -12,6 +12,9 @@ PyWick aims to provide a *batteries included* framework for training neural netw
 - Useful meters
 - Basic GridSearch (exhaustive and random)
 
+## Install
+`pip install git+https://github.com/achaiah/pywick.git@v0.5.2`
+
 ## ModuleTrainer
 The `ModuleTrainer` class provides a high-level training interface which abstracts
 away the training loop while providing callbacks, constraints, initializers, regularizers,
