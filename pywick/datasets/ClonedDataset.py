@@ -13,6 +13,9 @@ class ClonedFolderDataset(FolderDataset):
 
         :param meta_data: dict
             parameters that correspond to the target dataset's attributes
+
+        :param kwargs: args
+            variable set of key-value pairs to set as attributes for the dataset
         """
 
         if len(data) == 0:

@@ -1,20 +1,13 @@
-import numpy as np
+import itertools
 import os
 
 from PIL import Image
-from .UsefulDataset import UsefulDataset
-from .data_utils import npy_loader, pil_loader, _find_classes, _finds_inputs_and_targets
-
-# convenience loaders one can use (in order not to reinvent the wheel)
-rgb_image_loader = lambda path: Image.open(path).convert('RGB')   # a loader for images that require RGB color space
-rgba_image_loader = lambda path: Image.open(path).convert('RGBA')   # a loader for images that require RGBA color space
-bw_image_loader = lambda path: Image.open(path).convert('L')      # a loader for images that require B/W color space
-identity_x = lambda x: x
+from .FolderDataset import FolderDataset, npy_loader, pil_loader, rgb_image_loader, rgba_image_loader, _find_classes, _finds_inputs_and_targets
 
 
-class FolderDataset(UsefulDataset):
+class MultiFolderDataset(FolderDataset):
     def __init__(self,
-                 root,
+                 roots,
                  class_mode='label',
                  class_to_idx=None,
                  input_regex='*',
@@ -44,10 +37,13 @@ class FolderDataset(UsefulDataset):
             |  - dir1\n
             |  - dir2\n
 
+        This class extends the FolderDataset with abilty to supply multiple root directories. The rel_target_root must exist
+        relative to each root directory
+
         Arguments
         ---------
-        :param root: string\n
-            path to main directory\n
+        :param roots: list\n
+            list of root directories to traverse\n
 
         :param class_mode: string in `{'label', 'image', 'path'}`\n
             type of target sample to look for and return\n
@@ -106,7 +102,9 @@ class FolderDataset(UsefulDataset):
         """
 
         # call the super constructor first, then set our own parameters
-        super().__init__()
+        # super().__init__()
+        self.num_inputs = 1  # these are hardcoded for the fit module to work
+        self.num_targets = 1  # these are hardcoded for the fit module to work
 
         if default_loader == 'npy':
             default_loader = npy_loader
@@ -117,24 +115,27 @@ class FolderDataset(UsefulDataset):
         # separate loading for targets (e.g. for black/white masks)
         self.target_loader = target_loader
 
-        root = os.path.expanduser(root)
-
         if class_to_idx:
             self.classes = class_to_idx.keys()
             self.class_to_idx = class_to_idx
         else:
-            self.classes, self.class_to_idx = _find_classes([root])
-        data, _ = _finds_inputs_and_targets(root, class_mode=class_mode, class_to_idx=self.class_to_idx, input_regex=input_regex,
-                                            rel_target_root=rel_target_root, target_prefix=target_prefix, target_postfix=target_postfix,
-                                            target_extension=target_extension, exclusion_file=exclusion_file)
+            self.classes, self.class_to_idx = _find_classes(roots)
 
-        if len(data) == 0:
-            raise (RuntimeError('Found 0 data items in subfolders of: %s' % root))
+        data_list = list()
+        for root in roots:
+            datai, _ = _finds_inputs_and_targets(root, class_mode=class_mode, class_to_idx=self.class_to_idx, input_regex=input_regex,
+                                                rel_target_root=rel_target_root, target_prefix=target_prefix, target_postfix=target_postfix,
+                                                target_extension=target_extension, exclusion_file=exclusion_file)
+            data_list.append(datai)
+
+        self.data = list(itertools.chain.from_iterable(data_list))
+
+        if len(self.data) == 0:
+            raise (RuntimeError('Found 0 data items in subfolders of: {}'.format(roots)))
         else:
-            print('Found %i data items' % len(data))
+            print('Found %i data items' % len(self.data))
 
-        self.root = os.path.expanduser(root)
-        self.data = data
+        self.roots = [os.path.expanduser(x) for x in roots]
         self.transform = transform
         self.target_transform = target_transform
         self.co_transform = co_transform
@@ -142,70 +143,3 @@ class FolderDataset(UsefulDataset):
         self.target_index_map = target_index_map
 
         self.class_mode = class_mode
-
-    def __getitem__(self, index):
-        # get paths
-        input_sample, target_sample = self.data[index]
-
-        in_base = input_sample
-        out_base = target_sample
-
-        try:
-            if self.target_loader is not None:
-                target_sample = self.target_loader(target_sample)
-
-            ## DELETEME
-            # if len(self.classes) == 1 and self.class_mode == 'image':  # this is a binary segmentation map
-            #     target_sample = self.default_loader(target_sample, color_space='L')
-            # else:
-            #     if self.class_mode == 'image':
-            #         target_sample = self.default_loader(target_sample)
-            ## END DELETEME
-
-            # load samples into memory
-            input_sample = self.default_loader(input_sample)
-            if self.class_mode == 'image' and self.target_index_map is not None:   # if we're dealing with image masks, we need to change the underlying pixels
-                target_sample = np.array(target_sample)  # convert to np
-                for k, v in self.target_index_map.items():
-                    target_sample[target_sample == k] = v  # replace pixels with class values
-                target_sample = Image.fromarray(target_sample.astype(np.float32))  # convert back to image
-
-            # apply transforms
-            if self.apply_co_transform_first and self.co_transform is not None:
-                input_sample, target_sample = self.co_transform(input_sample, target_sample)
-            if self.transform is not None:
-                # input_sample = self.transform(image=input_sample)     # needed for albumentations to work (but currently albumentations dies with multiple workers)
-                input_sample = self.transform(input_sample)
-            if self.target_transform is not None:
-                target_sample = self.target_transform(target_sample)
-            if not self.apply_co_transform_first and self.co_transform is not None:
-                input_sample, target_sample = self.co_transform(input_sample, target_sample)
-
-            return input_sample, target_sample
-        except Exception as e:
-            print('########## ERROR ########')
-            print(str(e))
-            print('=========================')
-            print("ERROR: Exception occurred while processing dataset with input {} and output {}".format(str(in_base), str(out_base)))
-
-    def __len__(self):
-        return len(self.data)
-
-    def getdata(self):
-        return self.data
-
-    def getmeta_data(self):
-        meta = {'num_inputs': self.num_inputs,  # these are hardcoded for the fit module to work
-                'num_targets': self.num_targets,
-                'transform': self.transform,
-                'target_transform': self.target_transform,
-                'co_transform': self.co_transform,
-                'class_to_idx': self.class_to_idx,
-                'class_mode': self.class_mode,
-                'classes': self.classes,
-                'default_loader': self.default_loader,
-                'target_loader': self.target_loader,
-                'apply_co_transform_first': self.apply_co_transform_first,
-                'target_index_map': self.target_index_map
-                }
-        return meta
