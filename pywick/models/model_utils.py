@@ -83,12 +83,12 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             print('INFO: Loading torchvision model: {}\t Pretrained: {}'.format(model_name, pretrained))
             model = torch_models.__dict__[model_name](pretrained=pretrained)  # find a model included in the torchvision package
         else:
+            net_list = ['inception', 'nasnet', 'polynet', 'resnext', 'se_resnet', 'senet', 'xception']
             if pretrained:
                 print('INFO: Loading a pretrained model: {}'.format(model_name))
                 if 'dpn' in model_name:
                     model = classification.__dict__[model_name](pretrained=True)  # find a model included in the pywick classification package
-                elif 'inception' in model_name or 'nasnet' in model_name or 'polynet' in model_name or 'resnext' in model_name\
-                        or 'se_resnet' in model_name or 'xception' in model_name:
+                elif any(net_name in model_name for net_name in net_list):
                     model = classification.__dict__[model_name](pretrained='imagenet')
             else:
                 print('INFO: Loading a vanilla model: {}'.format(model_name))
