@@ -4,6 +4,7 @@ from .fbresnet import FBResNet, fbresnet152, fbresnet50, fbresnet34, fbresnet18 
 from .inception_resv2_wide import InceptionResV2                    # InceptionResV2 not pretrained
 from .inceptionresnetv2 import inceptionresnetv2, InceptionResNetV2 # inceptionresnetv2 = pretrained on imagenet, InceptionResNetV2 not pretrained
 from .inceptionv4 import inceptionv4, InceptionV4                   # inceptionv4 = pretrained on imagenet, InceptionV4 not pretrained
+from .mobilenetv2 import mobilenetv2, mobilenetv2_01, mobilenetv2_05, mobilenetv2_10, mobilenetv2_025, MobileNetV2 # mobilenetv2* = pretrained on imagenet
 from .nasnet import nasnetalarge, NASNetALarge                      # nasnetalarge = pretrained on NASNetALarge, InceptionV4 not pretrained
 from .nasnet_mobile import nasnetamobile, NASNetAMobile             # nasnetamobile = pretrained on imagenet, NASNetAMobile not pretrained
 from .pnasnet import pnasnet5large, PNASNet5Large                   # pnasnet5large = pretrained on imagenet, PNASNet5Large not pretrained
@@ -14,6 +15,7 @@ from .resnext import resnext50_32x4d, resnext101_32x4d, resnext101_64x4d, ResNeX
 from .se_inception import SEInception3                              # not pretrained
 from .se_resnet import se_resnet34 as SE_Resnet34, se_resnet50 as se_resnet50_2, se_resnet101 as SE_Resnet101, se_resnet152 as SE_Resnet152   # only se_resnet50_2 is pretrained!
 from .senet import se_resnet50, se_resnet101, se_resnet152, senet154, se_resnext50_32x4d, se_resnext101_32x4d, SENet       # pretrained
+from .shufflenet_v2 import shufflenetv2, shufflenetv2_x1, shufflenetv2_x05, ShuffleNetV2 # shufflenetv2* = pretrained on imagenet, ShuffleNetV2 not pretrained
 from .wide_resnet import WResNet_imagenet                           # not pretrained
 from .wide_resnet_2 import WideResNet                               # not pretrained
 from .xception import xception, Xception                            # xception = pretrained on imagenet, Xception not pretrained
