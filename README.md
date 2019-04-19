@@ -13,6 +13,8 @@ PyWick aims to provide a *batteries included* framework for training neural netw
 - Basic GridSearch (exhaustive and random)
 
 ## Install
+Substitute version number as necessary:
+
 `pip install git+https://github.com/achaiah/pywick.git@v0.5.2`
 
 ## ModuleTrainer
@@ -23,6 +25,8 @@ and more.
 Example:
 ```python
 from pywick.modules import ModuleTrainer
+from pywick.initializers import XavierUniform
+from pywick.metrics import CategoricalAccuracySingleInput
 import torch.nn as nn
 import torch.functional as F
 
@@ -45,22 +49,31 @@ class Network(nn.Module):
         return F.log_softmax(x)
 
 model = Network()
-trainer = ModuleTrainer(model)
+trainer = ModuleTrainer(model)   # optionally supply cuda_devices as a parameter
 
-trainer.compile(loss='nll_loss',
-                optimizer='adadelta')
+initializers = [XavierUniform(bias=False, module_filter='fc*')]
 
-trainer.fit(x_train, y_train, 
-            val_data=(x_test, y_test),
+# initialize metrics with top1 and top5 
+metrics = [CategoricalAccuracySingleInput(top_k=1), CategoricalAccuracySingleInput(top_k=5)]
+
+trainer.compile(loss='cross_entropy',
+                # callbacks=callbacks,          # define your callbacks here (e.g. model saver, LR scheduler)
+                # regularizers=regularizers,    # define regularizers
+                # constraints=constraints,      # define constraints
+                optimizer='sgd',
+                initializers=initializers,
+                metrics=metrics)
+
+trainer.fit(train_dataset_loader, 
+            val_loader=val_dataset_loader,
             num_epoch=20,
-            batch_size=128,
             verbose=1)
 ```
 You also have access to the standard evaluation and prediction functions:
 
 ```python
-loss = model.evaluate(x_train, y_train)
-y_pred = model.predict(x_train)
+loss = trainer.evaluate(x_train, y_train)
+y_pred = trainer.predict(x_train)
 ```
 PyWick provides a wide range of <b>callbacks</b>, generally mimicking the interface
 found in `Keras`:
@@ -82,7 +95,7 @@ library but is not included here to reduce the number of dependencies
 from pywick.callbacks import EarlyStopping
 
 callbacks = [EarlyStopping(monitor='val_loss', patience=5)]
-model.set_callbacks(callbacks)
+trainer.set_callbacks(callbacks)
 ```
 
 PyWick also provides <b>regularizers</b>:
@@ -111,10 +124,10 @@ hard_constraint = MaxNorm(value=2., frequency=5, unit='batch', module_filter='*f
 # implicit constraint added as a penalty term to model loss
 soft_constraint = NonNeg(lagrangian=True, scale=1e-3, module_filter='*fc*')
 constraints = [hard_constraint, soft_constraint]
-model.set_constraints(constraints)
+trainer.set_constraints(constraints)
 
 regularizers = [L1Regularizer(scale=1e-4, module_filter='*conv*')]
-model.set_regularizers(regularizers)
+trainer.set_regularizers(regularizers)
 ```
 
 You can also fit directly on a `torch.utils.data.DataLoader` and can have
@@ -148,7 +161,7 @@ Finally, PyWick provides a few utility functions not commonly found:
 ## Data Augmentation and Datasets
 The PyWick package provides a ton of good data augmentation and transformation
 tools which can be applied during data loading. The package also provides the flexible
-`TensorDataset` and `FolderDataset` classes to handle most dataset needs.
+`TensorDataset`, `FolderDataset` and 'MultiFolderDataset' classes to handle most dataset needs.
 
 ### Torch Transforms
 ##### These transforms work directly on torch tensors
@@ -236,14 +249,29 @@ the `FolderDataset` has been designed to fit most of your dataset needs. It has 
 - `tnt.TensorDataset`
 - `tnt.TransformDataset`
 
+### Imbalanced Datasets
+In many scenarios it is important to ensure that your traing set is properly balanced,
+however, it may not be practical in real life to obtain such a perfect dataset. In these cases 
+you can use the `ImbalancedDatasetSampler` as a drop-in replacement for the basic sampler provided
+by the DataLoader. More information can be found [here](https://github.com/ufoym/imbalanced-dataset-sampler)
+
+```python
+from pywick.datasets.ImbalancedDatasetSampler import ImbalancedDatasetSampler
+
+train_loader = torch.utils.data.DataLoader(train_dataset, 
+    sampler=ImbalancedDatasetSampler(train_dataset),
+    batch_size=args.batch_size, **kwargs)
+```
+
 ## Extensive Library of Image Classification Models (most are pretrained!)
-- All standard models from Pytorch (ResNet, VGG)
+- All standard models from Pytorch (Densenet, ResNet, VGG)
 - BatchNorm Inception
 - Dual-Path Networks
 - FBResnet
 - Inception v3
 - Inception v4
 - InceptionResnet v2
+- MobileNet v2
 - NasNet and NasNet Mobile ([Learning Transferable Architectures for Scalable Image Recognition](https://arxiv.org/abs/1707.07012))
 - PNASNet
 - Polynet
@@ -253,9 +281,9 @@ the `FolderDataset` has been designed to fit most of your dataset needs. It has 
 - ResNext
 - SE Net
 - SE Inception
+- ShuffleNet v2
 - Wide Resnet
 - XCeption
-
 
 ## Image Segmentation Models
 1. Vanilla FCN: FCN32, FCN16, FCN8, in the versions of VGG, ResNet and DenseNet respectively
@@ -274,6 +302,16 @@ the `FolderDataset` has been designed to fit most of your dataset needs. It has 
 13. LinkNet ([Link-Net](https://codeac29.github.io/projects/linknet/))
 14. FRRN ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
 15. Additional variations of many of the above
+
+######To load one of these models:
+```python
+# use the `get_model` utility
+from pywick.models.model_utils import get_model, ModelType
+
+model = get_model(model_type=ModelType.CLASSIFICATION, model_name='resnet18', num_classes=1000, pretrained=True)
+```
+For a complete list of models you may want to take a look at the respective `pywick.models.[classification/segmentation].__init__` file
+
 
 ## Acknowledgements and References
 ##### Thank you to the following people and the projects they maintain:
