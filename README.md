@@ -64,7 +64,7 @@ trainer.compile(loss='cross_entropy',
                 initializers=initializers,
                 metrics=metrics)
 
-trainer.fit(train_dataset_loader, 
+trainer.fit_loader(train_dataset_loader, 
             val_loader=val_dataset_loader,
             num_epoch=20,
             verbose=1)
@@ -87,7 +87,7 @@ found in `Keras`:
 - `ModelCheckpoint` - Comprehensive model saver
 - `ReduceLROnPlateau` - Reduces learning rate (LR) when a plateau has been reached
 - `SimpleModelCheckpoint` - Simple model saver
-- Additionally, a TensorboardLogger is incredibly easy to implement via the [TensorboardX](https://github.com/lanpa/tensorboardX)
+- Additionally, a `TensorboardLogger` is incredibly easy to implement via the [TensorboardX](https://github.com/lanpa/tensorboardX)
 library but is not included here to reduce the number of dependencies
 
 
@@ -145,18 +145,6 @@ val_loader = DataLoader(val_dataset, batch_size=32)
 
 trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
 ```
-
-## Utility Functions
-Finally, PyWick provides a few utility functions not commonly found:
-
-### Tensor Functions
-- `th_iterproduct` (mimics itertools.product)
-- `th_gather_nd` (N-dimensional version of torch.gather)
-- `th_random_choice` (mimics np.random.choice)
-- `th_pearsonr` (mimics scipy.stats.pearsonr)
-- `th_corrcoef` (mimics np.corrcoef)
-- `th_affine2d` and `th_affine3d` (affine transforms on torch.Tensors)
-
 
 ## Data Augmentation and Datasets
 The PyWick package provides a ton of good data augmentation and transformation
@@ -311,6 +299,18 @@ from pywick.models.model_utils import get_model, ModelType
 model = get_model(model_type=ModelType.CLASSIFICATION, model_name='resnet18', num_classes=1000, pretrained=True)
 ```
 For a complete list of models you may want to take a look at the respective `pywick.models.[classification/segmentation].__init__` file
+
+
+## Utility Functions
+PyWick provides a few utility functions not commonly found:
+
+### Tensor Functions
+- `th_iterproduct` (mimics itertools.product)
+- `th_gather_nd` (N-dimensional version of torch.gather)
+- `th_random_choice` (mimics np.random.choice)
+- `th_pearsonr` (mimics scipy.stats.pearsonr)
+- `th_corrcoef` (mimics np.corrcoef)
+- `th_affine2d` and `th_affine3d` (affine transforms on torch.Tensors)
 
 
 ## Acknowledgements and References
