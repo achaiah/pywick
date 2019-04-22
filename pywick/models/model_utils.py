@@ -83,7 +83,7 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             print('INFO: Loading torchvision model: {}\t Pretrained: {}'.format(model_name, pretrained))
             model = torch_models.__dict__[model_name](pretrained=pretrained)  # find a model included in the torchvision package
         else:
-            net_list = ['inception', 'mobilenet', 'nasnet', 'polynet', 'resnext', 'se_resnet', 'senet', 'shufflenet', 'xception']
+            net_list = ['fbresnet', 'inception', 'mobilenet', 'nasnet', 'polynet', 'resnext', 'se_resnet', 'senet', 'shufflenet', 'xception']
             if pretrained:
                 print('INFO: Loading a pretrained model: {}'.format(model_name))
                 if 'dpn' in model_name:
