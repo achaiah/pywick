@@ -7,7 +7,6 @@ https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
 """
 
 from collections import OrderedDict
-import math
 
 import torch.nn as nn
 from torch.utils import model_zoo

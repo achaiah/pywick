@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+__all__ = ['PyResNet18', 'PyResNet34', 'PyResNet']
 
 def make_conv_bn_relu(in_channels, out_channels, kernel_size=3, stride=1, padding=1, groups=1):
     return [
@@ -158,12 +159,12 @@ class PyResNet(nn.Module):
         return logit, prob
 
 
-def pyresnet18(pretrained=None, **kwargs):
+def PyResNet18(pretrained=None, **kwargs):
     model = PyResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
     return model
 
 
-def pyresnet34(pretrained=None, **kwargs):
+def PyResNet34(pretrained=None, **kwargs):
     model = PyResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
     return model
 
@@ -184,7 +185,7 @@ if __name__ == '__main__':
     in_shape = inputs.size()[1:]
 
     if 1:
-        net = pyresnet34(in_shape=in_shape, num_classes=num_classes).cuda().train()
+        net = PyResNet34(in_shape=in_shape, num_classes=num_classes).cuda().train()
 
         x = inputs
         logits, probs = net.forward(x.cuda())

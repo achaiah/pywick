@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+__all__ = ['UNet128', 'UNet256', 'UNet512', 'UNet1024']
+
 BN_EPS = 1e-4
 
 ## ==== EXPERIMENTAL - ought to try ===== ##

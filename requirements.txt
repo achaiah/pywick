@@ -1,3 +1,4 @@
+hickle
 numpy
 pandas
 pillow

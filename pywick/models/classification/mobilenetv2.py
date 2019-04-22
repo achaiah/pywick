@@ -12,7 +12,7 @@ import torch.nn as nn
 import math
 import torch.utils.model_zoo as model_zoo
 
-__all__ = ['mobilenetv2', 'mobilenetv2_10', 'mobilenetv2_01', 'mobilenetv2_025', 'mobilenetv2_05']
+__all__ = ['mobilenetv2', 'mobilenetv2_10', 'mobilenetv2_01', 'mobilenetv2_025', 'mobilenetv2_05', 'MobileNetV2']
 
 pretrained_settings = {
     'mobilenetv2_10': {

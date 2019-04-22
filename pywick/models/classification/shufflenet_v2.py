@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 
 
-__all__ = ['shufflenetv2', 'shufflenetv2_x05', 'shufflenetv2_x1']
+__all__ = ['ShuffleNetV2', 'shufflenetv2', 'shufflenetv2_x05', 'shufflenetv2_x1']
 
 pretrained_settings = {
     'shufflenetv2_x05': {

@@ -29,7 +29,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
 
-__all__ = ['xception']
+__all__ = ['Xception', 'xception']
 
 pretrained_settings = {
     'xception': {

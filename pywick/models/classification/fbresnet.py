@@ -9,9 +9,7 @@ import math
 import torch.utils.model_zoo as model_zoo
 
 
-__all__ = ['FBResNet',
-           #'fbresnet18', 'fbresnet34', 'fbresnet50', 'fbresnet101',
-           'fbresnet152']
+__all__ = ['FBResNet', 'FBResNet18', 'FBResNet34', 'FBResNet50', 'FBResNet101', 'fbresnet152']
 
 pretrained_settings = {
     'fbresnet152': {
@@ -178,41 +176,41 @@ class FBResNet(nn.Module):
         return x
 
 
-def fbresnet18(num_classes=1000):
+def FBResNet18(num_classes=1000):
     """Constructs a ResNet-18 model.
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        num_classes
     """
     model = FBResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
     return model
 
 
-def fbresnet34(num_classes=1000):
+def FBResNet34(num_classes=1000):
     """Constructs a ResNet-34 model.
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        num_classes
     """
     model = FBResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes)
     return model
 
 
-def fbresnet50(num_classes=1000):
+def FBResNet50(num_classes=1000):
     """Constructs a ResNet-50 model.
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        num_classes
     """
     model = FBResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes)
     return model
 
 
-def fbresnet101(num_classes=1000):
+def FBResNet101(num_classes=1000):
     """Constructs a ResNet-101 model.
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        num_classes
     """
     model = FBResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes)
     return model

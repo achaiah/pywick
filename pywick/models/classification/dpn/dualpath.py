@@ -19,6 +19,8 @@ from collections import OrderedDict
 from .adaptive_avgmax_pool import adaptive_avgmax_pool2d
 from .convert_from_mxnet import convert_from_mxnet, has_mxnet
 
+__all__ = ['DPN', 'dpn68', 'dpn68b', 'dpn98', 'dpn131', 'dpn107']  # dpn92 not pretrained
+
 dpnroot = 'https://s3.amazonaws.com/dpn-pytorch-weights/'
 drnroot = 'https://tigress-web.princeton.edu/~fy/drn/models/'
 cadeneroot = 'http://data.lip6.fr/cadene/pretrainedmodels/'
@@ -32,9 +34,6 @@ model_urls = {
     'dpn131': cadeneroot + 'dpn131-71dfe43e0.pth',
     'dpn107-extra': cadeneroot + 'dpn107_extra-1ac7121e2.pth'
 }
-
-
-__all__ = ['DPN', 'dpn68', 'dpn68b', 'dpn92', 'dpn98', 'dpn131', 'dpn107']
 
 
 def dpn68(num_classes=1000, pretrained=False, test_time_pool=True):

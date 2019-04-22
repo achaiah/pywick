@@ -26,7 +26,7 @@ def _convert_bn(k):
         aux = True
         add = 'moving_var'
     else:
-        assert False
+        assert False, 'Unknown key: %s' % k
     return aux, add
 
 
@@ -37,6 +37,8 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
         k = state_key.split('.')
         aux = False
         mxnet_key = ''
+        if k[-1] == 'num_batches_tracked':
+            continue
         if k[0] == 'features':
             if k[1] == 'conv1_1':
                 # input block

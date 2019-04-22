@@ -9,7 +9,6 @@ from .resnext_features import resnext101_64x4d_features
 
 __all__ = ['ResNeXt50_32x4d', 'resnext50_32x4d',
            'ResNeXt101_32x4d', 'resnext101_32x4d',
-           'ResNeXt101_64x4d', 'resnext101_64x4d',
            'ResNeXt101_64x4d', 'resnext101_64x4d']
 
 pretrained_settings = {

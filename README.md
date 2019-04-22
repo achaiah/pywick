@@ -222,11 +222,13 @@ We also provide a class for stringing multiple affine transformations together s
 
 ### Datasets and Sampling
 We provide the following datasets which provide general structure and iterators for sampling from and using transforms on in-memory or out-of-memory data. In particular,
-the `FolderDataset` has been designed to fit most of your dataset needs. It has extensive options for data filtering and manipulation.
+the [FolderDataset](pywick/datasets/FolderDataset.py) has been designed to fit most of your dataset needs. It has extensive options for data filtering and manipulation.
+It supports loading images for classification, segmentation and even arbitrary source/target mapping. Take a good look at its documentation for more info.
 
 - `ClonedDataset`
 - `CSVDataset`
 - `FolderDataset`
+- `MultiFolderDataset`
 - `TensorDataset`
 - `tnt.BatchDataset`
 - `tnt.ConcatDataset`
@@ -252,43 +254,43 @@ train_loader = torch.utils.data.DataLoader(train_dataset,
 ```
 
 ## Extensive Library of Image Classification Models (most are pretrained!)
-- All standard models from Pytorch (Densenet, ResNet, VGG)
-- BatchNorm Inception
-- Dual-Path Networks
-- FBResnet
-- Inception v3
-- Inception v4
-- InceptionResnet v2
-- MobileNet v2
-- NasNet and NasNet Mobile ([Learning Transferable Architectures for Scalable Image Recognition](https://arxiv.org/abs/1707.07012))
-- PNASNet
-- Polynet
-- Pyramid Resnet
-- Resnet
-- Resnet + Swish
-- ResNext
-- SE Net
-- SE Inception
-- ShuffleNet v2
-- Wide Resnet
-- XCeption
+- **All standard models from Pytorch (Densenet, ResNet, VGG)**
+- **BatchNorm Inception**
+- **Dual-Path Networks**
+- **FBResnet**
+- **Inception v3**
+- **Inception v4**
+- **InceptionResnet v2**
+- **MobileNet v2**
+- **NasNet and NasNet Mobile** ([Learning Transferable Architectures for Scalable Image Recognition](https://arxiv.org/abs/1707.07012))
+- **PNASNet**
+- **Polynet**
+- **Pyramid Resnet**
+- **Resnet**
+- **Resnet + Swish**
+- **ResNext**
+- **SE Net**
+- **SE Inception**
+- **ShuffleNet v2**
+- **Wide Resnet**
+- **XCeption**
 
 ## Image Segmentation Models
-1. Vanilla FCN: FCN32, FCN16, FCN8, in the versions of VGG, ResNet and DenseNet respectively
+1. **Vanilla FCN:** FCN32, FCN16, FCN8, in the versions of VGG, ResNet and DenseNet respectively
 ([Fully convolutional networks for semantic segmentation](http://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Long_Fully_Convolutional_Networks_2015_CVPR_paper.pdf))
-2. U-Net ([U-net: Convolutional networks for biomedical image segmentation](https://arxiv.org/pdf/1505.04597))
-3. SegNet ([Segnet: A deep convolutional encoder-decoder architecture for image segmentation](https://arxiv.org/pdf/1511.00561))
-4. PSPNet ([Pyramid scene parsing network](https://arxiv.org/pdf/1612.01105))
-5. GCN ([Large Kernel Matters](https://arxiv.org/pdf/1703.02719))
-6. DUC, HDC ([understanding convolution for semantic segmentation](https://arxiv.org/pdf/1702.08502.pdf))
-7. Tiramisu ([The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for Semantic Segmentation](https://arxiv.org/pdf/1611.09326))
-8. Deeplab v2 ([DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs](https://arxiv.org/abs/1606.00915))
-9. Deeplab v3 ([Rethinking Atrous Convolution for Semantic Image Segmentation](https://arxiv.org/abs/1706.05587))
-10. RefineNet ([RefineNet](https://arxiv.org/abs/1611.06612))
-11. FusionNet ([FusionNet in Tensorflow by Hyungjoo Andrew Cho](https://github.com/NySunShine/fusion-net))
-12. ENet ([ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation](https://arxiv.org/abs/1606.02147))
-13. LinkNet ([Link-Net](https://codeac29.github.io/projects/linknet/))
-14. FRRN ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
+2. **U-Net** ([U-net: Convolutional networks for biomedical image segmentation](https://arxiv.org/pdf/1505.04597))
+3. **SegNet** ([Segnet: A deep convolutional encoder-decoder architecture for image segmentation](https://arxiv.org/pdf/1511.00561))
+4. **PSPNet** ([Pyramid scene parsing network](https://arxiv.org/pdf/1612.01105))
+5. **GCN** ([Large Kernel Matters](https://arxiv.org/pdf/1703.02719))
+6. **DUC, HDC** ([understanding convolution for semantic segmentation](https://arxiv.org/pdf/1702.08502.pdf))
+7. **Tiramisu** ([The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for Semantic Segmentation](https://arxiv.org/pdf/1611.09326))
+8. **Deeplab v2** ([DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs](https://arxiv.org/abs/1606.00915))
+9. **Deeplab v3** ([Rethinking Atrous Convolution for Semantic Image Segmentation](https://arxiv.org/abs/1706.05587))
+10. **RefineNet** ([RefineNet](https://arxiv.org/abs/1611.06612))
+11. **FusionNet** ([FusionNet in Tensorflow by Hyungjoo Andrew Cho](https://github.com/NySunShine/fusion-net))
+12. **ENet** ([ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation](https://arxiv.org/abs/1606.02147))
+13. **LinkNet** ([Link-Net](https://codeac29.github.io/projects/linknet/))
+14. **FRRN** ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
 15. Additional variations of many of the above
 
 ######To load one of these models:
@@ -298,7 +300,7 @@ from pywick.models.model_utils import get_model, ModelType
 
 model = get_model(model_type=ModelType.CLASSIFICATION, model_name='resnet18', num_classes=1000, pretrained=True)
 ```
-For a complete list of models you may want to take a look at the respective `pywick.models.[classification/segmentation].__init__` file
+For a complete list of models you may want to take a look at the respective `pywick.models.[`[classification](pywick/models/classification/__init__.py) / [segmentation](pywick/models/segmentation/__init__.py)`].__init__` file
 
 
 ## Utility Functions
