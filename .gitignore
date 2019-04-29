@@ -23,3 +23,6 @@ dist
 
 .idea
 /pywick.egg-info/
+docs/build
+docs/Makefile
+docs/make.bat
