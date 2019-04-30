@@ -24,4 +24,4 @@ build:
 python:
   version: 3.6
   install:
-    - requirements: requirements.txt
+    - requirements: docs/source/requirements.txt
