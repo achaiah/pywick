@@ -70,7 +70,7 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
 
     if model_name not in get_supported_models(model_type) and not model_name.startswith('TEST'):
         raise ValueError('The supplied model name: {} was not found in the list of acceptable model names.'
-                         ' Use get_supported_models() to obtain a list of supported models.')
+                         ' Use get_supported_models() to obtain a list of supported models.'.format(model_name))
 
     print("INFO: Loading Model:   --   " + model_name + "  with number of classes: " + str(num_classes))
     

@@ -87,7 +87,7 @@ found in `Keras`:
 - `ModelCheckpoint` - Comprehensive model saver
 - `ReduceLROnPlateau` - Reduces learning rate (LR) when a plateau has been reached
 - `SimpleModelCheckpoint` - Simple model saver
-- Additionally, a `TensorboardLogger` is incredibly easy to implement via the [TensorboardX](https://github.com/lanpa/tensorboardX)
+- Additionally, a `TensorboardLogger` is incredibly easy to implement via the [TensorboardX](https://github.com/lanpa/tensorboardX) (now part of pytorch 1.1 release!)
 library but is not included here to reduce the number of dependencies
 
 
