@@ -32,29 +32,28 @@ class SWA(Optimizer):
         In the end of training use `swap_swa_sgd` method to set the optimized
         variables to the computed averages.
 
-        Args:
-            optimizer (torch.optim.Optimizer): optimizer to use with SWA
-            swa_start (int): number of steps before starting to apply SWA in
-                automatic mode; if None, manual mode is selected (default: None)
-            swa_freq (int): number of steps between subsequent updates of
-                SWA running averages in automatic mode; if None, manual mode is
-                selected (default: None)
-            swa_lr (float): learning rate to use starting from step swa_start
-                in automatic mode; if None, learning rate is not changed
-                (default: None)
+        :param optimizer: (torch.optim.Optimizer): optimizer to use with SWA
+        :param swa_start: (int): number of steps before starting to apply SWA in
+            automatic mode; if None, manual mode is selected (default: None)
+        :param swa_freq: (int): number of steps between subsequent updates of
+            SWA running averages in automatic mode; if None, manual mode is
+            selected (default: None)
+        :param swa_lr: (float): learning rate to use starting from step swa_start
+            in automatic mode; if None, learning rate is not changed
+            (default: None)
 
         Examples:
+            >>> from pywick.optimizers import SWA
             >>> # automatic mode
             >>> base_opt = torch.optim.SGD(model.parameters(), lr=0.1)
-            >>> opt = torchcontrib.optim.SWA(
-            >>>                 base_opt, swa_start=10, swa_freq=5, swa_lr=0.05)
+            >>> opt = SWA(base_opt, swa_start=10, swa_freq=5, swa_lr=0.05)
             >>> for _ in range(100):
             >>>     opt.zero_grad()
             >>>     loss_fn(model(input), target).backward()
             >>>     opt.step()
             >>> opt.swap_swa_sgd()
             >>> # manual mode
-            >>> opt = torchcontrib.optim.SWA(base_opt)
+            >>> opt = SWA(base_opt)
             >>> for i in range(100):
             >>>     opt.zero_grad()
             >>>     loss_fn(model(input), target).backward()
@@ -80,13 +79,14 @@ class SWA(Optimizer):
             containing Batch Normalization layers, you need to update the
             :attr:`running_mean` and :attr:`running_var` statistics of the
             Batch Normalization module. You can do so by using
-            `torchcontrib.optim.swa.bn_update` utility.
+            `torchcontrib.optim.swa.bn_update` utility. For further description
+            see this article_.
 
         .. _Averaging Weights Leads to Wider Optima and Better Generalization:
             https://arxiv.org/abs/1803.05407
-        .. _Improving Consistency-Based Semi-Supervised Learning with Weight
-            Averaging:
+        .. _Improving Consistency-Based Semi-Supervised Learning with Weight Averaging:
             https://arxiv.org/abs/1806.05594
+        .._article: https://pytorch.org/blog/stochastic-weight-averaging-in-pytorch/
         """
         self._auto_mode, (self.swa_start, self.swa_freq) = \
             self._check_params(self, swa_start, swa_freq)

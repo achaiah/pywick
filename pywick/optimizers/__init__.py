@@ -4,3 +4,4 @@ from .eve import Eve
 from .nadam import Nadam
 from .powersign import PowerSign
 from .sgdw import SGDW
+from .swa import SWA
