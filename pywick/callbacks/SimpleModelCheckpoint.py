@@ -9,6 +9,25 @@ from . import Callback
 class SimpleModelCheckpoint(Callback):
     """
     Model Checkpoint to save model weights during training. This class is mostly superceded by ModelCheckpoint which provides flexible saving functionality.
+
+    :param file: (string):
+        file to which model will be saved.
+        It can be written 'filename_{epoch}_{loss}' and those
+        values will be filled in before saving.
+    :param monitor: (string in {'val_loss', 'loss'}):
+        whether to monitor train or val loss
+    :param save_best_only: (bool):
+        whether to only save if monitored value has improved
+    :param save_weights_only: (bool):
+        whether to save entire model or just weights
+        NOTE: only `True` is supported at the moment
+    :param max_save: (integer > 0 or -1):
+        the max number of models to save. Older model checkpoints
+        will be overwritten if necessary. Set equal to -1 to have
+        no limit
+    :param verbose: (integer in {0, 1}):
+        verbosity level
+
     """
 
     def __init__(self,
@@ -19,29 +38,6 @@ class SimpleModelCheckpoint(Callback):
                  save_weights_only=True,
                  max_save=-1,
                  verbose=0):
-        """
-        Model Checkpoint to save model weights during training
-
-        Arguments
-        ---------
-        file : string
-            file to which model will be saved.
-            It can be written 'filename_{epoch}_{loss}' and those
-            values will be filled in before saving.
-        monitor : string in {'val_loss', 'loss'}
-            whether to monitor train or val loss
-        save_best_only : boolean
-            whether to only save if monitored value has improved
-        save_weights_only : boolean
-            whether to save entire model or just weights
-            NOTE: only `True` is supported at the moment
-        max_save : integer > 0 or -1
-            the max number of models to save. Older model checkpoints
-            will be overwritten if necessary. Set equal to -1 to have
-            no limit
-        verbose : integer in {0, 1}
-            verbosity
-        """
         if directory.startswith('~'):
             directory = os.path.expanduser(directory)
         self.directory = directory

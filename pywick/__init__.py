@@ -1,14 +1,22 @@
-from .version import __version__
+__version__ = '0.5.2'
+__author__ = 'Achaiah'
+__description__ = 'High-level batteries-included neural network training library for Pytorch'
 
-from . import datasets
-from . import callbacks
-from . import conditions
-from . import constraints
-from . import functions
-from . import losses
-from . import misc
-from . import modules
-from . import optimizers
-from . import regularizers
-from . import samplers
-from . import transforms
+from pywick import (
+    callbacks,
+    conditions,
+    constraints,
+    datasets,
+    functions,
+    gridsearch,
+    losses,
+    metrics,
+    meters,
+    misc,
+    models,
+    modules,
+    optimizers,
+    regularizers,
+    samplers,
+    transforms
+)

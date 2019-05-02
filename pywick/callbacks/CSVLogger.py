@@ -11,24 +11,14 @@ from . import Callback
 class CSVLogger(Callback):
     """
     Logs epoch-level metrics to a CSV file
+
+    :param file: (string) path to csv file
+    :param separator: (string) delimiter for file
+    :param append: (bool) whether to append result to existing file or make new file
     """
 
-    def __init__(self,
-                 file,
-                 separator=',',
-                 append=False):
-        """
-        Logs epoch-level metrics to a CSV file
+    def __init__(self, file, separator=',', append=False):
 
-        Arguments
-        ---------
-        file : string
-            path to csv file
-        separator : string
-            delimiter for file
-        apped : boolean
-            whether to append result to existing file or make new file
-        """
         self.file = file
         self.sep = separator
         self.append = append

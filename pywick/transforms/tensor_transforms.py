@@ -313,21 +313,10 @@ class RangeNormalize(object):
     where min' & max' are given values, 
     and min & max are observed min/max for each channel
     
-    Arguments
-    ---------
-    min_range : float or integer
-        Min value to which tensors will be normalized
-    max_range : float or integer
-        Max value to which tensors will be normalized
-    fixed_min : float or integer
-        Give this value if every sample has the same min (max) and 
-        you know for sure what it is. For instance, if you
-        have an image then you know the min value will be 0 and the
-        max value will be 255. Otherwise, the min/max value will be
-        calculated for each individual sample and this will decrease
-        speed. Dont use this if each sample has a different min/max.
-    fixed_max :float or integer
-        See above
+    :param min_val : float or integer
+        Lower bound of normalized tensor
+    :param max_val : float or integer
+        Upper bound of normalized tensor
 
     Example:
         >>> x = th.rand(3,5,5)
@@ -339,18 +328,9 @@ class RangeNormalize(object):
         >>> rn = RangeNormalize(0,1)
         >>> x_norm = rn(x)
     """
-    def __init__(self, 
-                 min_val, 
-                 max_val):
+    def __init__(self, min_val, max_val):
         """
         Normalize a tensor between a min and max value
-
-        Arguments
-        ---------
-        min_val : float
-            lower bound of normalized tensor
-        max_val : float
-            upper bound of normalized tensor
         """
         self.min_val = min_val
         self.max_val = max_val

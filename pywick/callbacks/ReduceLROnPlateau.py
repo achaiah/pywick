@@ -3,36 +3,25 @@ from . import Callback
 class ReduceLROnPlateau(Callback):
     """
     Reduce the learning rate if the train or validation loss plateaus
+
+    :param monitor: (string in {'loss', 'val_loss'}):
+        which metric to monitor
+    :param factor: (float):
+        factor to decrease learning rate by
+    :param patience: (int):
+        number of epochs to wait for loss improvement before reducing lr
+    :param epsilon: (float):
+        how much improvement must be made to reset patience
+    :param cooldown: (int):
+        number of epochs to cooldown after a lr reduction
+    :param min_lr: (float):
+        minimum value to ever let the learning rate decrease to
+    :param verbose: (int):
+        whether to print reduction to console
     """
 
-    def __init__(self,
-                 monitor='val_loss',
-                 factor=0.1,
-                 patience=10,
-                 epsilon=0,
-                 cooldown=0,
-                 min_lr=0,
-                 verbose=0):
-        """
-        Reduce the learning rate if the train or validation loss plateaus
+    def __init__(self, monitor='val_loss', factor=0.1, patience=10, epsilon=0, cooldown=0, min_lr=0, verbose=0):
 
-        Arguments
-        ---------
-        monitor : string in {'loss', 'val_loss'}
-            which metric to monitor
-        factor : floar
-            factor to decrease learning rate by
-        patience : integer
-            number of epochs to wait for loss improvement before reducing lr
-        epsilon : float
-            how much improvement must be made to reset patience
-        cooldown : integer
-            number of epochs to cooldown after a lr reduction
-        min_lr : float
-            minimum value to ever let the learning rate decrease to
-        verbose : integer
-            whether to print reduction to console
-        """
         self.monitor = monitor
         if factor >= 1.0:
             raise ValueError('ReduceLROnPlateau does not support a factor >= 1.0.')

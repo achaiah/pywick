@@ -13,6 +13,65 @@ identity_x = lambda x: x
 
 
 class FolderDataset(UsefulDataset):
+    """
+    Dataset class for loading out-of-memory data. First, the relevant directory structures are traversed to find all necessary files.\n
+    Then provided loader(s) is/(are) invoked on inputs and targets.\n
+    Finally provided transforms are applied with optional way to specify the order of individual and co-transforms.\n
+
+    The rel_target_root parameter is used for image segmentation cases
+        Typically the structure will look like the following:\n
+        |- root (aka training images)\n
+        |  - dir1\n
+        |  - dir2\n
+        |- masks (aka label images)\n
+        |  - dir1\n
+        |  - dir2\n
+
+    :param root: (string):
+        path to main directory
+    :param class_mode: (string in `{'label', 'image', 'path'}`):
+        type of target sample to look for and return\n
+        `label` = return class folder as target\n
+        `image` = return another image as target (determined by optional target_prefix/postfix).
+        NOTE: if class_mode == 'image', in addition to input, you must also provide ``rel_target_root``,
+        ``target_prefix`` or ``target_postfix`` (in any combination).\n
+        `path` = determines paths for inputs and targets and applies the respective loaders to the path
+    :param class_to_idx: (dict):
+        If specified, the given class_to_idx map will be used. Otherwise one will be derived from the directory structure.
+    :param input_regex: (string `(default is any valid image file)`):
+        regular expression to find input images.
+        e.g. if all your inputs have the word 'input',
+        you'd enter something like input_regex='*input*'
+    :param rel_target_root: (string `(default is Nothing)`):
+        root of directory where to look for target images RELATIVE to the root dir (first arg)
+    :param target_prefix: (string (default is Nothing)):
+        prefix to use (if any) when trying to locate the matching target
+    :param target_postfix: (string):
+        postfix to use (if any) when trying to locate the matching target
+    :param transform: (torch transform):
+        transform to apply to input sample individually
+    :param target_transform: (torch transform):
+        transform to apply to target sample individually
+    :param co_transform: (torch transform):
+        transform to apply to both the input and the target
+    :param apply_co_transform_first: (bool):
+        whether to apply the co-transform before or after individual transforms (default: True = before)
+    :param default_loader: (string in `{'npy', 'pil'} or function `(default: pil)`):
+        defines how to load samples from file. Will be applied to both input and target unless a separate target_loader is defined.
+        if a function is provided, it should take in a file path as input and return the loaded sample.
+    param target_loader: string in `{'npy', 'pil'} or function `(default: pil)`):
+        defines how to load target samples from file
+        if a function is provided, it should take in a file path as input and return the loaded sample.
+    :param exclusion_file: (string):
+        list of files to exclude when enumerating all files.\n
+        The list must be a full path relative to the root parameter
+    :param target_index_map: (dict `(defaults to binary mask: {255:1})`):
+        a dictionary that maps pixel values in the image to classes to be recognized.\n
+        Used in conjunction with 'image' class_mode to produce a label for semantic segmentation
+        For semantic segmentation this is required so the default is a binary mask. However, if you want to turn off
+        this feature then specify target_index_map=None
+    """
+
     def __init__(self,
                  root,
                  class_mode='label',
@@ -30,80 +89,7 @@ class FolderDataset(UsefulDataset):
                  target_loader=None,
                  exclusion_file=None,
                  target_index_map=None):
-        """
-        Dataset class for loading out-of-memory data. First, the relevant directory structures are traversed to find all necessary files.\n
-        Then provided loader(s) is/(are) invoked on inputs and targets.\n
-        Finally provided transforms are applied with optional way to specify the order of individual and co-transforms.\n
 
-        The rel_target_root parameter is used for image segmentation cases
-            Typically the structure will look like the following\n
-            |- root (aka training images)\n
-            |  - dir1\n
-            |  - dir2\n
-            |- masks (aka label images)\n
-            |  - dir1\n
-            |  - dir2\n
-
-        Arguments
-        ---------
-        :param root: string\n
-            path to main directory\n
-
-        :param class_mode: string in `{'label', 'image', 'path'}`\n
-            type of target sample to look for and return\n
-            `label` = return class folder as target\n
-            `image` = return another image as target (determined by optional target_prefix/postfix)\n
-                NOTE: if class_mode == 'image', in addition to input, you must also provide rel_target_root,
-                target_prefix or target_postfix (in any combination).
-            `path` = determines paths for inputs and targets and applies the respective loaders to the path
-
-        :param class_to_idx: dict()\n
-            If specified, the given class_to_idx map will be used. Otherwise one will be derived from the directory structure.
-
-        :param input_regex: string (default is any valid image file)\n
-            regular expression to find input images\n
-            e.g. if all your inputs have the word 'input',
-            you'd enter something like input_regex='*input*'
-
-        :param rel_target_root: string (default is Nothing)\n
-            root of directory where to look for target images RELATIVE to the root dir (first arg)
-
-        :param target_prefix: string (default is Nothing)\n
-            prefix to use (if any) when trying to locate the matching target
-
-        :param target_postfix: string\n
-            postfix to use (if any) when trying to locate the matching target
-
-        :param transform: torch transform\n
-            transform to apply to input sample individually
-
-        :param target_transform: torch transform\n
-            transform to apply to target sample individually
-
-        :param co_transform: torch transform\n
-            transform to apply to both the input and the target
-
-        :param apply_co_transform_first: bool\n
-            whether to apply the co-transform before or after individual transforms (default: True = before)
-
-        :param default_loader: string in `{'npy', 'pil'} or function  (default: pil)\n
-            defines how to load samples from file. Will be applied to both input and target unless a separate target_loader is defined.\n
-            if a function is provided, it should take in a file path as input and return the loaded sample.
-
-        param target_loader: string in `{'npy', 'pil'} or function  (default: pil)\n
-            defines how to load target samples from file\n
-            if a function is provided, it should take in a file path as input and return the loaded sample.
-
-        :param exclusion_file: string\n
-            list of files to exclude when enumerating all files.\n
-            The list must be a full path relative to the root parameter
-
-        :param target_index_map: dict (defaults to binary mask: {255:1})\n
-            a dictionary that maps pixel values in the image to classes to be recognized.\n
-            Used in conjunction with 'image' class_mode to produce a label for semantic segmentation
-            For semantic segmentation this is required so the default is a binary mask. However, if you want to turn off
-            this feature then specify target_index_map=None
-        """
 
         # call the super constructor first, then set our own parameters
         super().__init__()

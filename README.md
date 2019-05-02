@@ -1,4 +1,6 @@
-# PyWick: High-Level Training framework for Pytorch
+# Pywick
+
+#### High-Level Training framework for Pytorch
 
 This framework is based in large part on the excellent [Torchsample](https://github.com/ncullen93/torchsample) framework originally published by @ncullen93.
 
@@ -246,7 +248,7 @@ you can use the `ImbalancedDatasetSampler` as a drop-in replacement for the basi
 by the DataLoader. More information can be found [here](https://github.com/ufoym/imbalanced-dataset-sampler)
 
 ```python
-from pywick.datasets.ImbalancedDatasetSampler import ImbalancedDatasetSampler
+from pywick.samplers import ImbalancedDatasetSampler
 
 train_loader = torch.utils.data.DataLoader(train_dataset, 
     sampler=ImbalancedDatasetSampler(train_dataset),
@@ -293,7 +295,7 @@ train_loader = torch.utils.data.DataLoader(train_dataset,
 14. **FRRN** ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
 15. Additional variations of many of the above
 
-######To load one of these models:
+###### To load one of these models:
 ```python
 # use the `get_model` utility
 from pywick.models.model_utils import get_model, ModelType

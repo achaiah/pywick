@@ -21,9 +21,9 @@ def get_fc_names(model_name, model_type=ModelType.CLASSIFICATION):
     Look up the name of the FC (fully connected) layer(s) of a model. Typically these are the layers that are replaced when transfer-learning from another model.
     Note that only a handful of models have more than one FC layer. Currently only 'classification' models are supported.
 
-    :param model_name: string
+    :param model_name: (string)
         name of the model
-    :param model_type: ModelType
+    :param model_type: (ModelType)
         only classification is supported at this time
 
     :return: list
@@ -52,15 +52,15 @@ def get_fc_names(model_name, model_type=ModelType.CLASSIFICATION):
 
 def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
     """
-    :param model_type: ModelType
+    :param model_type: (ModelType):
         type of model we're trying to obtain (classification or segmentation)
-    :param model_name: str
+    :param model_name: (string):
         name of the model. By convention (for classification models) lowercase names represent pretrained model variants while Uppercase do not.
-    :param num_classes: int
+    :param num_classes: (int):
         number of classes to initialize with (this will replace the last classification layer or set the number of segmented classes)
-    :param input_size: (int,int)
+    :param input_size: (int,int):
         Segmentation-only param. What size of input the network will accept e.g. (256, 256), (512, 512)
-    :param pretrained: bool
+    :param pretrained: (bool):
         whether to load the default pretrained version of the model
         NOTE! NOTE! For classification, the lowercase model names are the pretrained variants while the Uppercase model names are not.
         It is IN ERROR to specify an Uppercase model name variant with pretrained=True but one can specify a lowercase model variant with pretrained=False
@@ -266,7 +266,7 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
 def get_supported_models(type):
     '''
 
-    :param type: ModelType
+    :param type: (ModelType):
         classification or segmentation
     :return: list (strings) of supported models
     '''
@@ -383,6 +383,9 @@ def _get_untrained_model(model_name, num_classes):
 
 # We solve the dimensionality mismatch between final layers in the constructed vs pretrained modules at the data level.
 def diff_states(dict_canonical, dict_subset):
+    """
+    **DEPRECATED - DO NOT USE**
+    """
     names1, names2 = (list(dict_canonical.keys()), list(dict_subset.keys()))
 
     # Sanity check that param names overlap
@@ -403,14 +406,14 @@ def diff_states(dict_canonical, dict_subset):
 def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, ignore_chkpt_layers=None):
     '''
     Loads weights from a checkpoint into memory. If model is not None then the weights are loaded into the model.
-    :param checkpoint_path: str
+    :param checkpoint_path: (string):
         path to a pretrained network to load weights from
     :param model: the model object to load weights onto (default: None)
-    :param device: string
+    :param device: (string):
         which device to load model onto (default:'cpu')
-    :param strict: bool
+    :param strict: (bool):
         whether to ensure strict key matching (True) or to ignore non-matching keys. (default: True)
-    :param ignore_chkpt_layers: one of {string, list) -- CURRENTLY UNIMPLEMENTED
+    :param ignore_chkpt_layers: one of {string, list) -- CURRENTLY UNIMPLEMENTED:
         whether to ignore some subset of layers from checkpoint. This is usually done when loading
         checkpoint data into a model with a different number of final classes. In that case, you can pass in a
         special string: 'last_layer' which will trigger the logic to chop off the last layer of the checkpoint dictionary. Otherwise

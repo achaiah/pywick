@@ -1,0 +1,141 @@
+pywick package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    pywick.callbacks
+    pywick.datasets
+    pywick.functions
+    pywick.gridsearch
+    pywick.meters
+    pywick.models
+    pywick.modules
+    pywick.optimizers
+    pywick.transforms
+
+Submodules
+----------
+
+pywick.conditions module
+------------------------
+
+.. automodule:: pywick.conditions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.constraints module
+-------------------------
+
+.. automodule:: pywick.constraints
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.custom\_regularizers module
+----------------------------------
+
+.. automodule:: pywick.custom_regularizers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.data\_stats module
+-------------------------
+
+.. automodule:: pywick.data_stats
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.image\_utils module
+--------------------------
+
+.. automodule:: pywick.image_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.initializers module
+--------------------------
+
+.. automodule:: pywick.initializers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.losses module
+--------------------
+
+.. automodule:: pywick.losses
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.lovasz\_losses module
+----------------------------
+
+.. automodule:: pywick.lovasz_losses
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.meanstd module
+---------------------
+
+.. automodule:: pywick.meanstd
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.metrics module
+---------------------
+
+.. automodule:: pywick.metrics
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.misc module
+------------------
+
+.. automodule:: pywick.misc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.regularizers module
+--------------------------
+
+.. automodule:: pywick.regularizers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.samplers module
+----------------------
+
+.. automodule:: pywick.samplers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pywick.utils module
+-------------------
+
+.. automodule:: pywick.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: pywick
+    :members:
+    :undoc-members:
+    :show-inheritance:

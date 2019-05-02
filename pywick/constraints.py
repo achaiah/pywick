@@ -14,7 +14,7 @@ class ConstraintContainer(object):
     def register_constraints(self, model):
         """
         Grab pointers to the weights which will be modified by constraints so
-        that we dont have to search through the entire network using `apply`
+        that we don't have to search through the entire network using `apply`
         each time
         """
         # get batch constraint pointers

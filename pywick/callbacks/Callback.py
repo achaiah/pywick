@@ -1,6 +1,8 @@
 class Callback(object):
     """
-    Abstract base class used to build new callbacks.
+    Abstract base class used to build new callbacks. Extend this class to build your own callbacks and overwrite functions
+    that you want to monitor. Functions will be called automatically from the trainer once per relevant training event
+    (e.g. at the beginning of epoch, end of epoch, beginning of batch, end of batch etc.)
     """
 
     def __init__(self):

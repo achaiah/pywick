@@ -1,22 +1,21 @@
 import random
 from .FolderDataset import FolderDataset
 
+
 class ClonedFolderDataset(FolderDataset):
+    """
+    Dataset that can be initialized with a dictionary of internal parameters (useful when trying to clone a FolderDataset)
+
+    :param data: (list):
+        list of data on which the dataset operates
+
+    :param meta_data: (dict):
+        parameters that correspond to the target dataset's attributes
+
+    :param kwargs: (args):
+        variable set of key-value pairs to set as attributes for the dataset
+    """
     def __init__(self, data, meta_data, **kwargs):
-        """
-        Dataset that can be initialized with a dictionary of internal parameters
-
-        Arguments
-        ---------
-        :param data: list
-            list of data on which the dataset operates
-
-        :param meta_data: dict
-            parameters that correspond to the target dataset's attributes
-
-        :param kwargs: args
-            variable set of key-value pairs to set as attributes for the dataset
-        """
 
         if len(data) == 0:
             raise (RuntimeError('No data provided'))
@@ -32,17 +31,18 @@ class ClonedFolderDataset(FolderDataset):
         for key in kwargs:
             setattr(self, key, kwargs[key])
 
+
 def random_split_dataset(orig_dataset, splitRatio=0.8, random_seed=None):
     '''
     Randomly split the given dataset into two datasets based on the provided ratio
 
-    :param orig_dataset: UsefulDataset
+    :param orig_dataset: (UsefulDataset):
         dataset to split (of type pywick.datasets.UsefulDataset)
 
-    :param splitRatio: float
+    :param splitRatio: (float):
         ratio to use when splitting the data
 
-    :param random_seed: int
+    :param random_seed: (int):
         random seed for replicability of results
 
     :return: tuple of split Useful
@@ -53,7 +53,6 @@ def random_split_dataset(orig_dataset, splitRatio=0.8, random_seed=None):
     orig_dict = orig_dataset.getmeta_data()
     part1 = []
     part2 = []
-
 
     for i, item in enumerate(orig_dataset.getdata()):
         if random.random() < splitRatio:

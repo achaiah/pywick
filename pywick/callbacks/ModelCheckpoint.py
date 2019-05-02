@@ -10,7 +10,8 @@ from . import Callback
 
 class ModelCheckpoint(Callback):
     """
-    Writes model checkpoints to file. Saved checkpoints contain these keys by default:
+    Model Checkpoint to save model weights during training. 'Best' is determined by minimizing the value found under monitored_log_key in the logs
+    Saved checkpoints contain these keys by default:
         'run_id'
         'epoch'
         'loss_type'
@@ -25,46 +26,42 @@ class ModelCheckpoint(Callback):
          'best_loss_or_gain'
          'metric_name'
          - plus any additional key/value pairs produced by custom_func
+
+    :param run_id: (string):
+        Uniquely identifies the run
+    :param monitored_log_key: (string):
+        Name of the key in the logs that will contain the value we want to minimize (and thus that will dictate whether the model is 'best')
+    :param save_dir: (string):
+        Path indicating where to save the checkpoint
+    :param addl_k_v: (dict):
+        dictionary of additional key/value pairs to save with the model. Typically these include some initialization parameters, name of the model etc.
+        (e.g. from the initialization dictionary 'opt'), as well as other useful params (e.g. mean, std, proc_type: gpu/cpu etc)
+    :param epoch_log_keys: (list):
+        list of keys to save from the epoch log dictionary (Note: the logs dictionary is automatically provided by the learning framework)
+    :param save_interval: (int):
+        How often to save the model (if none then will default to every 5 iterations)
+    :param save_best_only: (bool):
+        Whether only to save the best result (and overwrite all previous)
+        Default: False
+    :param max_saves: (integer > 0 or -1):
+        the max number of models to save. Older model checkpoints will be overwritten if necessary.
+        Set equal to -1 to have no limit.
+        Default: 5
+    :param custom_func: func(k_v_dict, logs, out_dict, monitored_log_key, is_end_training):
+        Custom function for performing any additional logic (to add values to the model). The function will be passed the addl_k_v dictionary,
+        the event logs dictionary, an output dictionary to process, the monitored_log_key and a bool indicating whether the training is finished.
+        The function is expected to modify the output dictionary in order to preserve values across epochs. The function will be called at the
+        end of each epoch and at the end of the training (with is_end_traing = True)
+    :param do_minimize: (bool):
+        whether to minimize or maximize the 'monitored_log_key' value
+    :param verbose: (bool):
+        verbosity of the console output
+        Default: False
     """
 
     def __init__(self, run_id, monitored_log_key, save_dir, addl_k_v=dict(), epoch_log_keys=[], save_interval=5, save_best_only=False, max_saves=5,
                  custom_func=None, do_minimize=True, verbose=False):
-        """
-        Model Checkpoint to save model weights during training. 'Best' is determined by minimizing the value found under monitored_log_key in the logs
 
-        Arguments
-        ---------
-        run_id : str
-            Uniquely identifies the run
-        monitored_log_key : str
-            Name of the key in the logs that will contain the value we want to minimize (and thus that will dictate whether the model is 'best')
-        save_dir : str
-            Path indicating where to save the checkpoint
-        addl_k_v: dict
-            dictionary of additional key/value pairs to save with the model. Typically these include some initialization parameters, name of the model etc.
-            (e.g. from the initialization dictionary 'opt'), as well as other useful params (e.g. mean, std, proc_type: gpu/cpu etc)
-        epoch_log_keys: list
-            list of keys to save from the epoch log dictionary (Note: the logs dictionary is automatically provided by the learning framework)
-        save_interval : int
-            How often to save the model (if none then will default to every 5 iterations)
-        save_best_only : boolean
-            Whether only to save the best result (and overwrite all previous)
-            Default: False
-        max_saves : integer > 0 or -1
-            the max number of models to save. Older model checkpoints will be overwritten if necessary.
-            Set equal to -1 to have no limit.
-            Default: 5
-        custom_func : func(k_v_dict, logs, out_dict, monitored_log_key, is_end_training)
-            Custom function for performing any additional logic (to add values to the model). The function will be passed the addl_k_v dictionary,
-            the event logs dictionary, an output dictionary to process, the monitored_log_key and a bool indicating whether the training is finished.
-            The function is expected to modify the output dictionary in order to preserve values across epochs. The function will be called at the
-            end of each epoch and at the end of the training (with is_end_traing = True)
-        do_minimize : bool
-            whether to minimize or maximize the 'monitored_log_key' value
-        verbose : boolean
-            verbosity of the console output
-            Default: False
-        """
         self.run_id = run_id
         self.addl_k_v = addl_k_v
         self.save_dir = os.path.expanduser(save_dir)

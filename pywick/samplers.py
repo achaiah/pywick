@@ -1,39 +1,28 @@
+"""
+Samplers are used during the training phase and are especially useful when your training data is not uniformly distributed among
+all of your classes.
+"""
 
-import torch as th
 import math
 from .utils import th_random_choice
+import torch.utils.data
+import torchvision
 
-class Sampler(object):
-    """Base class for all Samplers.
+from .datasets import FolderDataset, MultiFolderDataset, PredictFolderDataset, ClonedFolderDataset
+from torch.utils.data.sampler import Sampler
 
-    Every Sampler subclass has to provide an __iter__ method, providing a way
-    to iterate over indices of dataset elements, and a __len__ method that
-    returns the length of the returned iterators.
-    """
-
-    def __init__(self, data_source):
-        pass
-
-    def __iter__(self):
-        raise NotImplementedError
-
-    def __len__(self):
-        raise NotImplementedError
 
 class StratifiedSampler(Sampler):
     """Stratified Sampling
 
     Provides equal representation of target classes in each batch
+
+    :param class_vector: (torch tensor):
+            a vector of class labels
+    :param batch_size: (int):
+            size of the batch
     """
     def __init__(self, class_vector, batch_size):
-        """
-        Arguments
-        ---------
-        class_vector : torch tensor
-            a vector of class labels
-        batch_size : integer
-            batch_size
-        """
         self.n_splits = int(class_vector.size(0) / batch_size)
         self.class_vector = class_vector
 
@@ -45,7 +34,7 @@ class StratifiedSampler(Sampler):
         import numpy as np
         
         s = StratifiedShuffleSplit(n_splits=self.n_splits, test_size=0.5)
-        X = th.randn(self.class_vector.size(0),2).numpy()
+        X = torch.randn(self.class_vector.size(0),2).numpy()
         y = self.class_vector.numpy()
         s.get_n_splits(X, y)
 
@@ -57,6 +46,7 @@ class StratifiedSampler(Sampler):
 
     def __len__(self):
         return len(self.class_vector)
+
 
 class MultiSampler(Sampler):
     """Samples elements more than once in a single pass through the data.
@@ -70,16 +60,16 @@ class MultiSampler(Sampler):
 
         Arguments
         ---------
-        data_source : the dataset to sample from
-        
-        desired_samples : number of samples per batch you want
-            whatever the difference is between an even division will
+        :param data_source: (dataset):
+            the dataset to sample from
+        :param desired_samples: (int):
+            number of samples per batch you want.
+            Whatever the difference is between an even division will
             be randomly selected from the samples.
             e.g. if len(data_source) = 3 and desired_samples = 4, then
             all 3 samples will be included and the last sample will be
             randomly chosen from the 3 original samples.
-
-        shuffle : boolean
+        :param shuffle: (bool):
             whether to shuffle the indices or not
         
         Example:
@@ -95,12 +85,12 @@ class MultiSampler(Sampler):
         n_repeats = self.desired_samples / self.data_samples
         cat_list = []
         for i in range(math.floor(n_repeats)):
-            cat_list.append(th.arange(0,self.data_samples))
+            cat_list.append(torch.arange(0,self.data_samples))
         # add the left over samples
         left_over = self.desired_samples % self.data_samples
         if left_over > 0:
             cat_list.append(th_random_choice(self.data_samples, left_over))
-        self.sample_idx_array = th.cat(cat_list).long()
+        self.sample_idx_array = torch.cat(cat_list).long()
         return self.sample_idx_array
 
     def __iter__(self):
@@ -110,37 +100,50 @@ class MultiSampler(Sampler):
         return self.desired_samples
 
 
-class SequentialSampler(Sampler):
-    """Samples elements sequentially, always in the same order.
-
+# Source: https://github.com/ufoym/imbalanced-dataset-sampler (MIT license)
+class ImbalancedDatasetSampler(Sampler):
+    """Samples elements randomly from a given list of indices for imbalanced dataset
     Arguments:
-        data_source (Dataset): dataset to sample from
+        indices (list, optional): a list of indices
+        num_samples (int, optional): number of samples to draw
     """
 
-    def __init__(self, nb_samples):
-        self.num_samples = nb_samples
+    def __init__(self, dataset, indices=None, num_samples=None):
+
+        # if indices is not provided, all elements in the dataset will be considered
+        self.indices = list(range(len(dataset))) \
+            if indices is None else indices
+
+        # if num_samples is not provided, draw `len(indices)` samples in each iteration
+        self.num_samples = len(self.indices) \
+            if num_samples is None else num_samples
+
+        # distribution of classes in the dataset
+        label_to_count = {}
+        for idx in self.indices:
+            label = self._get_label(dataset, idx)
+            if label in label_to_count:
+                label_to_count[label] += 1
+            else:
+                label_to_count[label] = 1
+
+        # weight for each sample
+        weights = [1.0 / label_to_count[self._get_label(dataset, idx)] for idx in self.indices]
+        self.weights = torch.DoubleTensor(weights)
+
+    def _get_label(self, dataset, idx):
+        dataset_type = type(dataset)
+        if dataset_type is torchvision.datasets.MNIST:
+            return dataset.train_labels[idx].item()
+        elif dataset_type is torchvision.datasets.ImageFolder:
+            return dataset.imgs[idx][1]
+        elif dataset_type is FolderDataset or dataset_type is MultiFolderDataset or dataset_type is PredictFolderDataset or dataset_type is ClonedFolderDataset:
+            return dataset.getdata()[idx][1]
+        else:
+            raise NotImplementedError
 
     def __iter__(self):
-        return iter(range(self.num_samples))
+        return (self.indices[i] for i in torch.multinomial(self.weights, self.num_samples, replacement=True))
 
     def __len__(self):
         return self.num_samples
-
-
-class RandomSampler(Sampler):
-    """Samples elements randomly, without replacement.
-
-    Arguments:
-        data_source (Dataset): dataset to sample from
-    """
-
-    def __init__(self, nb_samples):
-        self.num_samples = nb_samples
-
-    def __iter__(self):
-        return iter(th.randperm(self.num_samples).long())
-
-    def __len__(self):
-        return self.num_samples
-
-

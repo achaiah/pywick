@@ -7,22 +7,16 @@ class LRScheduler(Callback):
     """
     Schedule the learning rate according to some function of the
     current epoch index, current learning rate, and current train/val loss.
+
+    :param schedule: (callable):
+        should return a number of learning rates equal to the number
+        of optimizer.param_groups. It should take the epoch index and
+        **kwargs (or logs) as argument. **kwargs (or logs) will return
+        the epoch logs such as mean training and validation loss from
+        the epoch
     """
 
     def __init__(self, schedule):
-        """
-        LearningRateScheduler callback to adapt the learning rate
-        according to some function
-
-        Arguments
-        ---------
-        schedule : callable
-            should return a number of learning rates equal to the number
-            of optimizer.param_groups. It should take the epoch index and
-            **kwargs (or logs) as argument. **kwargs (or logs) will return
-            the epoch logs such as mean training and validation loss from
-            the epoch
-        """
         if isinstance(schedule, dict):
             schedule = self.schedule_from_dict
             self.schedule_dict = schedule
@@ -47,13 +41,9 @@ class LRScheduler(Callback):
         return learn_rate
 
     def on_epoch_begin(self, epoch, logs=None):
-        '''
+        """
             WARNING: Do NOT use this callback with self-adjusting learners like Yellowfin
-            :param epoch:
-            :param logs:
-
-            :return:
-        '''
+        """
         current_lrs = [p['lr'] for p in self.trainer._optimizer.param_groups]
         lr_list = self.schedule(epoch, current_lrs, **logs)
         if not isinstance(lr_list, list):

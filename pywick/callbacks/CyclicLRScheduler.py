@@ -35,40 +35,41 @@ class CyclicLRScheduler(Callback):
 
     This implementation was adapted from the github repo: `bckenstler/CLR`_
 
-    Args:
-        optimizer (Optimizer): Wrapped optimizer.
-        base_lr (float or list): Initial learning rate which is the
-            lower boundary in the cycle for eachparam groups.
-            Default: 0.001
-        max_lr (float or list): Upper boundaries in the cycle for
-            each parameter group. Functionally,
-            it defines the cycle amplitude (max_lr - base_lr).
-            The lr at any cycle is the sum of base_lr
-            and some scaling of the amplitude; therefore
-            max_lr may not actually be reached depending on
-            scaling function. Default: 0.006
-        step_size (int): Number of training iterations per
-            half cycle. Authors suggest setting step_size
-            2-8 x training iterations in epoch. Default: 2000
-        mode (str): One of {triangular, triangular2, exp_range}.
-            Values correspond to policies detailed above.
-            If scale_fn is not None, this argument is ignored.
-            Default: 'triangular'
-        gamma (float): Constant in 'exp_range' scaling function:
-            gamma**(cycle iterations)
-            Default: 1.0
-        scale_fn (function): Custom scaling policy defined by a single
-            argument lambda function, where
-            0 <= scale_fn(x) <= 1 for all x >= 0.
-            mode paramater is ignored
-            Default: None
-        scale_mode (str): {'cycle', 'iterations'}.
-            Defines whether scale_fn is evaluated on
-            cycle number or cycle iterations (training
-            iterations since start of cycle).
-            Default: 'cycle'
-        verbose (bool): Whether to produce some output during initialization
-            Default: True
+    :param optimizer: (Optimizer):
+        Wrapped optimizer.
+    :param base_lr: (float or list):
+        Initial learning rate which is the
+        lower boundary in the cycle for eachparam groups.
+        Default: 0.001
+    :param max_lr: (float or list): Upper boundaries in the cycle for
+        each parameter group. Functionally,
+        it defines the cycle amplitude (max_lr - base_lr).
+        The lr at any cycle is the sum of base_lr
+        and some scaling of the amplitude; therefore
+        max_lr may not actually be reached depending on
+        scaling function. Default: 0.006
+    :param step_size: (int): Number of training iterations per
+        half cycle. Authors suggest setting step_size
+        2-8 x training iterations in epoch. Default: 2000
+    :param mode: (str): One of {triangular, triangular2, exp_range}.
+        Values correspond to policies detailed above.
+        If scale_fn is not None, this argument is ignored.
+        Default: 'triangular'
+    :param gamma: (float): Constant in 'exp_range' scaling function:
+        gamma**(cycle iterations)
+        Default: 1.0
+    :param scale_fn: (function): Custom scaling policy defined by a single
+        argument lambda function, where
+        0 <= scale_fn(x) <= 1 for all x >= 0.
+        mode paramater is ignored
+        Default: None
+    :param scale_mode: (str): {'cycle', 'iterations'}.
+        Defines whether scale_fn is evaluated on
+        cycle number or cycle iterations (training
+        iterations since start of cycle).
+        Default: 'cycle'
+    :param verbose: (bool): Whether to produce some output during initialization
+        Default: True
 
     Example:
         >>> optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
