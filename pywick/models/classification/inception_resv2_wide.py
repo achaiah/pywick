@@ -1,6 +1,8 @@
 # Source: https://github.com/pytorch/vision/pull/159/commits/881380c63edc995f540157bc026b1ad181ff0e85#diff-68398f4672bf28b96202308cf30204f6
 # Pretrained: No
 
+"""Inception Resnet V2 Wide implementation"""
+
 import torch
 import torch.nn as nn
 
@@ -202,7 +204,6 @@ class InceptionResC(nn.Module):
 
 
 class InceptionResV2(nn.Module):
-
     def __init__(self, num_classes=1000):
         super(InceptionResV2, self).__init__()
         self.stem = StemBlock()

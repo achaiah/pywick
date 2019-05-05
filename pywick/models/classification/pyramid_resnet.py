@@ -1,3 +1,8 @@
+"""
+Implementation from paper: `Deep Pyramidal Residual Networks <https://arxiv.org/abs/1610.02915>`_.
+Not pretrained.
+"""
+
 import os
 import math
 import torch
@@ -160,11 +165,17 @@ class PyResNet(nn.Module):
 
 
 def PyResNet18(pretrained=None, **kwargs):
+    """Not Pretrained"""
+    if pretrained:
+        raise NotImplementedError()
     model = PyResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
     return model
 
 
 def PyResNet34(pretrained=None, **kwargs):
+    """Not Pretrained"""
+    if pretrained:
+        raise NotImplementedError()
     model = PyResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
     return model
 

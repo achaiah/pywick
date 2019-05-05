@@ -1,5 +1,10 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/pnasnet.py (License: BSD-3-Clause)
 
+r"""PNASNet-5 model architecture from the
+`"Progressive Neural Architecture Search"
+<https://arxiv.org/abs/1712.00559>`_ paper.
+"""
+
 from collections import OrderedDict
 
 import torch
@@ -372,10 +377,7 @@ class PNASNet5Large(nn.Module):
 
 
 def pnasnet5large(pretrained='imagenet'):
-    r"""PNASNet-5 model architecture from the
-    `"Progressive Neural Architecture Search"
-    <https://arxiv.org/abs/1712.00559>`_ paper.
-    """
+    """Pretrained PNASNet"""
 
     # both 'imagenet'&'imagenet+background' are loaded from same parameters
     model = PNASNet5Large(num_classes=1001)

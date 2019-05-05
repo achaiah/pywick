@@ -1,18 +1,20 @@
 Gridsearch
 =========================
 
+.. automodule:: pywick.gridsearch
+    :members:
+    :undoc-members:
+
 Gridsearch
 -------------
 
 .. automodule:: pywick.gridsearch.gridsearch
     :members:
     :undoc-members:
-    :show-inheritance:
 
 Pipeline
 ---------------------------------
 
 .. automodule:: pywick.gridsearch.pipeline
-    :members:
+    :members: Pipeline
     :undoc-members:
-    :show-inheritance:

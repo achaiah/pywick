@@ -206,6 +206,16 @@ def generate_checkpoint_name(run_id, kv_dict, epoch, is_best):
 
 
 def save_checkpoint(state, is_best=False, save_path=".", filename=None):
+    """
+    Saves checkpoint to file.
+
+    :param state: (dict): the dictionary to save. Can have other values besides just model weights.
+    :param is_best: (bool): whether this is the best result we've seen thus far
+    :param save_path: (string): local dir to save to
+    :param filename: (string): name of the file to save under `save_path`
+
+    :return:
+    """
     if not filename:
         print("ERROR: No filename defined.  Checkpoint is NOT saved.")
     save_path1 = os.path.expanduser(save_path)

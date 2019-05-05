@@ -1,5 +1,9 @@
 """
-Classes to initialize module weights
+It is very important to initialize your neural network with correct weights before training.
+This is not as trivial as it seems as simple initialization like 0, 1, or even
+the normal distribution usually yield poor results. Most commonly, weights are initialized
+to be small non-zero values. See `this discussion <https://stackoverflow.com/questions/49433936/how-to-initialize-weights-in-pytorch/>`_
+for more info.
 """
 
 from fnmatch import fnmatch
@@ -33,6 +37,9 @@ class InitializerContainer(object):
 
 
 class Initializer(object):
+    """
+    Blank Initializer class from which all other Initializers must inherit
+    """
 
     def __call__(self, module):
         raise NotImplementedError('Initializer must implement this method')

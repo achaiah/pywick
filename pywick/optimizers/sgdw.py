@@ -13,14 +13,13 @@ class SGDW(Optimizer):
     Nesterov momentum is based on the formula from
     `On the importance of initialization and momentum in deep learning`__.
 
-    Args:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float): learning rate
-        momentum (float, optional): momentum factor (default: 0)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        dampening (float, optional): dampening for momentum (default: 0)
-        nesterov (bool, optional): enables Nesterov momentum (default: False)
+    :param params (iterable): iterable of parameters to optimize or dicts defining
+        parameter groups
+    :param lr: (float): learning rate
+    :param momentum: (float, optional): momentum factor (default: 0)
+    :param weight_decay: (float, optional): weight decay (L2 penalty) (default: 0)
+    :param dampening: (float, optional): dampening for momentum (default: 0)
+    :param nesterov: (bool, optional): enables Nesterov momentum (default: False)
 
     Example:
         >>> optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
@@ -52,7 +51,7 @@ class SGDW(Optimizer):
 
         The Nesterov version is analogously modified.
 
-    .. Fixing Weight Decay Regularization in Adam:
+    .. _Fixing Weight Decay Regularization in Adam:
     https://arxiv.org/abs/1711.05101
     """
 
@@ -70,9 +69,8 @@ class SGDW(Optimizer):
     def step(self, closure=None):
         """Performs a single optimization step.
 
-        Arguments:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
+        :param closure: (callable, optional): A closure that reevaluates the model
+            and returns the loss.
         """
         loss = None
         if closure is not None:

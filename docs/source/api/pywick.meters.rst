@@ -1,6 +1,9 @@
 Meters
 =====================
 
+.. automodule:: pywick.meters
+    :members:
+
 APMeter
 ----------------------------
 

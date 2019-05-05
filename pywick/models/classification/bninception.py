@@ -1,6 +1,10 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/bninception.py (License: BSD-3-Clause)
 # Pretrained: Yes
 
+r"""
+Implementation of BNInception as described in this `paper <https://arxiv.org/pdf/1502.03167.pdf>`_.
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -25,7 +29,6 @@ pretrained_settings = {
 }
 
 class BNInception(nn.Module):
-
     def __init__(self, num_classes=1000):
         super(BNInception, self).__init__()
         inplace = True
@@ -495,7 +498,7 @@ class BNInception(nn.Module):
         return x
 
 def bninception(pretrained='imagenet'):
-    r"""BNInception model architecture from <https://arxiv.org/pdf/1502.03167.pdf>`_ paper.
+    r"""Pretrained BNInception
     """
     model = BNInception()
     if pretrained:

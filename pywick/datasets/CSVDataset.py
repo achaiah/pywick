@@ -5,7 +5,37 @@ from .data_utils import _return_first_element_of_list, default_file_reader, _pas
 
 
 class CSVDataset(BaseDataset):
+    """
+    Initialize a Dataset from a CSV file/dataframe. This does NOT
+    actually load the data into memory if the ``csv`` parameter contains filepaths.
 
+    :param csv: (string or pandas.DataFrame):
+        if string, should be a path to a .csv file which
+        can be loaded as a pandas dataframe
+
+    :param input_cols: (list of ints, or list of strings):
+        which column(s) to use as input arrays.
+        If int(s), should be column indicies.
+        If str(s), should be column names
+
+    :param target_cols: (list of ints, or list of strings):
+        which column(s) to use as input arrays.
+        If int(s), should be column indicies.
+        If str(s), should be column names
+
+    :param input_transform: (transform):
+        tranform to apply to inputs during runtime loading
+
+    :param target_tranform: (transform):
+        transform to apply to targets during runtime loading
+
+    :param co_transform: (transform):
+        transform to apply to both inputs and targets simultaneously
+        during runtime loading
+
+    :param apply_transforms_individually: (bool):
+        Whether to apply transforms to individual inputs or to an input row as a whole (default: False)
+    """
     def __init__(self,
                  csv,
                  input_cols=None,
@@ -14,39 +44,6 @@ class CSVDataset(BaseDataset):
                  target_transform=None,
                  co_transform=None,
                  apply_transforms_individually=False):
-        """
-        Initialize a Dataset from a CSV file/dataframe. This does NOT
-        actually load the data into memory if the CSV contains filepaths.
-
-        Arguments
-        ---------
-        csv : string or pandas.DataFrame
-            if string, should be a path to a .csv file which
-            can be loaded as a pandas dataframe
-
-        input_cols : list of ints, or list of strings
-            which column(s) to use as input arrays.
-            If int(s), should be column indicies
-            If str(s), should be column names
-
-        target_cols : list of ints, or list of strings
-            which column(s) to use as input arrays.
-            If int(s), should be column indicies
-            If str(s), should be column names
-
-        input_transform : class which implements a __call__ method
-            tranform(s) to apply to inputs during runtime loading
-
-        target_tranform : class which implements a __call__ method
-            transform(s) to apply to targets during runtime loading
-
-        co_transform : class which implements a __call__ method
-            transform(s) to apply to both inputs and targets simultaneously
-            during runtime loading
-
-        apply_transforms_individually : Whether to apply transforms to individual inputs
-            or to an input row as a whole (default: False)
-        """
         assert(input_cols is not None)
 
         self.input_cols = _process_cols_argument(input_cols)
@@ -128,16 +125,12 @@ class CSVDataset(BaseDataset):
 
         Useful for splitting a dataset into train/val/test datasets.
 
-        Arguments
-        ---------
-        col : integer or string
+        :param col: (integer or string)
             which column to split the data on.
-            if int, should be column index
+            if int, should be column index.
             if str, should be column name
 
-        Returns
-        -------
-        - list of new datasets with transforms copied
+        :return: list of new datasets with transforms copied
         """
         if isinstance(col, int):
             split_vals = self.df.iloc[:,col].values.flatten()
@@ -164,6 +157,14 @@ class CSVDataset(BaseDataset):
         return new_datasets
 
     def train_test_split(self, train_size):
+        """
+        Define a split for the current dataset where some part of it is used for
+        training while the remainder is used for testing
+
+        :param train_size: (int): length of the training dataset. The remainder will be
+            returned as the test dataset
+        :return: tuple of datasets (train, test)
+        """
         if train_size < 1:
             train_size = int(train_size * len(self))
 
@@ -179,6 +180,14 @@ class CSVDataset(BaseDataset):
         return train_dataset, test_dataset
 
     def copy(self, df=None):
+        """
+        Creates a copy of itself (including transforms and other params).
+
+        :param df: dataframe to include in the copy. If not specified, uses the
+            internal dataframe inside this instance (if any)
+
+        :return:
+        """
         if df is None:
             df = self.df
 

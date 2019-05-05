@@ -3,16 +3,14 @@ import numpy as np
 
 
 class ConfusionMeter(meter.Meter):
-    """Maintains a confusion matrix for a given calssification problem.
+    """Maintains a confusion matrix for a given classification problem.
 
     The ConfusionMeter constructs a confusion matrix for a multi-class
     classification problems. It does not support multi-label, multi-class problems:
     for such problems, please use MultiLabelConfusionMeter.
 
-    Args:
-        k (int): number of classes in the classification problem
-        normalized (boolean): Determines whether or not the confusion matrix
-            is normalized or not
+    :param k (int): number of classes in the classification problem
+    :param normalized (boolean): Determines whether or not the confusion matrix is normalized or not
 
     """
 
@@ -29,13 +27,12 @@ class ConfusionMeter(meter.Meter):
     def add(self, predicted, target):
         """Computes the confusion matrix of K x K size where K is no of classes
 
-        Args:
-            predicted (tensor): Can be an N x K tensor of predicted scores obtained from
-                the model for N examples and K classes or an N-tensor of
-                integer values between 0 and K-1.
-            target (tensor): Can be a N-tensor of integer values assumed to be integer
-                values between 0 and K-1 or N x K tensor, where targets are
-                assumed to be provided as one-hot vectors
+        :param predicted (tensor): Can be an N x K tensor of predicted scores obtained from
+            the model for N examples and K classes or an N-tensor of
+            integer values between 0 and K-1.
+        :param target (tensor): Can be a N-tensor of integer values assumed to be integer
+            values between 0 and K-1 or N x K tensor, where targets are
+            assumed to be provided as one-hot vectors
 
         """
         predicted = predicted.cpu().numpy()

@@ -1,5 +1,6 @@
 import torch
 
+
 def canmergetensor(tbl):
     if not isinstance(tbl, list):
         return False
@@ -11,6 +12,7 @@ def canmergetensor(tbl):
                 return False
         return True
     return False
+
 
 def mergetensor(tbl):
     sz = [len(tbl)] + list(tbl[0].size())

@@ -10,20 +10,20 @@ Adapted by cadene
 Creates an Xception Model as defined in:
 
 Francois Chollet
-Xception: Deep Learning with Depthwise Separable Convolutions
-https://arxiv.org/pdf/1610.02357.pdf
-
-This weights ported from the Keras implementation. Achieves the following performance on the validation set:
-
-Loss:0.9173 Prec@1:78.892 Prec@5:94.292
-
-REMEMBER to set your image size to 3x299x299 for both test and validation
-
-normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                  std=[0.5, 0.5, 0.5])
-
-The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
+`Xception: Deep Learning with Depthwise Separable Convolutions <https://arxiv.org/pdf/1610.02357.pdf>`_.
 """
+
+# This weights ported from the Keras implementation. Achieves the following performance on the validation set:
+#
+# Loss:0.9173 Prec@1:78.892 Prec@5:94.292
+#
+# REMEMBER to set your image size to 3x299x299 for both test and validation
+#
+# normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
+#                                   std=[0.5, 0.5, 0.5])
+#
+# The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
+
 from __future__ import print_function, division, absolute_import
 import torch.nn as nn
 import torch.nn.functional as F
@@ -112,10 +112,6 @@ class Block(nn.Module):
 
 
 class Xception(nn.Module):
-    """
-    Xception optimized for the ImageNet dataset, as specified in
-    https://arxiv.org/pdf/1610.02357.pdf
-    """
     def __init__(self, num_classes=1000):
         """ Constructor
         Args:
@@ -214,6 +210,7 @@ class Xception(nn.Module):
 
 
 def xception(pretrained='imagenet'):
+    """Pretrained Xception model."""
     model = Xception(num_classes=1000)
     if pretrained:
         settings = pretrained_settings['xception'][pretrained]

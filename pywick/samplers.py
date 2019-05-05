@@ -58,8 +58,6 @@ class MultiSampler(Sampler):
     def __init__(self, nb_samples, desired_samples, shuffle=False):
         """Initialize MultiSampler
 
-        Arguments
-        ---------
         :param data_source: (dataset):
             the dataset to sample from
         :param desired_samples: (int):
@@ -103,9 +101,9 @@ class MultiSampler(Sampler):
 # Source: https://github.com/ufoym/imbalanced-dataset-sampler (MIT license)
 class ImbalancedDatasetSampler(Sampler):
     """Samples elements randomly from a given list of indices for imbalanced dataset
-    Arguments:
-        indices (list, optional): a list of indices
-        num_samples (int, optional): number of samples to draw
+
+    :param indices: (list, optional): a list of indices
+    :param num_samples: (int, optional): number of samples to draw
     """
 
     def __init__(self, dataset, indices=None, num_samples=None):

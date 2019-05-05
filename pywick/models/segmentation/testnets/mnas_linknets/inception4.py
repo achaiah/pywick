@@ -1,3 +1,7 @@
+"""
+Inception V4 architecture as described in: `Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning <http://arxiv.org/abs/1602.07261>`_.
+"""
+
 import torch
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
@@ -260,7 +264,6 @@ class Inception_C(nn.Module):
 
 
 class InceptionV4(nn.Module):
-
     def __init__(self, num_classes=1001):
         super(InceptionV4, self).__init__()
         # Special attributs
@@ -309,6 +312,7 @@ class InceptionV4(nn.Module):
 
 
 def inceptionv4(pretrained='imagenet'):
+    """Pretrained InceptionV4 model"""
     settings = pretrained_settings['inceptionv4'][pretrained]
 
     # both 'imagenet'&'imagenet+background' are loaded from same parameters

@@ -3,31 +3,29 @@ from .data_utils import _process_array_argument, _return_first_element_of_list, 
 
 class TensorDataset(BaseDataset):
 
+    """
+    Dataset class for loading in-memory data.
+
+    :param inputs: (numpy array)
+
+    :param targets: (numpy array)
+
+    :param input_transform: (transform):
+        transform to apply to input sample individually
+
+    :param target_transform: (transform):
+        transform to apply to target sample individually
+
+    :param co_transform: (transform):
+        transform to apply to both input and target sample simultaneously
+
+    """
     def __init__(self,
                  inputs,
                  targets=None,
                  input_transform=None,
                  target_transform=None,
                  co_transform=None):
-        """
-        Dataset class for loading in-memory data.
-
-        Arguments
-        ---------
-        inputs: numpy array
-
-        targets : numpy array
-
-        input_transform : class with __call__ function implemented
-            transform to apply to input sample individually
-
-        target_transform : class with __call__ function implemented
-            transform to apply to target sample individually
-
-        co_transform : class with __call__ function implemented
-            transform to apply to both input and target sample simultaneously
-
-        """
         self.inputs = _process_array_argument(inputs)
         self.num_inputs = len(self.inputs)
         self.input_return_processor = _return_first_element_of_list if self.num_inputs==1 else _pass_through

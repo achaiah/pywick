@@ -1,6 +1,14 @@
 Optimizers
 =========================
 
+AdamW
+--------------------------------
+
+.. automodule:: pywick.optimizers.adamw
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 AddSign
 --------------------------------
 
@@ -29,6 +37,14 @@ PowerSign
 ----------------------------------
 
 .. automodule:: pywick.optimizers.powersign
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+SGDW
+--------------------------------
+
+.. automodule:: pywick.optimizers.sgdw
     :members:
     :undoc-members:
     :show-inheritance:

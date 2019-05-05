@@ -18,6 +18,15 @@ IMG_EXTENSIONS = [
 
 
 def pil_loader(path, color_space=''):
+    """
+    Attempts to load a file using PIL with provided ``color_space``.
+
+    :param path: (string): file to load
+    :param color_space: (string, one of `{rgb, rgba, L, 1, binary}`): Specifies the colorspace
+        to use for PIL loading. If not provided a simple ``Image.open(path)`` will be performed.
+
+    :return: PIL image
+    """
     try:
         if color_space.lower() == 'rgb':
             return Image.open(path).convert('RGB')

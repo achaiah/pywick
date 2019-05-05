@@ -1,3 +1,7 @@
+"""
+PolyNet architecture from the paper `PolyNet: A Pursuit of Structural Diversity in Very Deep Networks <https://arxiv.org/abs/1611.05725>`_.
+"""
+
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/polynet.py (License: BSD-3-Clause)
 
 import torch
@@ -460,10 +464,7 @@ class PolyNet(nn.Module):
 
 
 def polynet(pretrained='imagenet'):
-    """PolyNet architecture from the paper
-    'PolyNet: A Pursuit of Structural Diversity in Very Deep Networks'
-    https://arxiv.org/abs/1611.05725
-    """
+    """Pretrained PolyNet model"""
     model = PolyNet(num_classes=1000)
 
     if pretrained == 'imagenet':

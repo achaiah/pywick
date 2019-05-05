@@ -1,6 +1,11 @@
 Functions
 ========================
 
+.. automodule:: pywick.functions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 CyclicLR
 --------------------------------
 
@@ -9,15 +14,7 @@ CyclicLR
     :undoc-members:
     :show-inheritance:
 
-SELU
-----------------------------
-
-.. automodule:: pywick.functions.selu
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Swish
+Aria + Swish
 -----------------------------
 
 .. automodule:: pywick.functions.swish

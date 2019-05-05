@@ -9,18 +9,11 @@ import torch as th
 
 class Compose(object):
     """
-    Composes several transforms together.
+    Composes (chains) several transforms together.
+
+    :param transforms: (list of transforms) to apply sequentially
     """
     def __init__(self, transforms):
-        """
-        Composes (chains) several transforms together into
-        a single transform
-
-        Arguments
-        ---------
-        transforms : a list of transforms
-            transforms will be applied sequentially
-        """
         self.transforms = transforms
 
     def __call__(self, *inputs):
@@ -39,6 +32,8 @@ class RandomChoiceCompose(object):
         >>> transform = RandomChoiceCompose([RangeNormalize(0,1),
                                              RangeNormalize(-1,1)])
         >>> x_norm = transform(x) # only one of the two normalizations is applied
+
+    :param transforms: (list of transforms) to choose from at random
     """
     def __init__(self, transforms):
         self.transforms = transforms
@@ -67,19 +62,11 @@ class ToFile(object):
     when wanting to observe how augmentation affects the data
 
     NOTE: Only supports saving to Numpy currently
+
+    :param root: (string):
+            path to main directory in which images will be saved
     """
     def __init__(self, root):
-        """
-        Saves an image to file. Useful as a pass-through ransform
-        when wanting to observe how augmentation affects the data
-
-        NOTE: Only supports saving to Numpy currently
-
-        Arguments
-        ---------
-        root : string
-            path to main directory in which images will be saved
-        """
         if root.startswith('~'):
             root = os.path.expanduser(root)
         self.root = root
@@ -94,17 +81,13 @@ class ToFile(object):
 
 
 class ToNumpyType(object):
-    '''
+    """
     Converts an object to a specific numpy type (with the idea to be passed to ToTensor() next)
-    '''
+
+    :param type:  (one of `{numpy.double, numpy.float, numpy.int64, numpy.int32, and numpy.uint8})
+    """
 
     def __init__(self, type):
-        '''
-        Convert input to a given numpy.type
-
-        :param type:  one of [numpy.double, numpy.float, numpy.int64, numpy.int32, and numpy.uint8]
-        '''
-
         self.type = type
 
     def __call__(self, input):
@@ -117,19 +100,13 @@ class ToNumpyType(object):
 class ChannelsLast(object):
     """
     Transposes a tensor so that the channel dim is last
-    `HWC` and `DHWC` are aliases for this transform.    
+    `HWC` and `DHWC` are aliases for this transform.
+
+    :param safe_check: (bool):
+        if true, will check if channels are already last and, if so,
+        will just return the inputs
     """
     def __init__(self, safe_check=False):
-        """
-        Transposes a tensor so that the channel dim is last
-        `HWC` and `DHWC` are aliases for this transform.
-
-        Arguments
-        ---------
-        safe_check : boolean
-            if true, will check if channels are already last and, if so,
-            will just return the inputs
-        """
         self.safe_check = safe_check
 
     def __call__(self, *inputs):
@@ -154,18 +131,12 @@ class ChannelsFirst(object):
     """
     Transposes a tensor so that the channel dim is first.
     `CHW` and `CDHW` are aliases for this transform.
+
+    :param safe_check: (bool):
+        if true, will check if channels are already first and, if so,
+        will just return the inputs
     """
     def __init__(self, safe_check=False):
-        """
-        Transposes a tensor so that the channel dim is first.
-        `CHW` and `CDHW` are aliases for this transform.
-
-        Arguments
-        ---------
-        safe_check : boolean
-            if true, will check if channels are already last and, if so,
-            will just return the inputs
-        """
         self.safe_check = safe_check
 
     def __call__(self, *inputs):
@@ -189,17 +160,11 @@ CDHW = ChannelsFirst
 class TypeCast(object):
     """
     Cast a torch.Tensor to a different type
-    """
-    def __init__(self, dtype='float'):
-        """
-        Cast a torch.Tensor to a different type
-
-        Arguments
-        ---------
-        dtype : string or torch.*Tensor literal or list of such
+    param dtype: (string or torch.*Tensor literal or list) of such
             data type to which input(s) will be cast.
             If list, it should be the same length as inputs.
-        """
+    """
+    def __init__(self, dtype='float'):
         if isinstance(dtype, (list,tuple)):
             dtypes = []
             for dt in dtype:
@@ -248,21 +213,13 @@ class TypeCast(object):
 
 
 class AddChannel(object):
-    """
-    Adds a dummy channel to an image. 
+    """Adds a dummy channel to an image, also known as expanding an axis or unsqueezing a dim
     This will make an image of size (28, 28) to now be
     of size (1, 28, 28), for example.
+
+    param axis: (int): dimension to be expanded to singleton
     """
     def __init__(self, axis=0):
-        """
-        Adds a dummy channel to an image, also known as
-        expanding an axis or unsqueezing a dim
-
-        Arguments
-        ---------
-        axis : integer
-            dimension to be expanded to singleton
-        """
         self.axis = axis
 
     def __call__(self, *inputs):
@@ -277,18 +234,17 @@ Unsqueeze = AddChannel
 
 
 class Transpose(object):
+    """
+    Swaps two dimensions of a tensor
+
+    :param dim1: (int):
+        first dim to switch
+    :param dim2: (int):
+        second dim to switch
+    """
 
     def __init__(self, dim1, dim2):
-        """
-        Swaps two dimensions of a tensor
 
-        Arguments
-        ---------
-        dim1 : integer
-            first dim to switch
-        dim2 : integer
-            second dim to switch
-        """
         self.dim1 = dim1
         self.dim2 = dim2
 
@@ -307,15 +263,15 @@ class RangeNormalize(object):
     the provided min and max values.
 
     Works by calculating :
-        a = (max'-min')/(max-min)
-        b = max' - a * max
+        a = (max'-min')/(max-min)\n
+        b = max' - a * max\n
         new_value = a * value + b
     where min' & max' are given values, 
     and min & max are observed min/max for each channel
     
-    :param min_val : float or integer
+    :param min_val: (float or integer):
         Lower bound of normalized tensor
-    :param max_val : float or integer
+    :param max_val: (float or integer):
         Upper bound of normalized tensor
 
     Example:
@@ -360,20 +316,19 @@ class StdNormalize(object):
 
 
 class Slice2D(object):
+    """
+    Take a random 2D slice from a 3D image along
+    a given axis. This image should not have a 4th channel dim.
+
+    :param axis: (int `in {0, 1, 2}`):
+        the axis on which to take slices
+
+    :param reject_zeros: (bool):
+        whether to reject slices that are all zeros
+    """
 
     def __init__(self, axis=0, reject_zeros=False):
-        """
-        Take a random 2D slice from a 3D image along 
-        a given axis. This image should not have a 4th channel dim.
 
-        Arguments
-        ---------
-        axis : integer in {0, 1, 2}
-            the axis on which to take slices
-
-        reject_zeros : boolean
-            whether to reject slices that are all zeros
-        """
         self.axis = axis
         self.reject_zeros = reject_zeros
 
@@ -407,16 +362,13 @@ class Slice2D(object):
 
 
 class RandomCrop(object):
+    """
+    Randomly crop a torch tensor
 
+    :param size: (tuple or list):
+        dimensions of the crop
+    """
     def __init__(self, size):
-        """
-        Randomly crop a torch tensor
-
-        Arguments
-        --------
-        size : tuple or list
-            dimensions of the crop
-        """
         self.size = size
 
     def __call__(self, *inputs):
@@ -430,28 +382,25 @@ class RandomCrop(object):
 
 
 class SpecialCrop(object):
+    """
+    Perform a special crop - one of the four corners or center crop
 
+    :param size: (tuple or list):
+        dimensions of the crop
+
+    :param crop_type: (int in `{0,1,2,3,4}`):
+        0 = center crop
+        1 = top left crop
+        2 = top right crop
+        3 = bottom right crop
+        4 = bottom left crop
+    """
     def __init__(self, size, crop_type=0):
-        """
-        Perform a special crop - one of the four corners or center crop
-
-        Arguments
-        ---------
-        size : tuple or list
-            dimensions of the crop
-
-        crop_type : integer in {0,1,2,3,4}
-            0 = center crop
-            1 = top left crop
-            2 = top right crop
-            3 = bottom right crop
-            4 = bottom left crop
-        """
         if crop_type not in {0, 1, 2, 3, 4}:
             raise ValueError('crop_type must be in {0, 1, 2, 3, 4}')
         self.size = size
         self.crop_type = crop_type
-    
+
     def __call__(self, x, y=None):
         if self.crop_type == 0:
             # center crop
@@ -459,7 +408,7 @@ class SpecialCrop(object):
             y_diff  = (x.size(2)-self.size[1])/2.
             ct_x    = [int(math.ceil(x_diff)),x.size(1)-int(math.floor(x_diff))]
             ct_y    = [int(math.ceil(y_diff)),x.size(2)-int(math.floor(y_diff))]
-            indices = [ct_x,ct_y]        
+            indices = [ct_x,ct_y]
         elif self.crop_type == 1:
             # top left crop
             tl_x = [0, self.size[0]]
@@ -480,7 +429,7 @@ class SpecialCrop(object):
             bl_x = [x.size(1)-self.size[0], x.size(1)]
             bl_y = [0, self.size[1]]
             indices = [bl_x,bl_y]
-        
+
         x = x[:,indices[0][0]:indices[0][1],indices[1][0]:indices[1][1]]
 
         if y is not None:
@@ -492,15 +441,15 @@ class SpecialCrop(object):
 
 class Pad(object):
 
-    def __init__(self, size):
-        """
-        Pads an image to the given size
+    """
+    Pads an image to the given size
 
-        Arguments
-        ---------
-        size : tuple or list
-            size of crop
-        """
+    Arguments
+    ---------
+    :param size: (tuple or list):
+        size of crop
+    """
+    def __init__(self, size):
         self.size = size
 
     def __call__(self, x, y=None):
@@ -519,15 +468,15 @@ class Pad(object):
 
 class PadNumpy(object):
 
+    """
+    Pads a Numpy image to the given size
+    Return a Numpy image / image pair
+    Arguments
+    ---------
+    :param size: (tuple or list):
+        size of crop
+    """
     def __init__(self, size):
-        """
-        Pads a Numpy image to the given size
-        Return a Numpy image / image pair
-        Arguments
-        ---------
-        size : tuple or list
-            size of crop
-        """
         self.size = size
 
     def __call__(self, x, y=None):
@@ -544,22 +493,18 @@ class PadNumpy(object):
 
 class RandomFlip(object):
 
+    """
+    Randomly flip an image horizontally and/or vertically with
+    some probability.
+
+    :param h: (bool):
+        whether to horizontally flip w/ probability p
+    :param v: (bool):
+        whether to vertically flip w/ probability p
+    :param p: (float between [0,1]):
+        probability with which to apply allowed flipping operations
+    """
     def __init__(self, h=True, v=False, p=0.5):
-        """
-        Randomly flip an image horizontally and/or vertically with
-        some probability.
-
-        Arguments
-        ---------
-        h : boolean
-            whether to horizontally flip w/ probability p
-
-        v : boolean
-            whether to vertically flip w/ probability p
-
-        p : float between [0,1]
-            probability with which to apply allowed flipping operations
-        """
         self.horizontal = h
         self.vertical = v
         self.p = p

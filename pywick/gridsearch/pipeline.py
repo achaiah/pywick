@@ -12,25 +12,15 @@ class Pipeline(object):
     """
     Defines a pipeline for operating on data. Output of first function will be passed to the second and so forth.
 
-    :param ordered_func_list:
-        list of fuctions to call
-    :param func_args:
+    :param ordered_func_list: (list):
+        list of functions to call
+    :param func_args: (dict):
         optional dictionary of params to pass to functions in addition to last output
         the dictionary should be in the form of:
-            func_name: list(params)
+        func_name: list(params)
     """
 
     def __init__(self, ordered_func_list, func_args=None):
-        """
-        Create a pipeline.
-
-        :param ordered_func_list:
-            list of fuctions to call
-        :param func_args:
-            optional dictionary of params to pass to functions in addition to last output
-            the dictionary should be in the form of:
-                func_name: list(params)
-        """
         self.pipes = ordered_func_list
         self.func_args = func_args
         self.output = None

@@ -1,6 +1,10 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/inceptionresnetv2.py (License: BSD-3-Clause)
 # Pretrained: Yes
 
+r"""InceptionResNetV2 model architecture from the
+`"InceptionV4, Inception-ResNet..." <https://arxiv.org/abs/1602.07261>`_ paper.
+"""
+
 import torch
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
@@ -324,9 +328,6 @@ class InceptionResNetV2(nn.Module):
 
 
 def inceptionresnetv2(pretrained='imagenet'):
-    r"""InceptionResNetV2 model architecture from the
-    `"InceptionV4, Inception-ResNet..." <https://arxiv.org/abs/1602.07261>`_ paper.
-    """
 
     # both 'imagenet'&'imagenet+background' are loaded from same parameters
     model = InceptionResNetV2(num_classes=1001)

@@ -1,3 +1,9 @@
+"""
+Constraints can be selectively applied on layers using regular expressions.
+Constraints can be explicit (hard) constraints applied at an arbitrary batch or epoch frequency, or they can be implicit (soft)
+constraints similar to regularizers where the the constraint deviation is added as a penalty to the total model loss.
+"""
+
 from fnmatch import fnmatch
 
 import torch as th
@@ -59,9 +65,12 @@ class ConstraintCallback(Callback):
 
 
 class Constraint(object):
+    """
+    Default class from which all Constraint implementations inherit.
+    """
 
     def __call__(self):
-        raise NotImplementedError('Subclass much implement this method')
+        raise NotImplementedError('Subclasses must implement this method')
 
 
 class UnitNorm(Constraint):

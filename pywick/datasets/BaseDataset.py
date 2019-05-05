@@ -3,6 +3,7 @@ import torch as th
 from torchvision import transforms
 from .data_utils import is_tuple_or_list
 
+
 class BaseDataset(object):
     """An abstract class representing a Dataset.
 
@@ -59,11 +60,9 @@ class BaseDataset(object):
         For instance, if the inputs are paths to image files, then this
         function will actually load those images.
 
-        Arguments
-        ---------
-        num_samples : integer (optional)
+        :param num_samples: (int (optional)):
             number of samples to load. if None, will load all
-        load_range : numpy array of integers (optional)
+        :param load_range: (numpy array of integers (optional)):
             the index range of images to load
             e.g. np.arange(4) loads the first 4 inputs+targets
         """

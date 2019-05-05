@@ -7,87 +7,87 @@ import warnings
 
 
 class SWA(Optimizer):
+    r"""Implements Stochastic Weight Averaging (SWA).
+
+    Stochastic Weight Averaging was proposed in `Averaging Weights Leads to
+    Wider Optima and Better Generalization`_ by Pavel Izmailov, Dmitrii
+    Podoprikhin, Timur Garipov, Dmitry Vetrov and Andrew Gordon Wilson
+    (UAI 2018).
+
+    SWA is implemented as a wrapper class taking optimizer instance as input
+    and applying SWA on top of that optimizer.
+
+    SWA can be used in two modes: automatic and manual. In the automatic
+    mode SWA running averages are automatically updated every
+    :attr:`swa_freq` steps after :attr:`swa_start` steps of optimization. If
+    :attr:`swa_lr` is provided, the learning rate of the optimizer is reset
+    to :attr:`swa_lr` at every step starting from :attr:`swa_start`. To use
+    SWA in automatic mode provide values for both :attr:`swa_start` and
+    :attr:`swa_freq` arguments.
+
+    Alternatively, in the manual mode, use :meth:`update_swa` or
+    :meth:`update_swa_group` methods to update the SWA running averages.
+
+    In the end of training use `swap_swa_sgd` method to set the optimized
+    variables to the computed averages.
+
+    :param optimizer: (torch.optim.Optimizer): optimizer to use with SWA
+    :param swa_start: (int): number of steps before starting to apply SWA in
+        automatic mode; if None, manual mode is selected (default: None)
+    :param swa_freq: (int): number of steps between subsequent updates of
+        SWA running averages in automatic mode; if None, manual mode is
+        selected (default: None)
+    :param swa_lr: (float): learning rate to use starting from step swa_start
+        in automatic mode; if None, learning rate is not changed
+        (default: None)
+
+    Examples:
+        >>> from pywick.optimizers import SWA
+        >>> # automatic mode
+        >>> base_opt = torch.optim.SGD(model.parameters(), lr=0.1)
+        >>> opt = SWA(base_opt, swa_start=10, swa_freq=5, swa_lr=0.05)
+        >>> for _ in range(100):
+        >>>     opt.zero_grad()
+        >>>     loss_fn(model(input), target).backward()
+        >>>     opt.step()
+        >>> opt.swap_swa_sgd()
+        >>> # manual mode
+        >>> opt = SWA(base_opt)
+        >>> for i in range(100):
+        >>>     opt.zero_grad()
+        >>>     loss_fn(model(input), target).backward()
+        >>>     opt.step()
+        >>>     if i > 10 and i % 5 == 0:
+        >>>         opt.update_swa()
+        >>> opt.swap_swa_sgd()
+
+    .. note::
+        SWA does not support parameter-specific values of :attr:`swa_start`,
+        :attr:`swa_freq` or :attr:`swa_lr`. In automatic mode SWA uses the
+        same :attr:`swa_start`, :attr:`swa_freq` and :attr:`swa_lr` for all
+        parameter groups. If needed, use manual mode with
+        :meth:`update_swa_group` to use different update schedules for
+        different parameter groups.
+
+    .. note::
+        Call :meth:`swap_swa_sgd` in the end of training to use the computed
+        running averages.
+
+    .. note::
+        If you are using SWA to optimize the parameters of a Neural Network
+        containing Batch Normalization layers, you need to update the
+        :attr:`running_mean` and :attr:`running_var` statistics of the
+        Batch Normalization module. You can do so by using
+        `torchcontrib.optim.swa.bn_update` utility. For further description
+        see this article_.
+
+    .. _Averaging Weights Leads to Wider Optima and Better Generalization:
+        https://arxiv.org/abs/1803.05407
+    .. _Improving Consistency-Based Semi-Supervised Learning with Weight Averaging:
+        https://arxiv.org/abs/1806.05594
+    .._article: https://pytorch.org/blog/stochastic-weight-averaging-in-pytorch/
+    """
     def __init__(self, optimizer, swa_start=None, swa_freq=None, swa_lr=None):
-        r"""Implements Stochastic Weight Averaging (SWA).
-
-        Stochastic Weight Averaging was proposed in `Averaging Weights Leads to
-        Wider Optima and Better Generalization`_ by Pavel Izmailov, Dmitrii
-        Podoprikhin, Timur Garipov, Dmitry Vetrov and Andrew Gordon Wilson
-        (UAI 2018).
-
-        SWA is implemented as a wrapper class taking optimizer instance as input
-        and applying SWA on top of that optimizer.
-
-        SWA can be used in two modes: automatic and manual. In the automatic
-        mode SWA running averages are automatically updated every
-        :attr:`swa_freq` steps after :attr:`swa_start` steps of optimization. If
-        :attr:`swa_lr` is provided, the learning rate of the optimizer is reset
-        to :attr:`swa_lr` at every step starting from :attr:`swa_start`. To use
-        SWA in automatic mode provide values for both :attr:`swa_start` and
-        :attr:`swa_freq` arguments.
-
-        Alternatively, in the manual mode, use :meth:`update_swa` or
-        :meth:`update_swa_group` methods to update the SWA running averages.
-
-        In the end of training use `swap_swa_sgd` method to set the optimized
-        variables to the computed averages.
-
-        :param optimizer: (torch.optim.Optimizer): optimizer to use with SWA
-        :param swa_start: (int): number of steps before starting to apply SWA in
-            automatic mode; if None, manual mode is selected (default: None)
-        :param swa_freq: (int): number of steps between subsequent updates of
-            SWA running averages in automatic mode; if None, manual mode is
-            selected (default: None)
-        :param swa_lr: (float): learning rate to use starting from step swa_start
-            in automatic mode; if None, learning rate is not changed
-            (default: None)
-
-        Examples:
-            >>> from pywick.optimizers import SWA
-            >>> # automatic mode
-            >>> base_opt = torch.optim.SGD(model.parameters(), lr=0.1)
-            >>> opt = SWA(base_opt, swa_start=10, swa_freq=5, swa_lr=0.05)
-            >>> for _ in range(100):
-            >>>     opt.zero_grad()
-            >>>     loss_fn(model(input), target).backward()
-            >>>     opt.step()
-            >>> opt.swap_swa_sgd()
-            >>> # manual mode
-            >>> opt = SWA(base_opt)
-            >>> for i in range(100):
-            >>>     opt.zero_grad()
-            >>>     loss_fn(model(input), target).backward()
-            >>>     opt.step()
-            >>>     if i > 10 and i % 5 == 0:
-            >>>         opt.update_swa()
-            >>> opt.swap_swa_sgd()
-
-        .. note::
-            SWA does not support parameter-specific values of :attr:`swa_start`,
-            :attr:`swa_freq` or :attr:`swa_lr`. In automatic mode SWA uses the
-            same :attr:`swa_start`, :attr:`swa_freq` and :attr:`swa_lr` for all
-            parameter groups. If needed, use manual mode with
-            :meth:`update_swa_group` to use different update schedules for
-            different parameter groups.
-
-        .. note::
-            Call :meth:`swap_swa_sgd` in the end of training to use the computed
-            running averages.
-
-        .. note::
-            If you are using SWA to optimize the parameters of a Neural Network
-            containing Batch Normalization layers, you need to update the
-            :attr:`running_mean` and :attr:`running_var` statistics of the
-            Batch Normalization module. You can do so by using
-            `torchcontrib.optim.swa.bn_update` utility. For further description
-            see this article_.
-
-        .. _Averaging Weights Leads to Wider Optima and Better Generalization:
-            https://arxiv.org/abs/1803.05407
-        .. _Improving Consistency-Based Semi-Supervised Learning with Weight Averaging:
-            https://arxiv.org/abs/1806.05594
-        .._article: https://pytorch.org/blog/stochastic-weight-averaging-in-pytorch/
-        """
         self._auto_mode, (self.swa_start, self.swa_freq) = \
             self._check_params(self, swa_start, swa_freq)
         self.swa_lr = swa_lr
@@ -141,8 +141,7 @@ class SWA(Optimizer):
     def update_swa_group(self, group):
         r"""Updates the SWA running averages for the given parameter group.
 
-        Arguments:
-            param_group (dict): Specifies for what parameter group SWA running
+        :param group (dict): Specifies for what parameter group SWA running
                 averages should be updated
 
         Examples:
@@ -234,9 +233,8 @@ class SWA(Optimizer):
     def load_state_dict(self, state_dict):
         r"""Loads the optimizer state.
 
-        Args:
-            state_dict (dict): SWA optimizer state. Should be an object returned
-                from a call to `state_dict`.
+        :param state_dict (dict): SWA optimizer state. Should be an object returned
+            from a call to `state_dict`.
         """
         swa_state_dict = {"state": state_dict["swa_state"],
                           "param_groups": state_dict["param_groups"]}
@@ -253,9 +251,8 @@ class SWA(Optimizer):
         layers can be made trainable and added to the :class:`Optimizer` as
         training progresses.
 
-        Args:
-            param_group (dict): Specifies what Tensors should be optimized along
-            with group specific optimization options.
+        :param param_group (dict): Specifies what Tensors should be optimized along
+        with group specific optimization options.
         """
         param_group['n_avg'] = 0
         param_group['step_counter'] = 0
@@ -268,17 +265,16 @@ class SWA(Optimizer):
         It performs one pass over data in `loader` to estimate the activation
         statistics for BatchNorm layers in the model.
 
-        Args:
-            loader (torch.utils.data.DataLoader): dataset loader to compute the
-                activation statistics on. Each data batch should be either a
-                tensor, or a list/tuple whose first element is a tensor
-                containing data.
+        :param loader (torch.utils.data.DataLoader): dataset loader to compute the
+            activation statistics on. Each data batch should be either a
+            tensor, or a list/tuple whose first element is a tensor
+            containing data.
 
-            model (torch.nn.Module): model for which we seek to update BatchNorm
-                statistics.
+        :param model (torch.nn.Module): model for which we seek to update BatchNorm
+            statistics.
 
-            device (torch.device, optional): If set, data will be trasferred to
-                :attr:`device` before being passed into :attr:`model`.
+        :param device (torch.device, optional): If set, data will be trasferred to
+            :attr:`device` before being passed into :attr:`model`.
         """
         if not _check_bn(model):
             return

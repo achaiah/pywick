@@ -129,6 +129,9 @@ class Atrous_module(nn.Module):
 
 
 class DeepLabv2_ASPP(nn.Module):
+    """
+    DeeplabV2 implementation with ASPP.
+    """
     def __init__(self, num_classes, small=True, pretrained=False):
         super(DeepLabv2_ASPP, self).__init__()
         block = Atrous_Bottleneck
@@ -157,6 +160,9 @@ class DeepLabv2_ASPP(nn.Module):
 
 
 class DeepLabv2_FOV(nn.Module):
+    """
+        DeeplabV2 implementation with FOV.
+        """
     def __init__(self, num_classes, pretrained=True):
         super(DeepLabv2_FOV, self).__init__()
         block = Atrous_Bottleneck

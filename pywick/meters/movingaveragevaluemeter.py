@@ -4,6 +4,9 @@ import torch
 
 
 class MovingAverageValueMeter(meter.Meter):
+    """
+    Keeps track of mean and standard deviation of some value for a given window.
+    """
     def __init__(self, windowsize):
         super(MovingAverageValueMeter, self).__init__()
         self.windowsize = windowsize

@@ -1,19 +1,20 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/nasnet_mobile.py (License: BSD-3-Clause)
 
 """
-NASNet Mobile
-Thanks to Anastasiia (https://github.com/DagnyT) for the great help, support and motivation!
-
-
-------------------------------------------------------------------------------------
-      Architecture       | Top-1 Acc | Top-5 Acc |  Multiply-Adds |  Params (M)
-------------------------------------------------------------------------------------
-|   NASNet-A (4 @ 1056)  |   74.08%  |   91.74%  |       564 M    |     5.3        |
-------------------------------------------------------------------------------------
-# References:
- - [Learning Transferable Architectures for Scalable Image Recognition]
-    (https://arxiv.org/abs/1707.07012)
+NASNet Mobile following the paper:
+`Learning Transferable Architectures for Scalable Image Recognition <https://arxiv.org/abs/1707.07012>`_
 """
+
+# Thanks to Anastasiia (https://github.com/DagnyT) for the great help, support and motivation!
+#
+#
+# ------------------------------------------------------------------------------------
+#       Architecture       | Top-1 Acc | Top-5 Acc |  Multiply-Adds |  Params (M)
+# ------------------------------------------------------------------------------------
+# |   NASNet-A (4 @ 1056)  |   74.08%  |   91.74%  |       564 M    |     5.3        |
+# ------------------------------------------------------------------------------------
+# References: [Learning Transferable Architectures for Scalable Image Recognition](https://arxiv.org/abs/1707.07012)
+
 
 import torch
 import torch.nn as nn
@@ -617,9 +618,7 @@ class NASNetAMobile(nn.Module):
 
 
 def nasnetamobile(pretrained='imagenet'):
-    r"""NASNetALarge model architecture from the
-    `"NASNet" <https://arxiv.org/abs/1707.07012>`_ paper.
-    """
+    """Pretrained version of NASNet_mobile"""
     model = NASNetAMobile(num_classes=1000) # both 'imagenet'&'imagenet+background' are loaded from same parameters
     if pretrained:
         settings = pretrained_settings['nasnetamobile'][pretrained]

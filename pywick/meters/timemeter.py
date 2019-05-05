@@ -3,15 +3,11 @@ from . import meter
 
 class TimeMeter(meter.Meter):
     """
-    <a name="TimeMeter">
-    #### tnt.TimeMeter(@ARGP)
-    @ARGT
-
-    The `tnt.TimeMeter` is designed to measure the time between events and can be
+    This meter is designed to measure the time between events and can be
     used to measure, for instance, the average processing time per batch of data.
     It is different from most other meters in terms of the methods it provides:
 
-    The `tnt.TimeMeter` provides the following methods:
+    Mmethods:
 
        * `reset()` resets the timer, setting the timer and unit counter to zero.
        * `value()` returns the time passed since the last `reset()`; divided by the counter value when `unit=true`.

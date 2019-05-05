@@ -45,7 +45,7 @@ def random_split_dataset(orig_dataset, splitRatio=0.8, random_seed=None):
     :param random_seed: (int):
         random seed for replicability of results
 
-    :return: tuple of split Useful
+    :return: tuple of split ClonedFolderDatasets
     '''
     random.seed(a=random_seed)
 

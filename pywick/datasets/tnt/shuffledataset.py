@@ -1,4 +1,4 @@
-from .resampledataset import ResampleDataset
+from pywick.datasets.tnt.dataset import Dataset
 import torch
 
 

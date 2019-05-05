@@ -1,6 +1,10 @@
 # Source: https://raw.githubusercontent.com/Cadene/pretrained-models.pytorch/master/pretrainedmodels/models/resnext.py (License: BSD-3-Clause)
 # Pretrained: Yes
 
+"""
+Implementation of paper: `Aggregated Residual Transformations for Deep Neural Networks <https://arxiv.org/abs/1611.05431>`_.
+"""
+
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 from .resnext_features import resnext50_32x4d_features
@@ -109,6 +113,7 @@ class ResNeXt101_64x4d(nn.Module):
         return x
 
 def resnext50_32x4d(num_classes=1000, pretrained='imagenet'):
+    """Pretrained Resnext50_32x4d model"""
     model = ResNeXt50_32x4d(num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['resnext50_32x4d'][pretrained]
@@ -124,6 +129,7 @@ def resnext50_32x4d(num_classes=1000, pretrained='imagenet'):
 
 
 def resnext101_32x4d(pretrained='imagenet'):
+    """Pretrained Resnext101_32x4d model"""
     model = ResNeXt101_32x4d(num_classes=1000)
     if pretrained:
         settings = pretrained_settings['resnext101_32x4d'][pretrained]
@@ -136,6 +142,7 @@ def resnext101_32x4d(pretrained='imagenet'):
     return model
 
 def resnext101_64x4d(pretrained='imagenet'):
+    """Pretrained ResNeXt101_64x4d model"""
     model = ResNeXt101_64x4d(num_classes=1000)
     if pretrained:
         settings = pretrained_settings['resnext101_64x4d'][pretrained]

@@ -1,4 +1,4 @@
-Welcome to pywick's documentation!
+Welcome to Pywick's documentation!
 ==================================
 
 About
@@ -29,8 +29,8 @@ Questions?  Find us on Github!
     api/conditions
     api/constraints
     api/pywick.datasets
-    api/pywick.gridsearch
     api/pywick.functions
+    api/pywick.gridsearch
     api/initializers
     api/losses
     api/pywick.meters

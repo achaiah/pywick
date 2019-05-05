@@ -9,18 +9,17 @@ class AddSign(Optimizer):
 
     It has been proposed in `Neural Optimizer Search with Reinforcement Learning`_.
         
-    Arguments:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float, optional): learning rate (default: 1e-3)
-        beta (float, optional): coefficients used for computing
-            running averages of gradient (default: 0.9)
-        alpha (float, optional): term added to 
-            the internal_decay * sign(g) * sign(m) (default: 1)
-        sign_internal_decay(callable, optional): a function that returns
-            an internal decay calculated based on the current training step and
-            the total number of training steps.
-            If None, the internal decay is assumed to be 1.
+    :param params: (iterable): iterable of parameters to optimize or dicts defining
+        parameter groups
+    :param lr: (float, optional): learning rate (default: 1e-3)
+    :param beta: (float, optional): coefficients used for computing
+        running averages of gradient (default: 0.9)
+    :param alpha: (float, optional): term added to
+        the internal_decay * sign(g) * sign(m) (default: 1)
+    :param sign_internal_decay: (callable, optional): a function that returns
+        an internal decay calculated based on the current training step and
+        the total number of training steps.
+        If None, the internal decay is assumed to be 1.
         
     .. _Neural Optimizer Search with Reinforcement Learning:
         https://arxiv.org/abs/1709.07417
@@ -37,9 +36,8 @@ class AddSign(Optimizer):
     def step(self, closure=None):
         """Performs a single optimization step.
 
-        Arguments:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
+        :param closure: (callable, optional): A closure that reevaluates the model
+            and returns the loss.
         """
         loss = None
         if closure is not None:

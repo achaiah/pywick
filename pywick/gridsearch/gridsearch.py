@@ -4,29 +4,27 @@ import collections
 class GridSearch(object):
     """
     Simple GridSearch to apply to a generic function
-    """
 
+    :param function: (function):
+        function to perform grid search on
+    :param grid_params: (dict):
+        dictionary mapping variable names to lists of possible inputs aka..\n
+        {'input_a':['dog', 'cat', 'stuff'],
+        'input_b':[3, 10, 22]}
+    :param search_behavior: (string):
+        how to perform the search.
+        Options are: 'exhaustive', 'sampled_x.x' (where `x.x` is sample threshold 0.0 < 1.0)\n
+        `exhaustive` - try every parameter in order they are specified in the dictionary (last key gets all its values searched first)\n
+        `sampled`    - sample from the dictionary of params with specified threshold. The random tries *below* the threshold will be executed
+    :param args_as_dict: (bool):
+        There are two ways to pass parameters into a function:\n
+        1. Simply use each key in grid_params as a variable to pass to the function (and change those variable values according
+        to the mapping inside grid_params)\n
+        2. Pass a single dictionary to the function where the keys of the dictionary themselves are changed according to the
+        grid_params\n
+        defaults to dict
+    """
     def __init__(self, function, grid_params, search_behavior='exhaustive', args_as_dict=True):
-        """
-        :param function:
-            function to perform grid search on
-        :param grid_params:
-            dictionary mapping variable names to lists of possible inputs aka..\n
-                {'input_a':['dog', 'cat', 'stuff'],
-                 'input_b':[3, 10, 22]}
-        :param search_behavior:
-            how to perform the search.\n
-            Options are: 'exhaustive', 'sampled_x.x' (where `x.x` is sample threshold 0.0 < 1.0)
-                `exhaustive` - try every parameter in order they are specified in the dictionary (last key gets all its values searched first)\n
-                `sampled`    - sample from the dictionary of params with specified threshold. The random tries *below* the threshold will be executed
-        :param args_as_dict:
-            There are two ways to pass parameters into a function:
-                1. Simply use each key in grid_params as a variable to pass to the function (and change those variable values according
-                to the mapping inside grid_params)\n
-                2. Pass a single dictionary to the function where the keys of the dictionary themselves are changed according to the
-                grid_params\n
-            defaults to dict
-        """
         self.func = function
         self.args = grid_params
         self.sampled_thresh = 1.0

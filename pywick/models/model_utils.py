@@ -320,7 +320,7 @@ def get_supported_models(type):
         return None
 
 def _get_untrained_model(model_name, num_classes):
-    '''
+    """
     Primarily, this method exists to return an untrained / vanilla version of a specified (pretrained) model.
     This is on best-attempt basis only and may be out of sync with actual model definitions. The code is manually maintained.
 
@@ -328,7 +328,7 @@ def _get_untrained_model(model_name, num_classes):
     :param num_classes: Number of classes to initialize the vanilla model with.
 
     :return: default model for the model_name with custom number of classes
-    '''
+    """
 
     if model_name.startswith('bninception'):
         return classification.BNInception(num_classes=num_classes)
@@ -404,7 +404,7 @@ def diff_states(dict_canonical, dict_subset):
 
 
 def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, ignore_chkpt_layers=None):
-    '''
+    """
     Loads weights from a checkpoint into memory. If model is not None then the weights are loaded into the model.
     :param checkpoint_path: (string):
         path to a pretrained network to load weights from
@@ -420,7 +420,7 @@ def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, igno
         you can pass in a list of layers to remove from the checkpoint before loading it (e.g. you would do that when
         loading an inception model that has more than one output layer).
     :return: checkpoint
-    '''
+    """
 
     # Handle incompatibility between pytorch0.4 and pytorch0.4.x
     # Source: https://discuss.pytorch.org/t/question-about-rebuild-tensor-v2/14560/2

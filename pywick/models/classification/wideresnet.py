@@ -1,5 +1,9 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/wideresnet.py (License: BSD-3-Clause)
 
+"""
+Implementation of WideResNet as described in: `Wide Residual Networks <https://arxiv.org/abs/1605.07146>`_.
+"""
+
 from __future__ import print_function, division, absolute_import
 import re
 import os
@@ -73,6 +77,7 @@ class WideResNet(nn.Module):
 
 
 def wideresnet50(pooling):
+    """Pretrained WideResnet50 model"""
     dir_models = os.path.join(expanduser("~"), '.torch/wideresnet')
     path_hkl = os.path.join(dir_models, 'wideresnet50.hkl')
     if os.path.isfile(path_hkl):

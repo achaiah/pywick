@@ -14,9 +14,10 @@ identity_x = lambda x: x
 
 class FolderDataset(UsefulDataset):
     """
-    Dataset class for loading out-of-memory data. First, the relevant directory structures are traversed to find all necessary files.\n
+    An incredibly versatile dataset class for loading out-of-memory data.\n
+    First, the relevant directory structures are traversed to find all necessary files.\n
     Then provided loader(s) is/(are) invoked on inputs and targets.\n
-    Finally provided transforms are applied with optional way to specify the order of individual and co-transforms.\n
+    Finally provided transforms are applied with optional ability to specify the order of individual and co-transforms.\n
 
     The rel_target_root parameter is used for image segmentation cases
         Typically the structure will look like the following:\n
@@ -44,7 +45,7 @@ class FolderDataset(UsefulDataset):
         you'd enter something like input_regex='*input*'
     :param rel_target_root: (string `(default is Nothing)`):
         root of directory where to look for target images RELATIVE to the root dir (first arg)
-    :param target_prefix: (string (default is Nothing)):
+    :param target_prefix: (string `(default is Nothing)`):
         prefix to use (if any) when trying to locate the matching target
     :param target_postfix: (string):
         postfix to use (if any) when trying to locate the matching target
@@ -56,14 +57,14 @@ class FolderDataset(UsefulDataset):
         transform to apply to both the input and the target
     :param apply_co_transform_first: (bool):
         whether to apply the co-transform before or after individual transforms (default: True = before)
-    :param default_loader: (string in `{'npy', 'pil'} or function `(default: pil)`):
+    :param default_loader: (string in `{'npy', 'pil'}` or function `(default: pil)`):
         defines how to load samples from file. Will be applied to both input and target unless a separate target_loader is defined.
         if a function is provided, it should take in a file path as input and return the loaded sample.
-    param target_loader: string in `{'npy', 'pil'} or function `(default: pil)`):
-        defines how to load target samples from file
-        if a function is provided, it should take in a file path as input and return the loaded sample.
+    :param target_loader: (string in `{'npy', 'pil'}` or function `(default: pil)`):
+        defines how to load target samples from file.
+        If a function is provided, it should take in a file path as input and return the loaded sample.
     :param exclusion_file: (string):
-        list of files to exclude when enumerating all files.\n
+        list of files to exclude when enumerating all files.
         The list must be a full path relative to the root parameter
     :param target_index_map: (dict `(defaults to binary mask: {255:1})`):
         a dictionary that maps pixel values in the image to classes to be recognized.\n

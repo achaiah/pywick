@@ -1,3 +1,7 @@
+"""Resnet model combined with Swish activation function"""
+
+# Source: https://github.com/tzing/resnet-swish
+
 import torch.nn as nn
 import torch
 import math
@@ -158,11 +162,7 @@ class ResNet_swish(nn.Module):
 
 
 def ResNet18_swish(pretrained=False, **kwargs):
-    """Constructs a ResNet-18 model.
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
+    """Constructs a ResNet-18 model. Not pretrained."""
     model = ResNet_swish(BasicBlock, [2, 2, 2, 2], **kwargs)
     if pretrained:
         raise NotImplementedError()
@@ -170,11 +170,7 @@ def ResNet18_swish(pretrained=False, **kwargs):
 
 
 def ResNet34_swish(pretrained=False, **kwargs):
-    """Constructs a ResNet-34 model.
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
+    """Constructs a ResNet-34 model. Not pretrained."""
     model = ResNet_swish(BasicBlock, [3, 4, 6, 3], **kwargs)
     if pretrained:
         raise NotImplementedError()
@@ -182,11 +178,7 @@ def ResNet34_swish(pretrained=False, **kwargs):
 
 
 def ResNet50_swish(pretrained=False, **kwargs):
-    """Constructs a ResNet-50 model.
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
+    """Constructs a ResNet-50 model. Not pretrained."""
     model = ResNet_swish(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
         raise NotImplementedError()
@@ -194,11 +186,7 @@ def ResNet50_swish(pretrained=False, **kwargs):
 
 
 def ResNet101_swish(pretrained=False, **kwargs):
-    """Constructs a ResNet-101 model.
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
+    """Constructs a ResNet-101 model. Not pretrained."""
     model = ResNet_swish(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
         raise NotImplementedError()
@@ -206,11 +194,7 @@ def ResNet101_swish(pretrained=False, **kwargs):
 
 
 def ResNet152_swish(pretrained=False, **kwargs):
-    """Constructs a ResNet-152 model.
-
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
+    """Constructs a ResNet-152 model. Not pretrained."""
     model = ResNet_swish(Bottleneck, [3, 8, 36, 3], **kwargs)
     if pretrained:
         raise NotImplementedError()

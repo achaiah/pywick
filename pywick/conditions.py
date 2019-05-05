@@ -1,3 +1,11 @@
+"""
+Conditions are useful for any custom pre- and post-processing that must be done on batches of data.
+Module trainer maintains two separate condition lists that are executed before/after the network forward pass.
+
+An example of a condition could be an Assert that needs to be performed before data is processed.
+A more advanced example of a condition could be code that modifies the network based on input or output
+"""
+
 from enum import Enum, auto
 from .misc import is_tuple_or_list
 
@@ -73,13 +81,9 @@ class ConditionsContainer(object):
         return logs
 
 class Condition(object):
-    '''
-    Conditions are useful for any custom pre- and post-processing that must be done on batches of data.
-    Module trainer maintains two separate condition lists that are executed before/after the network forward pass.
-
-    An example of a condition could be an Assert that needs to be performed before data is processed.
-    A more advanced example of a condition could be code that modifies the network based on input or output
-    '''
+    """
+    Default class from which all other Condition implementations inherit.
+    """
 
     def __call__(self, exec_type, epoch_num, batch_num, net=None, inputs=None, outputs=None, labels=None):
         '''

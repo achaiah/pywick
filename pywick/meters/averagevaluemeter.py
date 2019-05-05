@@ -4,6 +4,9 @@ from . import meter
 
 
 class AverageValueMeter(meter.Meter):
+    """
+    Keeps track of mean and standard deviation for some value.
+    """
     def __init__(self):
         super(AverageValueMeter, self).__init__()
         self.reset()

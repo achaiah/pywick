@@ -21,20 +21,16 @@ class CyclicLR(object):
     `batch_step` should be called after a batch has been used for training.
     To resume training, save `last_batch_iteration` and use it to instantiate `CycleLR`.
 
-    This class has three built-in policies, as put forth in the paper:
-    "triangular":
-        A basic triangular cycle w/ no amplitude scaling.
-    "triangular2":
-        A basic triangular cycle that scales initial amplitude by half each cycle.
-    "exp_range":
-        A cycle that scales initial amplitude by gamma**(cycle iterations) at each
-        cycle iteration.
+    This class has three built-in policies, as put forth in the paper:\n
+    `triangular`: A basic triangular cycle w/ no amplitude scaling.\n
+    `triangular2`: A basic triangular cycle that scales initial amplitude by half each cycle.\n
+    `exp_range`: A cycle that scales initial amplitude by gamma**(cycle iterations) at each cycle iteration.
 
     This implementation was adapted from the github repo: `bckenstler/CLR`_
 
     :param optimizer: (Optimizer): Wrapped optimizer.
     :param base_lr: (float or list): Initial learning rate which is the
-        lower boundary in the cycle for eachparam groups.
+        lower boundary in the cycle for each param groups.
         Default: 0.001
     :param max_lr: (float or list): Upper boundaries in the cycle for
         each parameter group. Functionally,

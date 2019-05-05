@@ -1,5 +1,8 @@
 
 class Meter(object):
+    """
+    Abstract meter class from which all other meters inherit
+    """
     def reset(self):
         pass
 

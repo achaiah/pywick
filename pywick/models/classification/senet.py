@@ -2,8 +2,7 @@
 # Pretrained: Yes
 
 """
-ResNet code gently borrowed from
-https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
+SENet implementation as described in: `Squeeze-and-Excitation Networks <https://arxiv.org/pdf/1709.01507.pdf>`_.
 """
 
 from collections import OrderedDict
@@ -362,6 +361,7 @@ def initialize_pretrained_model(model, num_classes, settings):
 
 
 def senet154(num_classes=1000, pretrained='imagenet'):
+    """Pretrained SENet154 model"""
     model = SENet(SEBottleneck, [3, 8, 36, 3], groups=64, reduction=16, dropout_p=0.2, num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['senet154'][pretrained]
@@ -370,6 +370,7 @@ def senet154(num_classes=1000, pretrained='imagenet'):
 
 
 def se_resnet50(num_classes=1000, pretrained='imagenet'):
+    """Pretrained SEResNet50 model"""
     model = SENet(SEResNetBottleneck, [3, 4, 6, 3], groups=1, reduction=16, dropout_p=None, inplanes=64, input_3x3=False,
                   downsample_kernel_size=1, downsample_padding=0, num_classes=num_classes)
     if pretrained is not None:
@@ -379,6 +380,7 @@ def se_resnet50(num_classes=1000, pretrained='imagenet'):
 
 
 def se_resnet101(num_classes=1000, pretrained='imagenet'):
+    """Pretrained SEResNet101 model"""
     model = SENet(SEResNetBottleneck, [3, 4, 23, 3], groups=1, reduction=16, dropout_p=None, inplanes=64, input_3x3=False,
                   downsample_kernel_size=1, downsample_padding=0, num_classes=num_classes)
     if pretrained is not None:
@@ -388,6 +390,7 @@ def se_resnet101(num_classes=1000, pretrained='imagenet'):
 
 
 def se_resnet152(num_classes=1000, pretrained='imagenet'):
+    """Pretrained SEResNet152 model"""
     model = SENet(SEResNetBottleneck, [3, 8, 36, 3], groups=1, reduction=16, dropout_p=None, inplanes=64, input_3x3=False,
                   downsample_kernel_size=1, downsample_padding=0, num_classes=num_classes)
     if pretrained is not None:
@@ -397,6 +400,7 @@ def se_resnet152(num_classes=1000, pretrained='imagenet'):
 
 
 def se_resnext50_32x4d(num_classes=1000, pretrained='imagenet'):
+    """Pretrained SEResNext50 model"""
     model = SENet(SEResNeXtBottleneck, [3, 4, 6, 3], groups=32, reduction=16, dropout_p=None, inplanes=64, input_3x3=False,
                   downsample_kernel_size=1, downsample_padding=0, num_classes=num_classes)
     if pretrained is not None:
@@ -406,6 +410,7 @@ def se_resnext50_32x4d(num_classes=1000, pretrained='imagenet'):
 
 
 def se_resnext101_32x4d(num_classes=1000, pretrained='imagenet'):
+    """Pretrained SEResNext101 model"""
     model = SENet(SEResNeXtBottleneck, [3, 4, 23, 3], groups=32, reduction=16, dropout_p=None, inplanes=64, input_3x3=False,
                   downsample_kernel_size=1, downsample_padding=0, num_classes=num_classes)
     if pretrained is not None:

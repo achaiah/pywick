@@ -9,8 +9,7 @@ class Eve(Optimizer):
     implements Eve Algorithm, proposed in `IMPROVING STOCHASTIC GRADIENT DESCENT WITH FEEDBACK`
     """
 
-    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999, 0.999), eps=1e-8,
-                 k=0.1, K=10, weight_decay=0):
+    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999, 0.999), eps=1e-8, k=0.1, K=10, weight_decay=0):
 
         defaults = dict(lr=lr, betas=betas, eps=eps,
                         k=k, K=K, weight_decay=weight_decay)
@@ -18,7 +17,7 @@ class Eve(Optimizer):
 
     def step(self, closure):
         """
-        :param closure: closure returns loss. see http://pytorch.org/docs/optim.html#optimizer-step-closure
+        :param closure: (closure). see http://pytorch.org/docs/optim.html#optimizer-step-closure
         :return: loss
         """
         loss = closure()

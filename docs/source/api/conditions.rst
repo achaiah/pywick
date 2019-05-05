@@ -2,6 +2,5 @@ Conditions
 ============
 
 .. automodule:: pywick.conditions
-    :members:
+    :members: Condition, SegmentationInputAsserts, SegmentationOutputAsserts
     :undoc-members:
-    :show-inheritance:

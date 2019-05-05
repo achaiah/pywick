@@ -8,7 +8,7 @@ from . import Callback
 
 class SimpleModelCheckpoint(Callback):
     """
-    Model Checkpoint to save model weights during training. This class is mostly superceded by ModelCheckpoint which provides flexible saving functionality.
+    Simple Checkpoint to save model weights during training. This class is mostly superceded by ModelCheckpoint which provides flexible saving functionality.
 
     :param file: (string):
         file to which model will be saved.
@@ -57,6 +57,13 @@ class SimpleModelCheckpoint(Callback):
         super(SimpleModelCheckpoint, self).__init__()
 
     def save_checkpoint(self, epoch, file, is_best=False):
+        """
+        Saves checkpoint to file
+        :param epoch: (int): epoch number
+        :param file: (string): file location
+        :param is_best: (bool): whether this is the best result seen thus far
+        :return:
+        """
         torch.save({
             'epoch': epoch + 1,
             'state_dict': self.trainer.model.state_dict(),

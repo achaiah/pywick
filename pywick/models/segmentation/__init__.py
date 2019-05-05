@@ -1,3 +1,10 @@
+"""
+Below you will find all the latest image segmentation models.
+To load one of these models with your own number of classes use the ``models.model_utils.get_model(...)`` function and specify the name of the model
+exactly like its class name (e.g. if the class name reads ``pywick.models.segmentation.deeplab_v2_res.DeepLabv2_ASPP`` then use
+`DeepLabv2_ASPP` as the model name for ``models.model_utils.get_model(...)``.
+"""
+
 from .carvana_unet import *
 from .carvana_linknet import LinkNet34
 from ..classification import resnext101_64x4d

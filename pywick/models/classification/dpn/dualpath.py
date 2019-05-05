@@ -1,13 +1,13 @@
-# Source: https://github.com/rwightman/pytorch-dpn-pretrained (License: Apache 2.0)
-# Pretrained: Yes
-
-""" PyTorch implementation of DualPathNetworks
-Based on original MXNet implementation https://github.com/cypw/DPNs with
-many ideas from another PyTorch implementation https://github.com/oyam/pytorch-DPNs.
+""" PyTorch implementation of `Dual Path Networks <https://arxiv.org/abs/1707.01629/>`_.
+Based on original `MXNet implementation <https://github.com/cypw/DPNs>`_ with
+many ideas from another PyTorch `implementation <https://github.com/oyam/pytorch-DPNs>`_.
 
 This implementation is compatible with the pretrained weights
 from cypw's MXNet implementation.
 """
+
+# Source: https://github.com/rwightman/pytorch-dpn-pretrained (License: Apache 2.0)
+# Pretrained: Yes
 
 import os
 import torch
@@ -37,6 +37,7 @@ model_urls = {
 
 
 def dpn68(num_classes=1000, pretrained=False, test_time_pool=True):
+    """Pretrained DPN68 model"""
     model = DPN(
         small=True, num_init_features=10, k_r=128, groups=32,
         k_sec=(3, 4, 12, 3), inc_sec=(16, 32, 32, 64),
@@ -57,6 +58,7 @@ def dpn68(num_classes=1000, pretrained=False, test_time_pool=True):
 
 
 def dpn68b(num_classes=1000, pretrained=False, test_time_pool=True):
+    """Pretrained DPN68b model"""
     model = DPN(
         small=True, num_init_features=10, k_r=128, groups=32,
         b=True, k_sec=(3, 4, 12, 3), inc_sec=(16, 32, 32, 64),
@@ -77,6 +79,7 @@ def dpn68b(num_classes=1000, pretrained=False, test_time_pool=True):
 
 
 def dpn92(num_classes=1000, pretrained=False, test_time_pool=True, extra=True):
+    """Pretrained DPN92 model"""
     model = DPN(
         num_init_features=64, k_r=96, groups=32,
         k_sec=(3, 4, 20, 3), inc_sec=(16, 32, 24, 128),
@@ -102,6 +105,7 @@ def dpn92(num_classes=1000, pretrained=False, test_time_pool=True, extra=True):
 
 
 def dpn98(num_classes=1000, pretrained=False, test_time_pool=True):
+    """Pretrained DPN98 model"""
     model = DPN(
         num_init_features=96, k_r=160, groups=40,
         k_sec=(3, 6, 20, 3), inc_sec=(16, 32, 32, 128),
@@ -122,6 +126,7 @@ def dpn98(num_classes=1000, pretrained=False, test_time_pool=True):
 
 
 def dpn131(num_classes=1000, pretrained=False, test_time_pool=True):
+    """Pretrained DPN131 model"""
     model = DPN(
         num_init_features=128, k_r=160, groups=40,
         k_sec=(4, 8, 28, 3), inc_sec=(16, 32, 32, 128),
@@ -142,6 +147,7 @@ def dpn131(num_classes=1000, pretrained=False, test_time_pool=True):
 
 
 def dpn107(num_classes=1000, pretrained=False, test_time_pool=True):
+    """Pretrained DPN107 model"""
     model = DPN(
         num_init_features=128, k_r=200, groups=50,
         k_sec=(4, 8, 20, 3), inc_sec=(20, 64, 64, 128),

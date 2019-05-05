@@ -2,8 +2,11 @@
 
 #### High-Level Training framework for Pytorch
 
-This framework is based in large part on the excellent [Torchsample](https://github.com/ncullen93/torchsample) framework originally published by @ncullen93.
-
+This framework is based in part on the excellent
+[Torchsample](https://github.com/ncullen93/torchsample) framework
+originally published by @ncullen93. Additionally, many models have been
+gently borrowed/modified from @Cadene pretrained models
+[repo](https://github.com/Cadene/pretrained-models.pytorch).
 
 PyWick aims to provide a *batteries included* framework for training neural networks. Among other things it includes:
 - State of the art normalization, activation, loss functions and optimizers not available in the standard Pytorch library.
@@ -257,8 +260,8 @@ train_loader = torch.utils.data.DataLoader(train_dataset,
 
 ## Extensive Library of Image Classification Models (most are pretrained!)
 - **All standard models from Pytorch (Densenet, ResNet, VGG)**
-- **BatchNorm Inception**
-- **Dual-Path Networks**
+- [**BatchNorm Inception**](https://arxiv.org/pdf/1502.03167.pdf)
+- [**Dual Path Networks**](https://arxiv.org/abs/1707.01629/)
 - **FBResnet**
 - **Inception v3**
 - **Inception v4**

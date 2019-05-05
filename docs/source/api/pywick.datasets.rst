@@ -1,12 +1,10 @@
 Datasets
 =======================
 
-tnt
------------
-
-.. toctree::
-
-    pywick.datasets.tnt
+.. automodule:: pywick.datasets
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 BaseDataset
 ----------------------------------
@@ -36,14 +34,6 @@ FolderDataset
 ------------------------------------
 
 .. automodule:: pywick.datasets.FolderDataset
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ImbalancedDatasetSampler
------------------------------------------------
-
-.. automodule:: pywick.datasets.ImbalancedDatasetSampler
     :members:
     :undoc-members:
     :show-inheritance:
@@ -80,10 +70,8 @@ UsefulDataset
     :undoc-members:
     :show-inheritance:
 
-data\_utils
+data utilities
 ----------------------------------
 
 .. automodule:: pywick.datasets.data_utils
     :members:
-    :undoc-members:
-    :show-inheritance:

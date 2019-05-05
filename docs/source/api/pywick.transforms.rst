@@ -1,16 +1,13 @@
 Transforms
 =========================
 
-Submodules
-----------
-
 Affine
 -------------------------------------------
 
 .. automodule:: pywick.transforms.affine_transforms
     :members:
     :undoc-members:
-    :show-inheritance:
+
 
 Distortion
 -----------------------------------------------
@@ -18,7 +15,7 @@ Distortion
 .. automodule:: pywick.transforms.distortion_transforms
     :members:
     :undoc-members:
-    :show-inheritance:
+
 
 Image
 ------------------------------------------
@@ -26,7 +23,7 @@ Image
 .. automodule:: pywick.transforms.image_transforms
     :members:
     :undoc-members:
-    :show-inheritance:
+
 
 Tensor
 -------------------------------------------
@@ -34,4 +31,4 @@ Tensor
 .. automodule:: pywick.transforms.tensor_transforms
     :members:
     :undoc-members:
-    :show-inheritance:
+

@@ -10,17 +10,16 @@ class AdamW(Optimizer):
 
     It has been proposed in `Fixing Weight Decay Regularization in Adam`_.
 
-    Arguments:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float, optional): learning rate (default: 1e-3)
-        betas (Tuple[float, float], optional): coefficients used for computing
-            running averages of gradient and its square (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve
-            numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
+    :param params: (iterable): iterable of parameters to optimize or dicts defining
+        parameter groups
+    :param lr: (float, optional): learning rate (default: 1e-3)
+    :param betas: (Tuple[float, float], optional): coefficients used for computing
+        running averages of gradient and its square (default: (0.9, 0.999))
+    :param eps: (float, optional): term added to the denominator to improve
+        numerical stability (default: 1e-8)
+    :param weight_decay: (float, optional): weight decay (L2 penalty) (default: 0)
 
-    .. Fixing Weight Decay Regularization in Adam:
+    .. _Fixing Weight Decay Regularization in Adam:
     https://arxiv.org/abs/1711.05101
     """
 
@@ -31,9 +30,8 @@ class AdamW(Optimizer):
     def step(self, closure=None):
         """Performs a single optimization step.
 
-        Arguments:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
+        :param closure: (callable, optional): A closure that reevaluates the model
+            and returns the loss.
         """
         loss = None
         if closure is not None:

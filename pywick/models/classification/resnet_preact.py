@@ -1,5 +1,9 @@
 # Source: https://github.com/hysts/pytorch_resnet_preact (License: MIT)
 
+"""
+`Preact_Resnet models <https://github.com/hysts/pytorch_resnet_preact>`_. Not pretrained.
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

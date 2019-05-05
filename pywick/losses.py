@@ -1,9 +1,20 @@
+"""
+Losses are critical to training a neural network well. The training can only make progress if you
+provide a meaningful measure of loss for each training step. What the loss looks like usually depends
+on your application. Pytorch has a number of `loss functions <https://pytorch.org/docs/stable/nn.html#loss-functions/>`_ that
+you can use out of the box. However, some more advanced and cutting edge loss functions exist that are not (yet) part of
+Pytorch. We include those below for your experimenting.\n
+**Caution:** if you decide to use one of these, you will definitely want to peruse the source code first, as it has
+many additional useful notes and references which will help you.
+"""
+
 ##  Various loss calculation functions  ##
 # Sources:  https://github.com/bermanmaxim/jaccardSegment/blob/master/losses.py (?)
 #           https://github.com/doodledood/carvana-image-masking-challenge/blob/master/losses.py (MIT)
 #           https://github.com/atlab/attorch/blob/master/attorch/losses.py (MIT)
 #           https://github.com/EKami/carvana-challenge (MIT)
 #           https://github.com/DingKe/pytorch_workplace (MIT)
+
 
 import numpy as np
 import torch

@@ -1,3 +1,7 @@
+r"""NASNetALarge model architecture from the
+`"NASNet" <https://arxiv.org/abs/1707.07012>`_ paper.
+"""
+
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/nasnet.py (License: BSD-3-Clause)
 
 import torch
@@ -596,8 +600,8 @@ class NASNetALarge(nn.Module):
 
 
 def nasnetalarge(pretrained='imagenet'):
-    r"""NASNetALarge model architecture from the
-    `"NASNet" <https://arxiv.org/abs/1707.07012>`_ paper.
+    """
+    pretrained NASNet
     """
 
     # both 'imagenet'&'imagenet+background' are loaded from same parameters

@@ -1,5 +1,5 @@
 import math
-from .dataset import Dataset
+from pywick.datasets.tnt.dataset import Dataset
 from . import transform
 
 
