@@ -17,6 +17,11 @@ PyWick aims to provide a *batteries included* framework for training neural netw
 - Useful meters
 - Basic GridSearch (exhaustive and random)
 
+## Docs
+Hey, [check this out](https://pywick.readthedocs.io/en/latest/), we now
+have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
+work in progress though so apologies for anything that's broken.
+
 ## Install
 Substitute version number as necessary:
 
