@@ -134,7 +134,10 @@ class SegmentationOutputAsserts(Condition):
 
     def __call__(self, exec_type, epoch_num, batch_num, net=None, inputs=None, outputs=None, labels=None):
         if isinstance(outputs, tuple):  # if we have an auxiliary output as well
-            outs, aux = outputs
+            if any(item is None for item in outputs) or len(outputs) < 2:      # seriously... why?  I'm looking at you OCNet
+                outs = outputs[0]
+            else:
+                outs, aux = outputs
         else:
             outs = outputs
         assert outs.size()[2:] == labels.size()[1:]
