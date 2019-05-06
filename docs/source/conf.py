@@ -179,9 +179,9 @@ texinfo_documents = [
 
 # Exclude imports
 autodoc_mock_imports = [
-    # "h5py",
+    "h5py",
     "torch",
     "torchvision",
-    # "numpy",
-    # "pandas",
+    "numpy",
+    "pandas",
 ]
