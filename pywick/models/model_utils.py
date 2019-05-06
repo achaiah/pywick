@@ -187,12 +187,32 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             net = ResnetGCN(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'Segnet':                                          # standard segnet
             net = SegNet(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_BiSeNet_Res18':
+            net = TEST_BiSeNet_Res18(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DANet_Res50':
+            net = TEST_DANet_Res50(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DANet_Res101':
+            net = TEST_DANet_Res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DANet_Res152':
+            net = TEST_DANet_Res152(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DenseASPP_121':
+            net = TEST_DenseASPP_121(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DenseASPP_161':
+            net = TEST_DenseASPP_161(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DenseASPP_169':
+            net = TEST_DenseASPP_169(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DenseASPP_201':
+            net = TEST_DenseASPP_201(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_DiLinknet':
             net = TEST_DiLinknet(num_classes=num_classes, pretrained=False)
         elif model_name == 'TEST_DLR_Resnet':
             net = create_DLR_V3_pretrained(num_classes=num_classes)
         elif model_name == 'TEST_DLX_Resnet':
             net = create_DLX_V3_pretrained(num_classes=num_classes)
+        elif model_name == 'TEST_EncNet_Res101':
+            net = TEST_EncNet_Res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_EncNet_Res152':
+            net = TEST_EncNet_Res152(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_PSPNet2':
             net = TEST_PSPNet2(num_classes=num_classes)
         elif model_name == 'TEST_DLV2':
@@ -200,6 +220,8 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             net = TEST_DLV3_Xception(n_classes=num_classes, os=8, pretrained=True, _print=False)
         elif model_name == 'TEST_DLV3':
             net = TEST_DLV3(n_classes=num_classes, n_blocks=[3, 4, 23, 3], pyramids=[12, 24, 36], grids=[1, 2, 4], output_stride=8)
+        elif model_name == 'TEST_FCDensenet':
+            net = TEST_FCDensenet(out_channels=num_classes)
         elif model_name == 'TEST_LinkCeption':
             net = TEST_LinkCeption(num_classes=num_classes)
         elif model_name == 'TEST_LinkDensenet121':
@@ -212,8 +234,18 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             net = TEST_Linknet152(num_classes=num_classes)
         elif model_name == 'TEST_Linknext':
             net = TEST_Linknext(num_classes=num_classes)
-        elif model_name == 'TEST_FCDensenet':
-            net = TEST_FCDensenet(out_channels=num_classes)
+        elif model_name == 'TEST_OCNet_Base_Res101':
+            net = TEST_OCNet_Base_Res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_OCNet_ASP_Res101':
+            net = TEST_OCNet_ASP_Res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_OCNet_Pyr_Res101':
+            net = TEST_OCNet_Pyr_Res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_OCNet_Base_Res152':
+            net = TEST_OCNet_Base_Res152(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_OCNet_ASP_Res152':
+            net = TEST_OCNet_ASP_Res152(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_OCNet_Pyr_Res152':
+            net = TEST_OCNet_Pyr_Res152(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_Tiramisu57':
             net = TEST_Tiramisu57(num_classes=num_classes)
         elif model_name == 'TEST_Unet_nested_dilated':
