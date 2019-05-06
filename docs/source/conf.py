@@ -23,20 +23,20 @@ project = u'pywick'
 copyright = u'2019, Achaiah'
 author = u'Achaiah'
 
-# version_file = '../../pywick/__init__.py'
-# with open(version_file, 'r') as f:
-#     exec(compile(f.read(), version_file, 'exec'))
-# __version__ = locals()['__version__']
-#
-# # The short X.Y version
-# version = __version__
-# # The full version, including alpha/beta/rc tags
-# release = __version__
+version_file = '../../pywick/__init__.py'
+with open(version_file, 'r') as f:
+    exec(compile(f.read(), version_file, 'exec'))
+__version__ = locals()['__version__']
 
 # The short X.Y version
-version = ''
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = '0.5.2'
+release = __version__
+
+# # The short X.Y version
+# version = ''
+# # The full version, including alpha/beta/rc tags
+# release = '0.5.2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -175,6 +175,7 @@ texinfo_documents = [
 
 # Exclude imports
 autodoc_mock_imports = [
+    "h5py",
     "torch",
     "torchvision",
     "numpy",
