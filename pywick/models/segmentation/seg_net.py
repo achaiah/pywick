@@ -1,5 +1,9 @@
 # Source: https://github.com/zijundeng/pytorch-semantic-segmentation/tree/master/models (MIT)
 
+"""
+Implementation of `Segnet: A deep convolutional encoder-decoder architecture for image segmentation <https://arxiv.org/pdf/1511.00561>`_
+"""
+
 import torch
 from torch import nn
 from torchvision import models

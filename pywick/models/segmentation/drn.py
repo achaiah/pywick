@@ -1,6 +1,10 @@
 # Source: https://github.com/fyu/drn/blob/master/drn.py (BSD 3-Clause)
 # Pretrained: yes
 
+"""
+Implementation of `Dilated Residual Networks <http://openaccess.thecvf.com/content_cvpr_2017/papers/Yu_Dilated_Residual_Networks_CVPR_2017_paper.pdf>`_
+"""
+
 import torch.nn as nn
 import math
 import torch.utils.model_zoo as model_zoo

@@ -1,58 +1,57 @@
 Optimizers
 =========================
 
+.. automodule:: pywick.optimizers
+    :members:
+    :undoc-members:
+
 AdamW
 --------------------------------
 
 .. automodule:: pywick.optimizers.adamw
-    :members:
+    :members: AdamW
     :undoc-members:
-    :show-inheritance:
 
 AddSign
 --------------------------------
 
 .. automodule:: pywick.optimizers.addsign
-    :members:
+    :members: AddSign
     :undoc-members:
-    :show-inheritance:
 
 Eve
 ----------------------------
 
 .. automodule:: pywick.optimizers.eve
-    :members:
+    :members: Eve
     :undoc-members:
-    :show-inheritance:
 
 Nadam
 ------------------------------
 
 .. automodule:: pywick.optimizers.nadam
-    :members:
+    :members: Nadam
     :undoc-members:
-    :show-inheritance:
 
 PowerSign
 ----------------------------------
 
 .. automodule:: pywick.optimizers.powersign
-    :members:
+    :members: PowerSign
     :undoc-members:
-    :show-inheritance:
 
 SGDW
 --------------------------------
 
 .. automodule:: pywick.optimizers.sgdw
-    :members:
+    :members: SGDW
     :undoc-members:
-    :show-inheritance:
+    :exclude-members: step
 
 SWA
 ----------------------------
 
 .. automodule:: pywick.optimizers.swa
-    :members:
+    :members: SWA
     :undoc-members:
-    :show-inheritance:
+    :exclude-members: step

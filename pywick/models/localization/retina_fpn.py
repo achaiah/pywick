@@ -2,7 +2,7 @@
 
 '''RetinaFPN in PyTorch.
 
-See the paper "Focal Loss for Dense Object Detection" for more details.
+Implementation of `Focal Loss for Dense Object Detection <http://openaccess.thecvf.com/content_ICCV_2017/papers/Lin_Focal_Loss_for_ICCV_2017_paper.pdf>`_.
 '''
 import torch
 import torch.nn as nn

@@ -1,10 +1,13 @@
+# Source: https://github.com/Hsuxu/carvana-pytorch-uNet/blob/master/model.py
+
+"""
+Implementation of `U-net: Convolutional networks for biomedical image segmentation <https://arxiv.org/pdf/1505.04597>`_ with dilation convolution operation
+"""
+
 import torch
 import torch.nn as nn
 
-"""
-This is a uNet model with dilation convolution operation
-Source: https://github.com/Hsuxu/carvana-pytorch-uNet/blob/master/model.py
-"""
+
 
 
 class Conv_transition(nn.Module):

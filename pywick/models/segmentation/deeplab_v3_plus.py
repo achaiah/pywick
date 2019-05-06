@@ -1,5 +1,9 @@
 # Source: https://github.com/doiken23/DeepLab_pytorch
 
+"""
+DeepLab v3+ `Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation <https://arxiv.org/abs/1802.02611>`_
+"""
+
 import math
 
 import torch

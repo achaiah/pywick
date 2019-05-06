@@ -4,30 +4,31 @@ Segmentation
 .. automodule:: pywick.models.segmentation
     :members:
     :undoc-members:
+    :exclude-members: features, forward, logits
 
-Deeplab\_V2\_res
+Deeplab V2 Resnet
 --------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.deeplab_v2_res
     :members: DeepLabv2_ASPP, DeepLabv2_FOV
     :undoc-members:
-    
+    :exclude-members: forward
 
-Deeplab\_V3
+Deeplab V3
 ---------------------------------------------
 
 .. automodule:: pywick.models.segmentation.deeplab_v3
-    :members:
+    :members: DeepLabv3
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-Deeplab\_V3\_plus
+Deeplab V3+
 ---------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.deeplab_v3_plus
-    :members:
+    :members: DeepLabv3_plus
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 DRNNet
 -------------------------------------
@@ -35,63 +36,63 @@ DRNNet
 .. automodule:: pywick.models.segmentation.drn
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits, BasicBlock, Bottleneck, conv3x3
 
-DUC\_HDC
+DUC, HDC
 ------------------------------------------
 
 .. automodule:: pywick.models.segmentation.duc_hdc
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 ENet
 --------------------------------------
 
 .. automodule:: pywick.models.segmentation.enet
-    :members:
+    :members: ENet
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-FCN\_8s
+FCN8 VGG
 ---------------------------------------
 
 .. automodule:: pywick.models.segmentation.fcn8s
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-FCN16\_VGG
+FCN16 VGG
 ----------------------------------------
 
 .. automodule:: pywick.models.segmentation.fcn16s
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-FCN32\_VGG
+FCN32 VGG
 ----------------------------------------
 
 .. automodule:: pywick.models.segmentation.fcn32s
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 FRRN
 --------------------------------------
 
 .. automodule:: pywick.models.segmentation.frrn
-    :members:
+    :members: frrn
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 FusionNet
 -------------------------------------------
 
 .. automodule:: pywick.models.segmentation.fusionnet
-    :members:
+    :members: FusionNet
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 GCN
 -------------------------------------
@@ -99,55 +100,73 @@ GCN
 .. automodule:: pywick.models.segmentation.gcn
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-GCN\_Densenet
+GCN Densenet
 -------------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.gcnnets.gcn_densenet
-    :members:
+    :members: GCN_DENSENET
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-GCN\_NASNet
+GCN NASNet
 -----------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.gcnnets.gcn_nasnet
-    :members:
+    :members: GCN_NASNET
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-GCN\_PSP
+GCN PSP
 --------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.gcnnets.gcn_psp
-    :members:
+    :members: GCN_PSP
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-GCN\_ResNext
+
+GCN Resnet
+---------------------------------------------
+
+.. automodule:: pywick.models.segmentation.resnet_gcn
+    :members: ResnetGCN
+    :undoc-members:
+    :exclude-members: features, forward, logits
+
+
+GCN ResNext
 ------------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.gcnnets.gcn_resnext
+    :members: GCN_RESNEXT
+    :undoc-members:
+    :exclude-members: features, forward, logits
+
+Linknet
+----------------------------------------
+
+.. automodule:: pywick.models.segmentation.testnets.mnas_linknets.linknet
+    :members: LinkCeption, LinkDenseNet121, LinkDenseNet161, LinkInceptionResNet, LinkNet18, LinkNet34, LinkNet50, LinkNet101, LinkNet152, LinkNeXt, CoarseLinkNet50
+    :undoc-members:
+    :exclude-members: features, forward, logits, freeze, require_encoder_grad, unfreeze
+
+RefineNet
+----------------------------------------
+
+.. automodule:: pywick.models.segmentation.refinenet.refinenet
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 PSP
 ----------------------------------------
 
 .. automodule:: pywick.models.segmentation.lexpsp
-    :members:
+    :members: PSPNet
     :undoc-members:
-    
-
-Resnet\_GCN
----------------------------------------------
-
-.. automodule:: pywick.models.segmentation.resnet_gcn
-    :members:
-    :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 SegNet
 ------------------------------------------
@@ -155,15 +174,15 @@ SegNet
 .. automodule:: pywick.models.segmentation.seg_net
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 Tiramisu
 ------------------------------------------
 
 .. automodule:: pywick.models.segmentation.tiramisu
-    :members:
+    :members: FCDenseNet, FCDenseNet57, FCDenseNet67, FCDenseNet103
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 Unet
 ----------------------------------------
@@ -171,28 +190,36 @@ Unet
 .. automodule:: pywick.models.segmentation.u_net
     :members:
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-Unet\_dilated
+Unet Sized
+----------------------------------------
+
+.. automodule:: pywick.models.segmentation.carvana_unet
+    :members: UNet128, UNet256, UNet512, UNet1024
+    :undoc-members:
+    :exclude-members: features, forward, logits
+
+Unet Dilated
 -----------------------------------------------
 
 .. automodule:: pywick.models.segmentation.unet_dilated
-    :members:
+    :members: uNetDilated
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
-Unet\_res
+Unet Residual
 -------------------------------------------
 
 .. automodule:: pywick.models.segmentation.unet_res
-    :members:
+    :members: UNetRes
     :undoc-members:
-    
+    :exclude-members: features, forward, logits
 
 Unet\_stack
 ---------------------------------------------
 
 .. automodule:: pywick.models.segmentation.unet_stack
-    :members:
+    :members: UNet_stack, UNet960
     :undoc-members:
-    
+    :exclude-members: features, forward, logits

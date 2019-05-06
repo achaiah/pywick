@@ -7,6 +7,10 @@
 
 # Source: https://github.com/kazuto1011/deeplab-pytorch/tree/master/libs/models
 
+"""
+DeepLab v2 - `DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs <https://arxiv.org/abs/1606.00915>`_.
+"""
+
 from collections import OrderedDict
 
 import torch
@@ -57,7 +61,6 @@ class _ASPPModule(nn.Module):
 
 
 class DeepLabV2(nn.Sequential):
-    """DeepLab v2"""
 
     def __init__(self, n_classes, n_blocks, pyramids):
         super(DeepLabV2, self).__init__()

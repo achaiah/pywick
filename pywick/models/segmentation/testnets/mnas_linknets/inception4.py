@@ -1,5 +1,6 @@
 """
-Inception V4 architecture as described in: `Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning <http://arxiv.org/abs/1602.07261>`_.
+Inception V4 architecture as described in:
+`Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning <http://arxiv.org/abs/1602.07261>`_.
 """
 
 import torch

@@ -5,7 +5,7 @@ FPN
 -------------------------------------
 
 .. automodule:: pywick.models.localization.fpn
-    :members:
+    :members: FPN, FPN101
     :undoc-members:
     :show-inheritance:
 
@@ -13,6 +13,6 @@ Retina\_FPN
 ---------------------------------------------
 
 .. automodule:: pywick.models.localization.retina_fpn
-    :members:
+    :members: RetinaFPN, RetinaFPN101
     :undoc-members:
     :show-inheritance:

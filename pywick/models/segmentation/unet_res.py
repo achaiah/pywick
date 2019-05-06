@@ -1,3 +1,7 @@
+"""
+Implementation of `U-net: Convolutional networks for biomedical image segmentation <https://arxiv.org/pdf/1505.04597>`_
+"""
+
 # Source: https://github.com/saeedizadi/binseg_pytoch (Apache-2.0)
 
 import torch

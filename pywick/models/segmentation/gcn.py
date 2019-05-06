@@ -1,5 +1,9 @@
 # Source: https://github.com/zijundeng/pytorch-semantic-segmentation/tree/master/models (MIT)
 
+"""
+Implementation of `Large Kernel Matters <https://arxiv.org/pdf/1703.02719>`_
+"""
+
 import torch
 import torch.nn.functional as F
 from torch import nn

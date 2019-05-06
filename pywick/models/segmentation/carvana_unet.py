@@ -1,4 +1,7 @@
-# unet from scratch
+"""
+Implementation of `U-net: Convolutional networks for biomedical image segmentation <https://arxiv.org/pdf/1505.04597>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

@@ -1,5 +1,9 @@
 # Source: https://github.com/snakers4/mnasnet-pytorch/blob/master/src/models/linknet.py
 
+"""
+Implementation of `LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation <https://arxiv.org/pdf/1505.04597>`_
+"""
+
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models

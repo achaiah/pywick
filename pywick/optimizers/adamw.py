@@ -8,7 +8,7 @@ from torch.optim.optimizer import Optimizer
 class AdamW(Optimizer):
     """Implements AdamW algorithm.
 
-    It has been proposed in `Fixing Weight Decay Regularization in Adam`_.
+    It has been proposed in `Fixing Weight Decay Regularization in Adam <https://arxiv.org/abs/1711.05101>`_.
 
     :param params: (iterable): iterable of parameters to optimize or dicts defining
         parameter groups
@@ -19,8 +19,6 @@ class AdamW(Optimizer):
         numerical stability (default: 1e-8)
     :param weight_decay: (float, optional): weight decay (L2 penalty) (default: 0)
 
-    .. _Fixing Weight Decay Regularization in Adam:
-    https://arxiv.org/abs/1711.05101
     """
 
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0):

@@ -1,5 +1,9 @@
 # Source: https://github.com/doiken23/DeepLab_pytorch
 
+"""
+DeepLab v3 - `Rethinking Atrous Convolution for Semantic Image Segmentation <https://arxiv.org/abs/1706.05587>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

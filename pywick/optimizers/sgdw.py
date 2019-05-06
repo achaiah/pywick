@@ -8,13 +8,12 @@ from torch.optim import SGD
 class SGDW(Optimizer):
     r"""Implements stochastic gradient descent warm (optionally with momentum).
 
-    It has been proposed in `Fixing Weight Decay Regularization in Adam`_.
+    It has been proposed in `Fixing Weight Decay Regularization in Adam <https://arxiv.org/abs/1711.05101>`_.
 
     Nesterov momentum is based on the formula from
-    `On the importance of initialization and momentum in deep learning`__.
+    `On the importance of initialization and momentum in deep learning <http://www.cs.toronto.edu/%7Ehinton/absps/momentum.pdf>`_.
 
-    :param params (iterable): iterable of parameters to optimize or dicts defining
-        parameter groups
+    :param params (iterable): iterable of parameters to optimize or dicts defining parameter groups
     :param lr: (float): learning rate
     :param momentum: (float, optional): momentum factor (default: 0)
     :param weight_decay: (float, optional): weight decay (L2 penalty) (default: 0)
@@ -26,8 +25,6 @@ class SGDW(Optimizer):
         >>> optimizer.zero_grad()
         >>> loss_fn(model(input), target).backward()
         >>> optimizer.step()
-
-    __ http://www.cs.toronto.edu/%7Ehinton/absps/momentum.pdf
 
     .. note::
         The implementation of SGD with Momentum/Nesterov subtly differs from
@@ -50,9 +47,6 @@ class SGDW(Optimizer):
              p = p - v
 
         The Nesterov version is analogously modified.
-
-    .. _Fixing Weight Decay Regularization in Adam:
-    https://arxiv.org/abs/1711.05101
     """
 
     def __init__(self, params, lr=required, momentum=0, dampening=0, weight_decay=0, nesterov=False):

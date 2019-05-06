@@ -1,5 +1,9 @@
 # Source: https://github.com/saeedizadi/binseg_pytoch (Apache-2.0)
 
+"""
+Implementation of `FusionNet: A deep fully residual convolutional neural network for image segmentation in connectomics <https://arxiv.org/abs/1612.05360>`_
+"""
+
 import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as F

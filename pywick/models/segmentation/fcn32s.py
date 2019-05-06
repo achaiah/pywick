@@ -1,5 +1,9 @@
 # Source: https://github.com/zijundeng/pytorch-semantic-segmentation/tree/master/models (MIT)
 
+"""
+Implementation of `Fully Convolutional Networks for Semantic Segmentation <http://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Long_Fully_Convolutional_Networks_2015_CVPR_paper.pdf>`_
+"""
+
 import torch
 from torch import nn
 from torchvision import models

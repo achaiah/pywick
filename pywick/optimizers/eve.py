@@ -6,7 +6,7 @@ from torch.optim import Optimizer
 
 class Eve(Optimizer):
     """
-    implements Eve Algorithm, proposed in `IMPROVING STOCHASTIC GRADIENT DESCENT WITH FEEDBACK`
+    Implementation of `Eve:  A Gradient Based Optimization Method with Locally and Globally Adaptive Learning Rates <https://arxiv.org/pdf/1611.01505.pdf>`_
     """
 
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999, 0.999), eps=1e-8, k=0.1, K=10, weight_decay=0):

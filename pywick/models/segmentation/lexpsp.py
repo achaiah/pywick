@@ -1,5 +1,9 @@
 # Source: https://github.com/Lextal/pspnet-pytorch
 
+"""
+Implementation of `Pyramid Scene Parsing Network <https://arxiv.org/pdf/1612.01105>`_
+"""
+
 from .lex_extractors import *
 
 extractor_models = {

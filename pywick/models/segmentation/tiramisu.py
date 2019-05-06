@@ -1,5 +1,9 @@
 # Source: https://github.com/bfortuner/pytorch_tiramisu/blob/master/models/tiramisu.py (MIT)
 
+"""
+Implementation of `The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for Semantic Segmentation <https://arxiv.org/pdf/1611.09326>`_
+"""
+
 import torch
 import torch.nn as nn
 

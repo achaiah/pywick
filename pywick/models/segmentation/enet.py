@@ -1,5 +1,9 @@
 # Source: https://github.com/davidtvs/PyTorch-ENet (MIT)
 
+"""
+Implementation of `ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation <https://arxiv.org/abs/1606.02147>`_
+"""
+
 import torch.nn as nn
 import torch
 
@@ -487,15 +491,13 @@ class UpsamplingBottleneck(nn.Module):
 class ENet(nn.Module):
     """Generate the ENet model.
 
-    Keyword arguments:
-    - num_classes (int): the number of classes to segment.
-    - encoder_relu (bool, optional): When ``True`` ReLU is used as the
-    activation function in the encoder blocks/layers; otherwise, PReLU
-    is used. Default: False.
-    - decoder_relu (bool, optional): When ``True`` ReLU is used as the
-    activation function in the decoder blocks/layers; otherwise, PReLU
-    is used. Default: True.
-
+    :param num_classes: (int): the number of classes to segment.
+    :param encoder_relu: (bool, optional): When ``True`` ReLU is used as the
+        activation function in the encoder blocks/layers; otherwise, PReLU
+        is used. Default: False.
+    :param decoder_relu: (bool, optional): When ``True`` ReLU is used as the
+        activation function in the decoder blocks/layers; otherwise, PReLU
+        is used. Default: True.
     """
 
     def __init__(self, num_classes, encoder_relu=False, decoder_relu=True):

@@ -1,6 +1,10 @@
 # Source: https://github.com/flixpar/VisDa/tree/master/models
 
 
+"""
+Implementation of `Large Kernel Matters <https://arxiv.org/pdf/1703.02719>`_ with Resnext backend
+"""
+
 from .. import resnext101_64x4d
 from math import floor
 

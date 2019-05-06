@@ -65,7 +65,7 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
         NOTE! NOTE! For classification, the lowercase model names are the pretrained variants while the Uppercase model names are not.
         It is IN ERROR to specify an Uppercase model name variant with pretrained=True but one can specify a lowercase model variant with pretrained=False
         (default: True)
-    :return model
+    :return: model
     """
 
     if model_name not in get_supported_models(model_type) and not model_name.startswith('TEST'):
@@ -175,6 +175,10 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             net = LinkNet34(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'PSPNet':
             net = PSPNet(num_classes=num_classes, pretrained=pretrained, backend='resnet101')
+        elif model_name == 'RefineNet4Cascade':
+            net = RefineNet4Cascade((1, input_size), num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'RefineNet4CascadePoolingImproved':
+            net = RefineNet4Cascade((1, input_size), num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'Resnet_DUC':
             net = ResNetDUC(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'Resnet_DUC_HDC':
@@ -293,6 +297,8 @@ def get_supported_models(type):
                 'GCN_Resnext',
                 'Linknet',
                 'PSPNet',
+                'RefineNet4Cascade',
+                'RefineNet4CascadePoolingImproved',
                 'Resnet_DUC',
                 'Resnet_DUC_HDC',
                 'Resnet_GCN',
@@ -406,6 +412,7 @@ def diff_states(dict_canonical, dict_subset):
 def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, ignore_chkpt_layers=None):
     """
     Loads weights from a checkpoint into memory. If model is not None then the weights are loaded into the model.
+
     :param checkpoint_path: (string):
         path to a pretrained network to load weights from
     :param model: the model object to load weights onto (default: None)
@@ -419,11 +426,13 @@ def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, igno
         special string: 'last_layer' which will trigger the logic to chop off the last layer of the checkpoint dictionary. Otherwise
         you can pass in a list of layers to remove from the checkpoint before loading it (e.g. you would do that when
         loading an inception model that has more than one output layer).
+
     :return: checkpoint
     """
 
     # Handle incompatibility between pytorch0.4 and pytorch0.4.x
     # Source: https://discuss.pytorch.org/t/question-about-rebuild-tensor-v2/14560/2
+
     import torch._utils
     try:
         torch._utils._rebuild_tensor_v2

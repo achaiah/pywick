@@ -1,6 +1,10 @@
 # Another implementation of GCN
 # Source: https://github.com/saeedizadi/binseg_pytoch/tree/master/models (Apache-2.0)
 
+"""
+Implementation of `Large Kernel Matters <https://arxiv.org/pdf/1703.02719>`_ with Resnet backend.
+"""
+
 import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as F

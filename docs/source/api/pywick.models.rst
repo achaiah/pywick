@@ -17,5 +17,5 @@ utility functions
 ---------------------------------
 
 .. automodule:: pywick.models.model_utils
-    :members: load_checkpoint, get_model, get_fc_names
+    :members: load_checkpoint, get_model, get_fc_names, get_supported_models
     :show-inheritance:

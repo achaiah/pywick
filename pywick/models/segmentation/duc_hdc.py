@@ -1,5 +1,8 @@
 # Source: https://github.com/zijundeng/pytorch-semantic-segmentation/tree/master/models (MIT)
 
+"""
+Implementation of: `Understanding Convolution for Semantic Segmentation <https://arxiv.org/pdf/1702.08502.pdf>`_
+"""
 import torch
 from torch import nn
 from torchvision import models

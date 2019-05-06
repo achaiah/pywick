@@ -8,6 +8,7 @@ are supported out of the box.
 * Densenet (121, 161, 169, 201)
 * GoogLeNet
 * Inception V3
+* Mobilenet V2
 * ResNet (18, 34, 50, 101, 152)
 * ShuffleNet V2
 * SqueezeNet (1.0, 1.1)

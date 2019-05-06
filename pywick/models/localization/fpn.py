@@ -2,7 +2,7 @@
 
 '''FPN in PyTorch.
 
-See the paper "Feature Pyramid Networks for Object Detection" for more details.
+Implementation of `Feature Pyramid Networks for Object Detection <http://openaccess.thecvf.com/content_cvpr_2017/papers/Lin_Feature_Pyramid_Networks_CVPR_2017_paper.pdf>`_.
 '''
 import torch
 import torch.nn as nn
@@ -120,11 +120,3 @@ def FPN101():
     # return FPN(Bottleneck, [2,4,23,3])
     return FPN(Bottleneck, [2,2,2,2])
 
-
-def test():
-    net = FPN101()
-    fms = net(torch.randn(1,3,600,900))
-    for fm in fms:
-        print(fm.size())
-
-test()

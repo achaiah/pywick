@@ -1,5 +1,9 @@
 # Source: https://github.com/flixpar/VisDa/tree/master/models
 
+"""
+Implementation of `Large Kernel Matters <https://arxiv.org/pdf/1703.02719>`_ with PSP backend
+"""
+
 from math import floor
 
 import torch

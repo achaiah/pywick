@@ -1,8 +1,9 @@
 """
 Below you will find all the latest image segmentation models.
-To load one of these models with your own number of classes use the ``models.model_utils.get_model(...)`` function and specify the name of the model
-exactly like its class name (e.g. if the class name reads ``pywick.models.segmentation.deeplab_v2_res.DeepLabv2_ASPP`` then use
-`DeepLabv2_ASPP` as the model name for ``models.model_utils.get_model(...)``.
+To load one of these models with your own number of classes use the ``pywick.models.model_utils.get_model(...)`` function and specify the name of the model
+that you want. The names can be a bit tricky (we're still working on that!) but for now you can
+get a good list by calling ``pywick.models.model_utils.get_supported_models(...)``. If all else fails
+you can take a look at the ``pywick.models.model_utils.get_model(...)`` function for an exact list.
 """
 
 from .carvana_unet import *
@@ -22,6 +23,7 @@ from .fusionnet import FusionNet
 from .gcn import GCN
 from .gcnnets import *
 from .lexpsp import PSPNet
+from .refinenet import *
 from .resnet_gcn import ResnetGCN
 from .seg_net import SegNet
 from .testnets import *

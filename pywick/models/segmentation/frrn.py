@@ -1,5 +1,9 @@
 # Source: https://github.com/meetshah1995/pytorch-semseg (MIT)
 
+"""
+Implementation of `Full Resolution Residual Networks for Semantic Segmentation in Street Scenes <https://arxiv.org/abs/1611.08323>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

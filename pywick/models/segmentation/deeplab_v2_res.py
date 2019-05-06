@@ -1,5 +1,9 @@
 # Source: https://github.com/doiken23/DeepLab_pytorch
 
+"""
+DeepLab v2 - DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs <https://arxiv.org/abs/1606.00915>`_
+"""
+
 import math
 
 import torch.nn as nn
@@ -130,7 +134,7 @@ class Atrous_module(nn.Module):
 
 class DeepLabv2_ASPP(nn.Module):
     """
-    DeeplabV2 implementation with ASPP.
+    DeeplabV2 Resnet implementation with ASPP.
     """
     def __init__(self, num_classes, small=True, pretrained=False):
         super(DeepLabv2_ASPP, self).__init__()
@@ -161,7 +165,7 @@ class DeepLabv2_ASPP(nn.Module):
 
 class DeepLabv2_FOV(nn.Module):
     """
-        DeeplabV2 implementation with FOV.
+        DeeplabV2 Resnet implementation with FOV.
         """
     def __init__(self, num_classes, pretrained=True):
         super(DeepLabv2_FOV, self).__init__()
