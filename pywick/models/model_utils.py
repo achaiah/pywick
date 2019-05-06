@@ -223,15 +223,19 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
         elif model_name == 'TEST_FCDensenet':
             net = TEST_FCDensenet(out_channels=num_classes)
         elif model_name == 'TEST_LinkCeption':
-            net = TEST_LinkCeption(num_classes=num_classes)
+            net = TEST_LinkCeption(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_LinkDensenet121':
-            net = TEST_LinkDenseNet121(num_classes=num_classes)
+            net = TEST_LinkDenseNet121(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_LinkDensenet161':
+            net = TEST_LinkDenseNet161(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_Linknet50':
-            net = TEST_Linknet101(num_classes=num_classes)
+            net = TEST_Linknet50(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_Linknet101':
-            net = TEST_Linknet101(num_classes=num_classes)
+            net = TEST_Linknet101(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_Linknet152':
-            net = TEST_Linknet152(num_classes=num_classes)
+            net = TEST_Linknet152(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_LinkNext_Mnas':
+            net = TEST_LinkNext_Mnas(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_Linknext':
             net = TEST_Linknext(num_classes=num_classes)
         elif model_name == 'TEST_OCNet_Base_Res101':
