@@ -10,4 +10,5 @@ of some useful metadata. That said, you can use our datasets in the normal fashi
 with Pytorch.
 """
 
-from . import BaseDataset, ClonedFolderDataset, CSVDataset, FolderDataset, PredictFolderDataset, UsefulDataset, data_utils, tnt
+from . import BaseDataset, ClonedFolderDataset, CSVDataset, FolderDataset, PredictFolderDataset, UsefulDataset, data_utils
+from .tnt import *

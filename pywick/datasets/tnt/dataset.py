@@ -1,7 +1,7 @@
 from pywick.datasets.tnt.batchdataset import BatchDataset
-from pywick.datasets.tnt.transformdataset import TransformDataset
-from pywick.datasets.tnt.shuffledataset import ShuffleDataset
-from pywick.datasets.tnt.multipartitiondataset import MultiPartitionDataset
+from pywick.datasets.transformdataset import TransformDataset
+from pywick.datasets.shuffledataset import ShuffleDataset
+from pywick.datasets.multipartitiondataset import MultiPartitionDataset
 from torch.utils.data import DataLoader
 
 
