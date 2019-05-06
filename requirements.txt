@@ -1,6 +1,6 @@
 h5py>=2.7.1
-hickle
-numpy
+hickle>=3.4.3
+numpy>=1.14.3
 pandas
 pillow
 six
