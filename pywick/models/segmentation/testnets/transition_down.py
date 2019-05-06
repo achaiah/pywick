@@ -18,6 +18,8 @@ class TransitionDown(RichRepr, Sequential):
     - 2x2 Max Pooling
     """
 
+    __metaclass__ = RichRepr
+
     def __init__(self, in_channels: int, compression: float = 1.0, dropout: float = 0.0):
         super(TransitionDown, self).__init__()
 
