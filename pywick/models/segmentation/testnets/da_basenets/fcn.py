@@ -1,28 +1,24 @@
-import os
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from .vgg import vgg16
 
-# __all__ = ['get_fcn32s', 'get_fcn16s', 'get_fcn8s',
-#            'get_fcn32s_vgg16_voc', 'get_fcn16s_vgg16_voc', 'get_fcn8s_vgg16_voc']
+__all__ = ['FCN8s', 'FCN16s', 'FCN32s']
 
 
 class FCN32s(nn.Module):
     """There are some difference from original fcn"""
 
-    def __init__(self, nclass, backbone='vgg16', aux=False, pretrained_base=True,
-                 norm_layer=nn.BatchNorm2d, **kwargs):
+    def __init__(self, num_classes, backbone='vgg16', aux=False, pretrained=True, norm_layer=nn.BatchNorm2d, **kwargs):
         super(FCN32s, self).__init__()
         self.aux = aux
         if backbone == 'vgg16':
-            self.pretrained = vgg16(pretrained=pretrained_base).features
+            self.pretrained = vgg16(pretrained=pretrained).features
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
-        self.head = _FCNHead(512, nclass, norm_layer)
+        self.head = _FCNHead(512, num_classes, norm_layer)
         if aux:
-            self.auxlayer = _FCNHead(512, nclass, norm_layer)
+            self.auxlayer = _FCNHead(512, num_classes, norm_layer)
 
         self.__setattr__('exclusive', ['head', 'auxlayer'] if aux else ['head'])
 
@@ -44,19 +40,19 @@ class FCN32s(nn.Module):
 
 
 class FCN16s(nn.Module):
-    def __init__(self, nclass, backbone='vgg16', aux=False, pretrained_base=True, norm_layer=nn.BatchNorm2d, **kwargs):
+    def __init__(self, num_classes, backbone='vgg16', aux=False, pretrained=True, norm_layer=nn.BatchNorm2d, **kwargs):
         super(FCN16s, self).__init__()
         self.aux = aux
         if backbone == 'vgg16':
-            self.pretrained = vgg16(pretrained=pretrained_base).features
+            self.pretrained = vgg16(pretrained=pretrained).features
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
         self.pool4 = nn.Sequential(*self.pretrained[:24])
         self.pool5 = nn.Sequential(*self.pretrained[24:])
-        self.head = _FCNHead(512, nclass, norm_layer)
-        self.score_pool4 = nn.Conv2d(512, nclass, 1)
+        self.head = _FCNHead(512, num_classes, norm_layer)
+        self.score_pool4 = nn.Conv2d(512, num_classes, 1)
         if aux:
-            self.auxlayer = _FCNHead(512, nclass, norm_layer)
+            self.auxlayer = _FCNHead(512, num_classes, norm_layer)
 
         self.__setattr__('exclusive', ['head', 'score_pool4', 'auxlayer'] if aux else ['head', 'score_pool4'])
 
@@ -84,25 +80,24 @@ class FCN16s(nn.Module):
 
 
 class FCN8s(nn.Module):
-    def __init__(self, nclass, backbone='vgg16', aux=False, pretrained_base=True, norm_layer=nn.BatchNorm2d, **kwargs):
+    def __init__(self, num_classes, backbone='vgg16', aux=False, pretrained=True, norm_layer=nn.BatchNorm2d, **kwargs):
         super(FCN8s, self).__init__()
         self.aux = aux
         if backbone == 'vgg16':
-            self.pretrained = vgg16(pretrained=pretrained_base).features
+            self.pretrained = vgg16(pretrained=pretrained).features
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
         self.pool3 = nn.Sequential(*self.pretrained[:17])
         self.pool4 = nn.Sequential(*self.pretrained[17:24])
         self.pool5 = nn.Sequential(*self.pretrained[24:])
-        self.head = _FCNHead(512, nclass, norm_layer)
-        self.score_pool3 = nn.Conv2d(256, nclass, 1)
-        self.score_pool4 = nn.Conv2d(512, nclass, 1)
+        self.head = _FCNHead(512, num_classes, norm_layer)
+        self.score_pool3 = nn.Conv2d(256, num_classes, 1)
+        self.score_pool4 = nn.Conv2d(512, num_classes, 1)
         if aux:
-            self.auxlayer = _FCNHead(512, nclass, norm_layer)
+            self.auxlayer = _FCNHead(512, num_classes, norm_layer)
 
         self.__setattr__('exclusive',
-                         ['head', 'score_pool3', 'score_pool4', 'auxlayer'] if aux else ['head', 'score_pool3',
-                                                                                         'score_pool4'])
+                         ['head', 'score_pool3', 'score_pool4', 'auxlayer'] if aux else ['head', 'score_pool3', 'score_pool4'])
 
     def forward(self, x):
         pool3 = self.pool3(x)
