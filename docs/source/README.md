@@ -1,7 +1,5 @@
 # Pywick
 
-#### High-Level Training framework for Pytorch
-
 Pywick is a high-level Pytorch training framework that aims to get you
 up and running quickly with state of the art neural networks. *Does the
 world need another Pytorch framework?* Probably not. But we started this

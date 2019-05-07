@@ -1,7 +1,8 @@
 from math import ceil
 
 from torch.nn import Sequential, BatchNorm2d, ReLU, Conv2d, Dropout2d, MaxPool2d
-
+import re
+from itertools import chain
 from .utils import RichRepr
 
 
@@ -17,8 +18,6 @@ class TransitionDown(RichRepr, Sequential):
     - (Dropout)
     - 2x2 Max Pooling
     """
-
-    __metaclass__ = RichRepr
 
     def __init__(self, in_channels: int, compression: float = 1.0, dropout: float = 0.0):
         super(TransitionDown, self).__init__()
@@ -40,5 +39,12 @@ class TransitionDown(RichRepr, Sequential):
 
         self.add_module('pool', MaxPool2d(kernel_size=2, stride=2))
 
+    def repr_in(self, *args, **kwargs):
+        res = super(RichRepr, self).__repr__()
+        args = filter(lambda s: len(s) > 0, map(str, args))
+        kwargs = (f'{k}={v}' for k, v in kwargs.items())
+        desc = ', '.join(chain(args, kwargs))
+        return re.sub(rf'({self.__class__.__name__})', rf'\1({desc})', res, count=1)
+
     def __repr__(self):
-        return super(TransitionDown, self).__repr__(self.in_channels, self.out_channels, dropout=self.dropout)
+        return self.repr_in(self.in_channels, self.out_channels, dropout=self.dropout)

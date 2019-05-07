@@ -1,7 +1,9 @@
 """
 Below you will find all the latest image segmentation models.
-To load one of these models with your own number of classes use the ``pywick.models.model_utils.get_model(...)`` function and specify the name of the model
-that you want. The names can be a bit tricky (we're still working on that!) but for now you can
+To load one of these models with your own number of classes you have two options:
+1. You can always load the model directly from the API. Most models allow you to customize *number of classes* as well as *pretrained* options.
+2. You can use the ``pywick.models.model_utils.get_model(...)`` function and pass the name of the model
+that you want as a string. The names can be a bit tricky (we're still working on that!) but for now you can
 get a good list by calling ``pywick.models.model_utils.get_supported_models(...)``. If all else fails
 you can take a look at the ``pywick.models.model_utils.get_model(...)`` function for an exact list.
 """
