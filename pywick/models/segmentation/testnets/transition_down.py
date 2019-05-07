@@ -3,10 +3,9 @@ from math import ceil
 from torch.nn import Sequential, BatchNorm2d, ReLU, Conv2d, Dropout2d, MaxPool2d
 import re
 from itertools import chain
-from .utils import RichRepr
 
 
-class TransitionDown(RichRepr, Sequential):
+class TransitionDown(Sequential):
     r"""
     Transition Down Block as described in [FCDenseNet](https://arxiv.org/abs/1611.09326),
     plus compression from [DenseNet](https://arxiv.org/abs/1608.06993)
@@ -40,7 +39,7 @@ class TransitionDown(RichRepr, Sequential):
         self.add_module('pool', MaxPool2d(kernel_size=2, stride=2))
 
     def repr_in(self, *args, **kwargs):
-        res = super(RichRepr, self).__repr__()
+        res = self.__repr__()
         args = filter(lambda s: len(s) > 0, map(str, args))
         kwargs = (f'{k}={v}' for k, v in kwargs.items())
         desc = ', '.join(chain(args, kwargs))
