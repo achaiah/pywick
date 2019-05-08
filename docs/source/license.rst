@@ -50,13 +50,15 @@ BSD 3-Clause License
 ^^^^^^^^^^^^^^^^^^^^
 BSD 3-Clause License
 
-Some contributions by Remi Cadene
-Copyright (c) 2017, Remi Cadene
-All rights reserved.
+::
 
-All other contributions:
-Copyright (c) 2015, the respective contributors.
-All rights reserved.
+    Some contributions by Remi Cadene
+    Copyright (c) 2017, Remi Cadene
+    All rights reserved.
+
+    All other contributions:
+    Copyright (c) 2015, the respective contributors.
+    All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -86,13 +88,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 BSD 2-Clause License
 ^^^^^^^^^^^^^^^^^^^^
 
-Some contributions by ericsun99
-Copyright (c) 2018, ericsun99
-All rights reserved.
+::
 
-All other contributions:
-Copyright (c) 2015, the respective contributors.
-All rights reserved.
+    Some contributions by ericsun99
+    Copyright (c) 2018, ericsun99
+    All rights reserved.
+
+    All other contributions:
+    Copyright (c) 2015, the respective contributors.
+    All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -118,13 +122,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 BSD License
 ^^^^^^^^^^^
 
-Some contributions by Facebook, Inc.
-Copyright (c) 2016, Facebook, Inc. All rights reserved.
-For fb.resnet.torch software
+::
 
-All other contributions:
-Copyright (c) 2015, the respective contributors.
-All rights reserved.
+    Some contributions by Facebook, Inc.
+    Copyright (c) 2016, Facebook, Inc. All rights reserved.
+    For fb.resnet.torch software
+
+    All other contributions:
+    Copyright (c) 2015, the respective contributors.
+    All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -154,13 +160,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Apache 2.0 License
 ^^^^^^^^^^^^^^^^^^^
 
-Some contributions by Google Inc.
-Copyright 2015 Google Inc.
-All Rights Reserved.
+::
 
-All other contributions:
-Copyright (c) 2015, the respective contributors.
-All rights reserved.
+    Some contributions by Google Inc.
+    Copyright 2015 Google Inc.
+    All Rights Reserved.
+
+    All other contributions:
+    Copyright (c) 2015, the respective contributors.
+    All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -197,7 +205,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-..-------------------------------------------------
+--
 
 This product contains portions of third party software provided under Apache 2.0 license
 dump_filters.py (x)
