@@ -5,6 +5,7 @@ import random
 import warnings
 
 import numpy as np
+import tqdm
 
 try:
     from PIL import Image
@@ -44,16 +45,19 @@ def pil_loader(path, color_space=''):
 
 
 def pil_loader_rgb(path):
+    """Convenience loader for RGB files (e.g. `.jpg`)"""
     with open(path, 'rb', 0) as f:
         return Image.open(f).convert('RGB')
 
 
 def pil_loader_bw(path):
+    """Convenience loader for B/W files (e.g. `.png with only one color chanel`)"""
     with open(path, 'rb', 0) as f:
         return Image.open(f).convert('L')
 
 
 def npy_loader(path, color_space=None):     # color space is unused here
+    """Convenience loader for numeric files (e.g. arrays of numbers)"""
     return np.load(path)
 
 
@@ -89,6 +93,7 @@ def _process_transform_argument(tform, num_inputs):
         tform = [tform] * num_inputs
     return tform
 
+
 def _process_co_transform_argument(tform, num_inputs, num_targets):
     tform = tform if tform is not None else _multi_arg_pass_through
     if is_tuple_or_list(tform):
@@ -103,11 +108,14 @@ def _process_co_transform_argument(tform, num_inputs, num_targets):
 def _return_first_element_of_list(x):
     return x[0]
 
+
 def _pass_through(x):
     return x
 
+
 def _multi_arg_pass_through(*x):
     return x
+
 
 def _find_classes(dirs):
     classes = list()
@@ -122,8 +130,10 @@ def _find_classes(dirs):
     class_to_idx = {classes[i]: i for i in range(len(classes))}
     return classes, class_to_idx
 
+
 def _is_image_file(filename):
     return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
+
 
 def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='*',
                               rel_target_root='', target_prefix='', target_postfix='', target_extension='png',
@@ -219,3 +229,55 @@ def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='
         assert len(trainlist_inputs) == len(trainlist_targets) and len(vallist_inputs) == len(vallist_targets)
         print("Total processed: %i    Train-list: %i items   Val-list: %i items    Exclusion-list: %i items" % (icount, len(trainlist_inputs), len(vallist_inputs), len(exclusion_list)))
         return list(zip(trainlist_inputs, trainlist_targets)), list(zip(vallist_inputs, vallist_targets))
+
+
+def get_dataset_mean_std(data_set, img_size=256, output_div=255.0):
+    """
+    Computes channel-wise mean and std of the dataset. The process is memory-intensive as the entire dataset must fit into memory.
+    Therefore, each image is scaled down to img_size first (default: 256).
+
+    Assumptions:
+        1. dataset uses PIL to read images
+        2. Images are in RGB format.
+
+    :param data_set: (pytorch Dataset)
+    :param img_size: (int):
+        scale of images at which to compute mean/std (default: 256)
+    :param output_div: (float `{1.0, 255.0}`):
+        Image values are naturally in 0-255 value range so the returned output is divided by output_div. For example, if output_div = 255.0 then mean/std will be in 0-1 range.
+
+    :return: (mean, std) as per-channel values ([r,g,b], [r,g,b])
+    """
+
+    total = np.zeros((3, (len(data_set) * img_size * img_size)), dtype=int)
+    position = 0        # keep track of position in the total array
+
+    for src, _ in tqdm(data_set, ascii=True, desc="Process", unit='images'):
+        src = src.resize((img_size, img_size))      # resize to same size
+        src = np.array(src)
+
+        # reshape into correct shape
+        src = src.reshape(img_size * img_size, 3)
+        src = src.swapaxes(1,0)
+
+        # np.concatenate((a, b, c), axis=1)  # NOPE NOPE NOPE -- makes a memory re-allocation for every concatenate operation
+
+        # -- In-place value substitution -- #
+        place = img_size * img_size * position
+        total[0:src.shape[0], place:place+src.shape[1]] = src   # copies the src data into the total position at specified index
+
+        position = position+1
+
+    return total.mean(1) / output_div, total.std(1) / output_div        # return channel-wise mean for the entire dataset
+
+
+if __name__ == "__main__":
+    from pywick.datasets.FolderDataset import FolderDataset
+    from pywick.datasets.data_utils import pil_loader_rgb
+
+    dataset = FolderDataset(root='/home/users/youruser/images', class_mode='label', default_loader=pil_loader_rgb)
+    mean, std = get_dataset_mean_std(dataset)
+    print('----- RESULT -----')
+    print('mean: {}'.format(mean))
+    print('std:  {}'.format(std))
+    print ('----- DONE ------')

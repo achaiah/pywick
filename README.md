@@ -31,7 +31,7 @@ work in progress though so apologies for anything that's broken.
 ## Install
 Substitute version number as necessary:
 
-`pip install git+https://github.com/achaiah/pywick.git@v0.5.2`
+`pip install git+https://github.com/achaiah/pywick.git@v0.5.3`
 
 ## ModuleTrainer
 The `ModuleTrainer` class provides a high-level training interface which abstracts

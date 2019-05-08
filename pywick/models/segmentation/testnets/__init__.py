@@ -13,7 +13,6 @@ from .mnas_linknets import LinkDenseNet121 as TEST_LinkDenseNet121, LinkDenseNet
 from .linknext import LinkNext as TEST_Linknext
 from .ocnet import OCNet as TEST_OCNet, asp_ocnet_resnet101 as TEST_OCNet_ASP_Res101, base_ocnet_resnet101 as TEST_OCNet_Base_Res101, pyramid_ocnet_resnet101 as TEST_OCNet_Pyr_Res101
 from .ocnet import asp_ocnet_resnet152 as TEST_OCNet_ASP_Res152, base_ocnet_resnet152 as TEST_OCNet_Base_Res152, pyramid_ocnet_resnet152 as TEST_OCNet_Pyr_Res152
-from .standard_fc_densenets import FCDenseNet103 as TEST_FCDensenet
 from .psp_saeed import PSPNet as TEST_PSPNet2
 from .tiramisu_test import FCDenseNet57 as TEST_Tiramisu57
 from .Unet_nested import UNet_Nested_dilated as TEST_Unet_nested_dilated

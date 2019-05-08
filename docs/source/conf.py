@@ -23,8 +23,8 @@ project = u'pywick'
 copyright = u'2019, Achaiah'
 author = u'Achaiah'
 
-# UNCOMMENT to generate local documentation
 '''
+# UNCOMMENT to generate local documentation
 version_file = '../../pywick/__init__.py'
 with open(version_file, 'r') as f:
     exec(compile(f.read(), version_file, 'exec'))
@@ -34,13 +34,14 @@ __version__ = locals()['__version__']
 version = __version__
 # The full version, including alpha/beta/rc tags
 release = __version__
-'''
 
+'''
 # UNCOMMENT to generate readthedocs.io documentation
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.5.2'
+release = '0.5.3'
+
 
 # -- General configuration ---------------------------------------------------
 

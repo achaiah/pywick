@@ -1,4 +1,4 @@
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 __author__ = 'Achaiah'
 __description__ = 'High-level batteries-included neural network training library for Pytorch'
 

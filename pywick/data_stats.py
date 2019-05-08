@@ -3,7 +3,6 @@ import os
 import os.path
 import argparse
 
-from .functions.meanstd import get_dataset_mean_std
 from .datasets.FolderDataset import FolderDataset, rgb_image_loader
 
 opt = dict()
@@ -22,7 +21,17 @@ for rem in removals:
     # print('removing: ', rem)
     opt.pop(rem)
 
-def create_dataset_stats(data_path, output_path=None):
+dataset_mean_std = {
+    'imagenet': ([0.485, 0.456, 0.406]),
+    'general': ([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+}
+
+
+def get_dataset_mean_std(dataset_name='imagenet'):
+    return dataset_mean_std[dataset_name]
+
+
+def create_dataset_stats(data_path, output_path=None, verbose=False):
     '''
     Generates statistics for the given dataset and writes them to a JSON file. Expects the data to be in the following dir structure:
     dataroot
@@ -47,10 +56,11 @@ def create_dataset_stats(data_path, output_path=None):
     mean, std = get_dataset_mean_std(dataset, img_size=256)
     stats['mean'], stats['std'] = mean.tolist(), std.tolist()       # convert from numpy array to python
 
-    print('------- Dataset Stats --------')
-    print(stats)
-    print('Written to: ', output_path)
-    print('------ End Dataset Stats ------')
+    if verbose:
+        print('------- Dataset Stats --------')
+        print(stats)
+        print('Written to: ', output_path)
+        print('------ End Dataset Stats ------')
 
     with open(output_path, 'a') as statsfile:
         json.dump(stats, statsfile)
