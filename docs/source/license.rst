@@ -4,29 +4,26 @@ License
 The MIT License (MIT)
 ^^^^^^^^^^^^^^^^^^^^^
 ::
+
     Some contributions by Nicholas Cullen
     Copyright (c) 2017, Nicholas Cullen
     All rights reserved.
 
-::
     Some contributions by François Chollet
     Copyright (c) 2015, François Chollet
     All rights reserved.
 
-::
-Some contributions by ZijunDeng
-Copyright (c) 2017, ZijunDeng.
-All rights reserved.
+    Some contributions by ZijunDeng
+    Copyright (c) 2017, ZijunDeng.
+    All rights reserved.
 
-::
-Some contributions by Google
-Copyright (c) 2015, Google, Inc.
-All rights reserved.
+    Some contributions by Google
+    Copyright (c) 2015, Google, Inc.
+    All rights reserved.
 
-::
-All other contributions:
-Copyright (c) 2015, the respective contributors.
-All rights reserved.
+    All other contributions:
+    Copyright (c) 2015, the respective contributors.
+    All rights reserved.
 
 
 LICENSE
