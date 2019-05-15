@@ -29,9 +29,12 @@ have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
 work in progress though so apologies for anything that's broken.
 
 ## Install
-Substitute version number as necessary:
+`pip install pywick`
 
-`pip install git+https://github.com/achaiah/pywick.git@v0.5.3`
+or specific version from git:
+
+`pip
+install git+https://github.com/achaiah/pywick.git@v0.5.3`
 
 ## ModuleTrainer
 The `ModuleTrainer` class provides a high-level training interface which abstracts

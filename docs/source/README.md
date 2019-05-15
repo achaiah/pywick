@@ -30,6 +30,7 @@ work in progress though so apologies for anything that's broken.
 `pip install pywick`
 
 or specific version from git:
+
 `pip
 install git+https://github.com/achaiah/pywick.git@v0.5.3`
 
