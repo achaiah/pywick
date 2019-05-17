@@ -166,7 +166,7 @@ def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='
 
     :return: partition1 (list of (input, target)), partition2 (list of (input, target))
     """
-    if class_mode is not 'image' and class_mode is not 'label' and class_mode is not 'path':
+    if class_mode not in ('image', 'label', 'path'):
         raise ValueError('class_mode must be one of: {label, image, path}')
 
     if class_mode == 'image' and rel_target_root == '' and target_prefix == '' and target_postfix == '':
