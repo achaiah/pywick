@@ -11,6 +11,7 @@ fi
 
 pushd "$(dirname "$0")"
 
-$PYCMD test_datasets.py
 $PYCMD test_meters.py
-$PYCMD test_transforms.py
+$PYCMD unit/transforms/test_affine_transforms.py
+$PYCMD unit/transforms/test_image_transforms.py
+$PYCMD unit/transforms/test_tensor_transforms.py
