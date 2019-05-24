@@ -647,7 +647,7 @@ class LinkCeption(nn.Module):
         filters = [64, 384, 384, 1024, 1536]
 
         # only pre-trained
-        inception = inceptionv4(num_classes=1000, pretrained='imagenet')
+        inception = inceptionv4(pretrained='imagenet')
 
         if num_channels == 3:
             self.stem1 = nn.Sequential(

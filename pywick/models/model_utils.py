@@ -220,8 +220,6 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             net = TEST_DLV3_Xception(n_classes=num_classes, os=8, pretrained=True, _print=False)
         elif model_name == 'TEST_DLV3':
             net = TEST_DLV3(n_classes=num_classes, n_blocks=[3, 4, 23, 3], pyramids=[12, 24, 36], grids=[1, 2, 4], output_stride=8)
-        elif model_name == 'TEST_FCDensenet':
-            net = TEST_FCDensenet(out_channels=num_classes)
         elif model_name == 'TEST_LinkCeption':
             net = TEST_LinkCeption(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_LinkDensenet121':

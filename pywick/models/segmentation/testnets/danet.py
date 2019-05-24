@@ -49,7 +49,9 @@ class DANet(SegBaseModel):
             x2 = F.interpolate(x[2], size, mode='bilinear', align_corners=True)
             outputs.append(x1)
             outputs.append(x2)
-        return outputs
+            return outputs
+        else:
+            return outputs[0]
 
 
 class _PositionAttentionModule(nn.Module):

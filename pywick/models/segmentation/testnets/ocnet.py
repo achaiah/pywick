@@ -52,7 +52,9 @@ class OCNet(SegBaseModel):
             auxout = self.auxlayer(c3)
             auxout = F.interpolate(auxout, size, mode='bilinear', align_corners=True)
             outputs.append(auxout)
-        return tuple(outputs)
+            return tuple(outputs)
+        else:
+            return outputs[0]
 
 
 class _OCHead(nn.Module):

@@ -43,7 +43,10 @@ class BiSeNet(nn.Module):
             auxout2 = self.auxlayer2(context_out[1])
             auxout2 = F.interpolate(auxout2, size, mode='bilinear', align_corners=True)
             outputs.append(auxout2)
-        return tuple(outputs)
+            return tuple(outputs)
+
+        else:
+            return outputs[0]
 
 
 class _BiSeHead(nn.Module):
