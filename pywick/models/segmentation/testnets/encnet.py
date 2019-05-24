@@ -12,7 +12,7 @@ __all__ = ['EncNet', 'EncModule', 'get_encnet', 'encnet_resnet50', 'encnet_resne
 
 
 class EncNet(SegBaseModel):
-    def __init__(self, nclass, backbone='resnet50', aux=True, se_loss=True, lateral=False,
+    def __init__(self, nclass, backbone='resnet50', aux=False, se_loss=True, lateral=False,
                  pretrained_base=True, **kwargs):
         super(EncNet, self).__init__(nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs)
         self.head = _EncHead(2048, nclass, se_loss=se_loss, lateral=lateral, **kwargs)
