@@ -6,6 +6,7 @@ Implementation of `RefineNet: Multi-Path Refinement Networks for High-Resolution
 
 import torch.nn as nn
 import torchvision.models as models
+import torch.nn.functional as F
 
 from .blocks import (RefineNetBlock, ResidualConvUnit,
                       RefineNetBlockImprovedPooling)
@@ -92,7 +93,7 @@ class BaseRefineNet4Cascade(nn.Module):
                 bias=True))
 
     def forward(self, x):
-
+        size = x.size()[2:]
         layer_1 = self.layer1(x)
         layer_2 = self.layer2(layer_1)
         layer_3 = self.layer3(layer_2)
@@ -107,7 +108,8 @@ class BaseRefineNet4Cascade(nn.Module):
         path_3 = self.refinenet3(path_4, layer_3_rn)
         path_2 = self.refinenet2(path_3, layer_2_rn)
         path_1 = self.refinenet1(path_2, layer_1_rn)
-        out = self.output_conv(path_1)
+        out_conv = self.output_conv(path_1)
+        out = F.interpolate(out_conv, size, mode='bilinear', align_corners=True)
         return out
 
 

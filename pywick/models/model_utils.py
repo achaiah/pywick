@@ -178,7 +178,7 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
         elif model_name == 'RefineNet4Cascade':
             net = RefineNet4Cascade((1, input_size), num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'RefineNet4CascadePoolingImproved':
-            net = RefineNet4Cascade((1, input_size), num_classes=num_classes, pretrained=pretrained)
+            net = RefineNet4CascadePoolingImproved((1, input_size), num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'Resnet_DUC':
             net = ResNetDUC(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'Resnet_DUC_HDC':
@@ -209,17 +209,21 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             net = create_DLR_V3_pretrained(num_classes=num_classes)
         elif model_name == 'TEST_DLX_Resnet':
             net = create_DLX_V3_pretrained(num_classes=num_classes)
-        elif model_name == 'TEST_EncNet_Res101':
-            net = TEST_EncNet_Res101(num_classes=num_classes, pretrained=pretrained)
-        elif model_name == 'TEST_EncNet_Res152':
-            net = TEST_EncNet_Res152(num_classes=num_classes, pretrained=pretrained)
-        elif model_name == 'TEST_PSPNet2':
-            net = TEST_PSPNet2(num_classes=num_classes)
         elif model_name == 'TEST_DLV2':
             net = TEST_DLV2(n_classes=num_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24])
             net = TEST_DLV3_Xception(n_classes=num_classes, os=8, pretrained=True, _print=False)
         elif model_name == 'TEST_DLV3':
             net = TEST_DLV3(n_classes=num_classes, n_blocks=[3, 4, 23, 3], pyramids=[12, 24, 36], grids=[1, 2, 4], output_stride=8)
+        elif model_name == 'TEST_DUNet_Res50':
+            net = TEST_DUNet_res50(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DUNet_Res101':
+            net = TEST_DUNet_res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_DUNet_Res152':
+            net = TEST_DUNet_res152(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_EncNet_Res101':
+            net = TEST_EncNet_Res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_EncNet_Res152':
+            net = TEST_EncNet_Res152(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_LinkCeption':
             net = TEST_LinkCeption(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_LinkDensenet121':
@@ -248,6 +252,14 @@ def get_model(model_type, model_name, num_classes, input_size, pretrained=True):
             net = TEST_OCNet_ASP_Res152(num_classes=num_classes, pretrained=pretrained)
         elif model_name == 'TEST_OCNet_Pyr_Res152':
             net = TEST_OCNet_Pyr_Res152(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_PSANet_Res50':
+            net = TEST_PSANet_res50(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_PSANet_Res101':
+            net = TEST_PSANet_res101(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_PSANet_Res152':
+            net = TEST_PSANet_res152(num_classes=num_classes, pretrained=pretrained)
+        elif model_name == 'TEST_PSPNet2':
+            net = TEST_PSPNet2(num_classes=num_classes)
         elif model_name == 'TEST_Tiramisu57':
             net = TEST_Tiramisu57(num_classes=num_classes)
         elif model_name == 'TEST_Unet_nested_dilated':

@@ -170,10 +170,8 @@ def get_danet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
     ----------
     num_classes : int
         Number of classes
-    pretrained : bool or str, default True
+    pretrained : bool (default True)
         This will load pretrained backbone network, that was trained on ImageNet.
-    root : str, default '~/.torch/models'
-        Location for keeping the model parameters.
     """
 
     model = DANet(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)

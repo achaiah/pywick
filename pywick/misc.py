@@ -62,6 +62,7 @@ def initialize_random(seed, init_cuda=True):
     '''
     ## Initialize random seed for repeatability ##
     random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     if init_cuda:
