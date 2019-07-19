@@ -1,7 +1,7 @@
 # Source: https://github.com/snakers4/mnasnet-pytorch/blob/master/src/models/linknet.py
 
 """
-Implementation of `LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation <https://arxiv.org/pdf/1505.04597>`_
+Implementation of `LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation <https://arxiv.org/abs/1707.03718>`_
 """
 
 import torch.nn as nn
@@ -12,6 +12,8 @@ from .inception_resnet import inceptionresnetv2
 from .inception4 import inceptionv4
 from .decoder import DecoderBlockLinkNetV2 as DecoderBlock
 from .decoder import DecoderBlockLinkNetInceptionV2 as DecoderBlockInception
+
+__all__ = ['LinkCeption', 'LinkDenseNet121', 'LinkDenseNet161', 'LinkInceptionResNet', 'LinkNet18', 'LinkNet34', 'LinkNet50', 'LinkNet101', 'LinkNet152', 'LinkNeXt', 'CoarseLinkNet50']
 
 nonlinearity = nn.ReLU
 
@@ -38,10 +40,11 @@ class BasicConv2d(nn.Module):
 class LinkNet18(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -137,10 +140,11 @@ class LinkNet18(nn.Module):
 class LinkNet34(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -236,10 +240,11 @@ class LinkNet34(nn.Module):
 class LinkNet50(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -338,10 +343,11 @@ class LinkNet50(nn.Module):
 class LinkNet101(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -440,10 +446,11 @@ class LinkNet101(nn.Module):
 class LinkNeXt(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -532,10 +539,11 @@ class LinkNeXt(nn.Module):
 class LinkNet152(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=3,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -634,10 +642,11 @@ class LinkNet152(nn.Module):
 class LinkCeption(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -786,15 +795,16 @@ class LinkCeption(nn.Module):
 class LinkInceptionResNet(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=3,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
-        self.mean = (0.5, 0.5, 0.5)
-        self.std = (0.5, 0.5, 0.5)
+        self.mean = (0.485, 0.456, 0.406)
+        self.std = (0.229, 0.224, 0.225)
 
         filters = [64, 192, 320, 1088, 2080]
 
@@ -920,10 +930,11 @@ class LinkInceptionResNet(nn.Module):
 class LinkDenseNet161(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -1024,10 +1035,11 @@ class LinkDenseNet161(nn.Module):
 class LinkDenseNet121(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 
@@ -1128,10 +1140,11 @@ class LinkDenseNet121(nn.Module):
 class CoarseLinkNet50(nn.Module):
     def __init__(self,
                  num_classes,
+                 pretrained=True,
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 pretrained=True
+                 **kwargs
                  ):
         super().__init__()
 

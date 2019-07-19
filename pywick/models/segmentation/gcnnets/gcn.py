@@ -7,6 +7,7 @@ from torchvision import models
 import os
 from math import floor
 
+__all__ = ['GCN']
 
 class _GlobalConvModule(nn.Module):
     def __init__(self, in_dim, out_dim, kernel_size):
@@ -45,11 +46,10 @@ class _BoundaryRefineModule(nn.Module):
 
 
 class GCN(nn.Module):
-    def __init__(self, num_classes, input_size, k=7, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, k=7):
         super(GCN, self).__init__()
 
         self.K = k
-        self.input_size = input_size
 
         resnet = models.resnet152(pretrained=pretrained)
 
@@ -78,6 +78,7 @@ class GCN(nn.Module):
                            self.brm4, self.brm5, self.brm6, self.brm7, self.brm8, self.brm9)
 
     def forward(self, x):
+        size = x.size()[2:]
         fm0 = self.layer0(x)
         fm1 = self.layer1(fm0)
         fm2 = self.layer2(fm1)
@@ -93,7 +94,7 @@ class GCN(nn.Module):
         fs2 = self.brm6(F.interpolate(fs1, size=fm2.size()[2:], mode='bilinear') + gcfm3)
         fs3 = self.brm7(F.interpolate(fs2, size=fm1.size()[2:], mode='bilinear') + gcfm4)
         fs4 = self.brm8(F.interpolate(fs3, size=fm0.size()[2:], mode='bilinear'))
-        out = self.brm9(F.interpolate(fs4, size=self.input_size, mode='bilinear'))
+        out = self.brm9(F.interpolate(fs4, size=size, mode='bilinear'))
 
         return out
 

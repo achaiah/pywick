@@ -1,6 +1,11 @@
 # Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/models/encnet.py (License: Apache 2.0)
 
-"""Context Encoding for Semantic Segmentation"""
+"""
+Implementation of `Context Encoding for Semantic Segmentation <https://arxiv.org/pdf/1803.08904v1>`_
+
+se_loss is the Semantic Encoding Loss from the paper. It computes probabilities of contexts appearing together.
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -14,7 +19,7 @@ __all__ = ['EncNet', 'EncModule', 'get_encnet', 'encnet_resnet50', 'encnet_resne
 class EncNet(SegBaseModel):
     def __init__(self, nclass, backbone='resnet50', aux=False, se_loss=True, lateral=False,
                  pretrained_base=True, **kwargs):
-        super(EncNet, self).__init__(nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs)
+        super(EncNet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
         self.head = _EncHead(2048, nclass, se_loss=se_loss, lateral=lateral, **kwargs)
         if aux:
             self.auxlayer = _FCNHead(1024, nclass, **kwargs)

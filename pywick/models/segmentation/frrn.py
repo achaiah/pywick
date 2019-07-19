@@ -8,6 +8,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+__all__ = ['frrn']
+
 frrn_specs_dic = {
     "A": {
         "encoder": [[3, 96, 2], [4, 192, 4], [2, 384, 8], [2, 384, 16]],
@@ -220,7 +222,7 @@ class frrn(nn.Module):
     2) TF implementation by @kiwonjoon: https://github.com/hiwonjoon/tf-frrn
     """
 
-    def __init__(self, num_classes=21, model_type=None):
+    def __init__(self, num_classes=21, model_type=None, **kwargs):
         super(frrn, self).__init__()
         self.n_classes = num_classes
         self.model_type = model_type

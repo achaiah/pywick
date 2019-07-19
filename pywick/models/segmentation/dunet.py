@@ -1,14 +1,17 @@
 # Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/models/dunet.py (License: Apache 2.0)
 
-"""Decoders Matter for Semantic Segmentation"""
+"""
+Implementation of `Decoders Matter for Semantic Segmentation: Data-Dependent Decoding Enables Flexible Feature Aggregation <https://arxiv.org/pdf/1903.02120>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .da_basenets.segbase import SegBaseModel
-from .da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.testnets.da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.testnets.da_basenets.fcn import _FCNHead
 
-__all__ = ['DUNet', 'get_dunet', 'get_dunet_resnet50', 'get_dunet_resnet101', 'get_dunet_resnet152']
+__all__ = ['DUNet', 'DUNet_Resnet50', 'DUNet_Resnet101', 'DUNet_Resnet152']
 
 
 # The model may be wrong because lots of details missing in paper.
@@ -21,8 +24,8 @@ class DUNet(SegBaseModel):
         Data-Dependent Decoding Enables Flexible Feature Aggregation." CVPR, 2019
     """
 
-    def __init__(self, nclass, backbone='resnet50', aux=True, pretrained_base=True, **kwargs):
-        super(DUNet, self).__init__(nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs)
+    def __init__(self, nclass, backbone='resnet50', aux=False, pretrained_base=True, **kwargs):
+        super(DUNet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
         self.head = _DUHead(2144, **kwargs)
         self.dupsample = DUpsampling(256, nclass, scale_factor=8, **kwargs)
         if aux:
@@ -126,28 +129,27 @@ def get_dunet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
 
         Parameters
         ----------
-        num_classes : int
-            Number of classes
-        pretrained : bool (default True)
-            This will load pretrained backbone network, that was trained on ImageNet.
+        num_classes : int (default: 1) - number of classes
+        backbone : str - type of backbone to use (one of `{resnet50, resnet101, resnet152}`)
+        pretrained : bool (default: True) - whether to load pretrained backbone network, that was trained on ImageNet.
         """
     model = DUNet(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
     return model
 
 
-def get_dunet_resnet50(num_classes=1, **kwargs):
+def DUNet_Resnet50(num_classes=1, **kwargs):
     return get_dunet(num_classes=num_classes, backbone='resnet50', **kwargs)
 
 
-def get_dunet_resnet101(num_classes=1, **kwargs):
+def DUNet_Resnet101(num_classes=1, **kwargs):
     return get_dunet(num_classes=num_classes, backbone='resnet101', **kwargs)
 
 
-def get_dunet_resnet152(num_classes=1, **kwargs):
+def DUNet_Resnet152(num_classes=1, **kwargs):
     return get_dunet(num_classes=num_classes, backbone='resnet152', **kwargs)
 
 
 if __name__ == '__main__':
     img = torch.randn(2, 3, 256, 256)
-    model = get_dunet_resnet50()
+    model = DUNet_Resnet50()
     outputs = model(img)

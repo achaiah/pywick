@@ -9,6 +9,7 @@ from torchvision import models
 
 from .config import res152_path
 
+__all__ = ['ResNetDUC', 'ResNetDUCHDC']
 
 class _DenseUpsamplingConvModule(nn.Module):
     def __init__(self, down_factor, in_dim, num_classes):
@@ -29,7 +30,7 @@ class _DenseUpsamplingConvModule(nn.Module):
 
 class ResNetDUC(nn.Module):
     # the size of image should be multiple of 8
-    def __init__(self, num_classes, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, **kwargs):
         super(ResNetDUC, self).__init__()
         resnet = models.resnet152()
         if pretrained:
@@ -69,7 +70,7 @@ class ResNetDUC(nn.Module):
 
 class ResNetDUCHDC(nn.Module):
     # the size of image should be multiple of 8
-    def __init__(self, num_classes, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, **kwargs):
         super(ResNetDUCHDC, self).__init__()
         resnet = models.resnet152()
         if pretrained:

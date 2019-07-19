@@ -12,6 +12,7 @@ import torchvision.models as models
 
 model_url = 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth'
 
+__all__ = ['DeepLabv2_ASPP', 'DeepLabv2_FOV']
 
 class Atrous_Bottleneck(nn.Module):
     expansion = 4
@@ -136,7 +137,7 @@ class DeepLabv2_ASPP(nn.Module):
     """
     DeeplabV2 Resnet implementation with ASPP.
     """
-    def __init__(self, num_classes, small=True, pretrained=False):
+    def __init__(self, num_classes, small=True, pretrained=False, **kwargs):
         super(DeepLabv2_ASPP, self).__init__()
         block = Atrous_Bottleneck
         self.resnet_features = Atrous_ResNet_features(block, [3, 4, 23, 3], pretrained)
@@ -167,7 +168,7 @@ class DeepLabv2_FOV(nn.Module):
     """
         DeeplabV2 Resnet implementation with FOV.
         """
-    def __init__(self, num_classes, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, **kwargs):
         super(DeepLabv2_FOV, self).__init__()
         block = Atrous_Bottleneck
         self.resnet_features = Atrous_ResNet_features(block, [3, 4, 23, 3], pretrained)

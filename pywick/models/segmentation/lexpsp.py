@@ -6,13 +6,15 @@ Implementation of `Pyramid Scene Parsing Network <https://arxiv.org/pdf/1612.011
 
 from .lex_extractors import *
 
+__all__ = ['PSPNet']
+
 extractor_models = {
     'resnet18': resnet18,
     'resnet34': resnet34,
     'resnet50': resnet50,
     'resnet101': resnet101,
     'resnet152': resnet152,
-    'densenet': densenet
+    'densenet121': densenet
 }
 
 class PSPModule(nn.Module):
@@ -51,8 +53,7 @@ class PSPUpsample(nn.Module):
 
 
 class PSPNet(nn.Module):
-    def __init__(self, num_classes=18, sizes=(1, 2, 3, 6), psp_size=2048, deep_features_size=1024, backend='resnet50',
-                 pretrained=True):
+    def __init__(self, num_classes=18, pretrained=True, backend='densenet121', sizes=(1, 2, 3, 6), psp_size=2048, deep_features_size=1024, **kwargs):
         super().__init__()
         self.feats = extractor_models[backend](pretrained=pretrained)
         self.psp = PSPModule(psp_size, 1024, sizes)

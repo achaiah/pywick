@@ -1,13 +1,16 @@
 # Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/models/danet.py (License: Apache 2.0)
 
-"""Dual Attention Network"""
+"""
+Implementation of `Dual Attention Network for Scene Segmentation <https://arxiv.org/pdf/1809.02983.pdf>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.testnets.da_basenets.segbase import SegBaseModel
 
-__all__ = ['DANet', 'get_danet', 'get_danet_resnet50', 'get_danet_resnet101', 'get_danet_resnet152']
+__all__ = ['DANet', 'DANet_Resnet50', 'DANet_Resnet101', 'DANet_Resnet152']
 
 
 class DANet(SegBaseModel):
@@ -31,7 +34,7 @@ class DANet(SegBaseModel):
     """
 
     def __init__(self, nclass, backbone='resnet50', aux=False, pretrained_base=True, **kwargs):
-        super(DANet, self).__init__(nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs)
+        super(DANet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
         self.head = _DAHead(2048, nclass, aux, **kwargs)
 
         self.__setattr__('exclusive', ['head'])
@@ -178,19 +181,19 @@ def get_danet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
     return model
 
 
-def get_danet_resnet50(num_classes=1, **kwargs):
+def DANet_Resnet50(num_classes=1, **kwargs):
     return get_danet(num_classes=num_classes, backbone='resnet50', **kwargs)
 
 
-def get_danet_resnet101(num_classes=1, **kwargs):
+def DANet_Resnet101(num_classes=1, **kwargs):
     return get_danet(num_classes=num_classes, backbone='resnet101', **kwargs)
 
 
-def get_danet_resnet152(num_classes=1, **kwargs):
+def DANet_Resnet152(num_classes=1, **kwargs):
     return get_danet(num_classes=num_classes, backbone='resnet152', **kwargs)
 
 
 if __name__ == '__main__':
     img = torch.randn(2, 3, 480, 480)
-    model = get_danet_resnet50()
+    model = DANet_Resnet50()
     outputs = model(img)

@@ -3,8 +3,10 @@ import torch.nn as nn
 import math
 import torch.nn.functional as F
 
+__all__ = ['DRNSeg']
+
 class DRNSeg(nn.Module):
-    def __init__(self, model_name, classes, pretrained=True, use_torch_up=False):
+    def __init__(self, num_classes, pretrained=True, model_name=None, use_torch_up=False, **kwargs):
         super(DRNSeg, self).__init__()
 
         if model_name == 'DRN_C_42':
@@ -17,10 +19,12 @@ class DRNSeg(nn.Module):
             model = drn_d_54(pretrained=pretrained, num_classes=1000)
         elif model_name == 'DRN_D_105':
             model = drn_d_105(pretrained=pretrained, num_classes=1000)
+        else:
+            raise Exception('model_name must be supplied to DRNSeg constructor.')
 
         self.base = nn.Sequential(*list(model.children())[:-2])
 
-        self.seg = nn.Conv2d(model.out_dim, classes, kernel_size=1, bias=True)
+        self.seg = nn.Conv2d(model.out_dim, num_classes, kernel_size=1, bias=True)
         self.softmax = nn.LogSoftmax()
         m = self.seg
         n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -28,8 +32,8 @@ class DRNSeg(nn.Module):
         m.bias.data.zero_()
         self.use_torch_up = use_torch_up
 
-        up = nn.ConvTranspose2d(classes, classes, 16, stride=8, padding=4,
-                                output_padding=0, groups=classes,
+        up = nn.ConvTranspose2d(num_classes, num_classes, 16, stride=8, padding=4,
+                                output_padding=0, groups=num_classes,
                                 bias=False)
         fill_up_weights(up)
         up.weight.requires_grad = False

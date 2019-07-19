@@ -11,9 +11,11 @@ from torchvision import models
 from .fcn_utils import get_upsampling_weight
 from .config import vgg16_caffe_path
 
+__all__ = ['FCN32VGG']
+
 
 class FCN32VGG(nn.Module):
-    def __init__(self, num_classes, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, **kwargs):
         super(FCN32VGG, self).__init__()
         vgg = models.vgg16()
         if pretrained:

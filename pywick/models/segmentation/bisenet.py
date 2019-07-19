@@ -1,26 +1,29 @@
 # Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/models/bisenet.py (License: Apache 2.0)
 
-"""Bilateral Segmentation Network"""
+"""
+Implementation of `BiSeNet: Bilateral Segmentation Network for Real-time Semantic Segmentation <https://arxiv.org/pdf/1808.00897>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .da_basenets.resnet import resnet18
+from pywick.models.segmentation.testnets.da_basenets.resnet import resnet18
 
-__all__ = ['BiSeNet', 'get_bisenet', 'bisenet_resnet18']
+__all__ = ['BiSeNet', 'BiSeNet_Resnet18']
 
 
 class BiSeNet(nn.Module):
-    def __init__(self, nclass, backbone='resnet18', aux=False, pretrained_base=True, **kwargs):
+    def __init__(self, num_classes, pretrained=True, backbone='resnet18', aux=False, **kwargs):
         super(BiSeNet, self).__init__()
         self.aux = aux
         self.spatial_path = SpatialPath(3, 128, **kwargs)
-        self.context_path = ContextPath(backbone, pretrained_base, **kwargs)
+        self.context_path = ContextPath(backbone, pretrained, **kwargs)
         self.ffm = FeatureFusion(256, 256, 4, **kwargs)
-        self.head = _BiSeHead(256, 64, nclass, **kwargs)
+        self.head = _BiSeHead(256, 64, num_classes, **kwargs)
         if aux:
-            self.auxlayer1 = _BiSeHead(128, 256, nclass, **kwargs)
-            self.auxlayer2 = _BiSeHead(128, 256, nclass, **kwargs)
+            self.auxlayer1 = _BiSeHead(128, 256, num_classes, **kwargs)
+            self.auxlayer2 = _BiSeHead(128, 256, num_classes, **kwargs)
 
         self.__setattr__('exclusive',
                          ['spatial_path', 'context_path', 'ffm', 'head', 'auxlayer1', 'auxlayer2'] if aux else [
@@ -211,11 +214,11 @@ class FeatureFusion(nn.Module):
 
 
 def get_bisenet(num_classes=1, backbone='resnet18', pretrained=True, **kwargs):
-    model = BiSeNet(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
+    model = BiSeNet(num_classes=num_classes, backbone=backbone, pretrained=pretrained, **kwargs)
     return model
 
 
-def bisenet_resnet18(num_classes=1, **kwargs):
+def BiSeNet_Resnet18(num_classes=1, **kwargs):
     return get_bisenet(num_classes=num_classes, backbone='resnet18', **kwargs)
 
 

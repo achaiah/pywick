@@ -7,6 +7,7 @@ Implementation of `ENet: A Deep Neural Network Architecture for Real-Time Semant
 import torch.nn as nn
 import torch
 
+__all__ = ['ENet']
 
 class InitialBlock(nn.Module):
     """The initial block is composed of two branches:
@@ -500,7 +501,7 @@ class ENet(nn.Module):
         is used. Default: True.
     """
 
-    def __init__(self, num_classes, encoder_relu=False, decoder_relu=True):
+    def __init__(self, num_classes, encoder_relu=False, decoder_relu=True, **kwargs):
         super().__init__()
 
         self.initial_block = InitialBlock(3, 16, padding=1, relu=encoder_relu)

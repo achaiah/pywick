@@ -7,7 +7,7 @@ Implementation of `U-net: Convolutional networks for biomedical image segmentati
 import torch
 import torch.nn as nn
 
-
+__all__ = ['UNetDilated']
 
 
 class Conv_transition(nn.Module):
@@ -113,9 +113,12 @@ class Fire_Up(nn.Module):
         return x
 
 
-class uNetDilated(nn.Module):
-    def __init__(self, num_classes):
-        super(uNetDilated, self).__init__()
+class UNetDilated(nn.Module):
+    """
+    Unet utilizing dilation
+    """
+    def __init__(self, num_classes, **kwargs):
+        super(UNetDilated, self).__init__()
         self.Conv0 = self._transition(3, 8)  # 1918
         self.down1 = self._down_block(8, 16, 16)  # 959
         self.down2 = self._down_block(16, 16, 32)  # 480

@@ -3,34 +3,38 @@ Below you will find all the latest image segmentation models.
 To load one of these models with your own number of classes you have two options:
 1. You can always load the model directly from the API. Most models allow you to customize *number of classes* as well as *pretrained* options.
 2. You can use the ``pywick.models.model_utils.get_model(...)`` function and pass the name of the model
-that you want as a string. The names can be a bit tricky (we're still working on that!) but for now you can
-get a good list by calling ``pywick.models.model_utils.get_supported_models(...)``. If all else fails
-you can take a look at the ``pywick.models.model_utils.get_model(...)`` function for an exact list.
+that you want as a string. Note: Some models allow you to customize additional parameters. You can take a look at the ``pywick.models.model_utils.get_model(...)`` function
+or at the definition of the model to see what's possible.
 """
 
+from .bisenet import *
 from .carvana_unet import *
-from .carvana_linknet import LinkNet34
 from ..classification import resnext101_64x4d
-from .deeplab_v2_res import DeepLabv2_ASPP, DeepLabv2_FOV
-from .deeplab_v3 import DeepLabv3
-from .deeplab_v3_plus import DeepLabv3_plus
-from .drn_seg import DRNSeg
-from .duc_hdc import ResNetDUC, ResNetDUCHDC
-from .enet import ENet
-from .fcn8s import FCN8s
-from .fcn16s import FCN16VGG
-from .fcn32s import FCN32VGG
-from .frrn import frrn
-from .fusionnet import FusionNet
-from .gcn import GCN
+from .danet import *
+from .deeplab_v2_res import *
+from .deeplab_v3 import *
+from .deeplab_v3_plus import *
+from .denseaspp import *
+from .drn_seg import *
+from .duc_hdc import *
+from .dunet import *
+from .enet import *
+from .fcn8s import *
+from .fcn16s import *
+from .fcn32s import *
+from .frrn import *
+from .fusionnet import *
+from .gcn import *
 from .gcnnets import *
-from .lexpsp import PSPNet
+from .lexpsp import *
+from .mnas_linknets import *
+from .ocnet import *
 from .refinenet import *
-from .resnet_gcn import ResnetGCN
-from .seg_net import SegNet
+from .resnet_gcn import *
+from .seg_net import *
 from .testnets import *
-from .tiramisu import FCDenseNet57, FCDenseNet67, FCDenseNet103
-from .u_net import UNet
-from .unet_dilated import uNetDilated
-from .unet_res import UNetRes
-from .unet_stack import UNet960, UNet_stack
+from .tiramisu import *
+from .u_net import *
+from .unet_dilated import *
+from .unet_res import *
+from .unet_stack import *

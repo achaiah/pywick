@@ -1,6 +1,9 @@
 # Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/models/psanet.py (License: Apache 2.0)
 
-"""Point-wise Spatial Attention Network"""
+"""
+Implementation of `PSANet: Point-wise Spatial AttentionNetwork for Scene Parsing <https://hszhao.github.io/papers/eccv18_psanet.pdf>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -32,7 +35,7 @@ class PSANet(SegBaseModel):
     """
 
     def __init__(self, nclass, backbone='resnet', aux=False, pretrained_base=True, **kwargs):
-        super(PSANet, self).__init__(nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs)
+        super(PSANet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
         self.head = _PSAHead(nclass, **kwargs)
         if aux:
             self.auxlayer = _FCNHead(1024, nclass, **kwargs)
@@ -51,7 +54,9 @@ class PSANet(SegBaseModel):
             auxout = self.auxlayer(c3)
             auxout = F.interpolate(auxout, size, mode='bilinear', align_corners=True)
             outputs.append(auxout)
-        return tuple(outputs)
+            return tuple(outputs)
+        else:
+            return outputs[0]
 
 
 class _PSAHead(nn.Module):

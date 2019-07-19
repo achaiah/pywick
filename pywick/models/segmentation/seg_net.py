@@ -11,6 +11,7 @@ from torchvision import models
 from .fcn_utils import initialize_weights
 from .config import vgg19_bn_path
 
+__all__ = ['SegNet']
 
 class _DecoderBlock(nn.Module):
     def __init__(self, in_channels, out_channels, num_conv_layers):
@@ -39,7 +40,7 @@ class _DecoderBlock(nn.Module):
 
 
 class SegNet(nn.Module):
-    def __init__(self, num_classes, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, **kwargs):
         super(SegNet, self).__init__()
         vgg = models.vgg19_bn()
         if pretrained:

@@ -11,10 +11,11 @@ from torchvision import models
 from .fcn_utils import get_upsampling_weight
 from .config import vgg16_path, vgg16_caffe_path
 
+__all__ = ['FCN8s']
 
 # This is implemented in full accordance with the original one (https://github.com/shelhamer/fcn.berkeleyvision.org)
 class FCN8s(nn.Module):
-    def __init__(self, num_classes, pretrained=True, caffe=False):
+    def __init__(self, num_classes, pretrained=True, caffe=False, **kwargs):
         super(FCN8s, self).__init__()
         vgg = models.vgg16()
         if pretrained:

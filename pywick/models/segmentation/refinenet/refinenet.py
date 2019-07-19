@@ -21,7 +21,8 @@ class BaseRefineNet4Cascade(nn.Module):
                  features=256,
                  resnet_factory=models.resnet101,
                  pretrained=True,
-                 freeze_resnet=True):
+                 freeze_resnet=False,
+                 **kwargs):
         """Multi-path 4-Cascaded RefineNet for image segmentation
 
         Args:
@@ -115,12 +116,13 @@ class BaseRefineNet4Cascade(nn.Module):
 
 class RefineNet4CascadePoolingImproved(BaseRefineNet4Cascade):
     def __init__(self,
-                 input_shape,
                  num_classes=1,
+                 pretrained=True,
+                 input_shape=(1, 512),
                  features=256,
                  resnet_factory=models.resnet101,
-                 pretrained=True,
-                 freeze_resnet=True):
+                 freeze_resnet=False,
+                 **kwargs):
         """Multi-path 4-Cascaded RefineNet for image segmentation with improved pooling
 
         Args:
@@ -146,17 +148,19 @@ class RefineNet4CascadePoolingImproved(BaseRefineNet4Cascade):
             features=features,
             resnet_factory=resnet_factory,
             pretrained=pretrained,
-            freeze_resnet=freeze_resnet)
+            freeze_resnet=freeze_resnet,
+            **kwargs)
 
 
 class RefineNet4Cascade(BaseRefineNet4Cascade):
     def __init__(self,
-                 input_shape,
                  num_classes=1,
+                 pretrained=True,
+                 input_shape=(1, 512),
                  features=256,
                  resnet_factory=models.resnet101,
-                 pretrained=True,
-                 freeze_resnet=True):
+                 freeze_resnet=False,
+                 **kwargs):
         """Multi-path 4-Cascaded RefineNet for image segmentation
 
         Args:
@@ -182,4 +186,5 @@ class RefineNet4Cascade(BaseRefineNet4Cascade):
             features=features,
             resnet_factory=resnet_factory,
             pretrained=pretrained,
-            freeze_resnet=freeze_resnet)
+            freeze_resnet=freeze_resnet,
+            **kwargs)

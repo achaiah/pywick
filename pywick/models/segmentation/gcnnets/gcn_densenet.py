@@ -10,6 +10,7 @@ import torch.nn.functional as F
 from torch import nn
 from torchvision import models
 
+__all__ = ['GCN_DENSENET']
 
 class _GlobalConvModule(nn.Module):
     def __init__(self, in_dim, out_dim, kernel_size):
@@ -48,11 +49,10 @@ class _BoundaryRefineModule(nn.Module):
 
 
 class GCN_DENSENET(nn.Module):
-    def __init__(self, num_classes, input_size, k=7, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, k=7):
         super(GCN_DENSENET, self).__init__()
 
         self.K = k
-        self.input_size = input_size
 
         densenet = models.densenet161(pretrained=pretrained)
 
@@ -101,6 +101,7 @@ class GCN_DENSENET(nn.Module):
                            self.brm4, self.brm5, self.brm6, self.brm7, self.brm8, self.brm9)
 
     def forward(self, x):
+        size = x.size()[2:]
         fm0 = self.layer0(x)
         fm1 = self.layer1(fm0)
         fm2 = self.layer2(fm1)
@@ -116,7 +117,7 @@ class GCN_DENSENET(nn.Module):
         fs2 = self.brm6(F.upsample(fs1, size=fm2.size()[2:], mode='bilinear') + gcfm3)
         fs3 = self.brm7(F.upsample(fs2, size=fm1.size()[2:], mode='bilinear') + gcfm4)
         fs4 = self.brm8(F.upsample(fs3, size=fm0.size()[2:], mode='bilinear'))
-        out = self.brm9(F.upsample(fs4, size=self.input_size, mode='bilinear'))
+        out = self.brm9(F.upsample(fs4, size=size, mode='bilinear'))
 
         return out
 

@@ -9,6 +9,8 @@ import torch.nn.init as init
 import torch.nn.functional as F
 import numpy as np
 
+__all__ = ['FusionNet']
+
 def initialize_weights(method='kaiming', *models):
     for model in models:
         for module in model.modules():
@@ -63,10 +65,10 @@ class DeconvBN(nn.Module):
         return self.layer(x)
 
 class FusionNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, **kwargs):
         super(FusionNet, self).__init__()
 
-        #Assumin input of size 240x320
+        #Assuming input of size 240x320
         self.enc1 = ConvResConv(3, 64)
         self.enc2 = ConvResConv(64, 128)
         self.enc3 = ConvResConv(128, 256)
@@ -78,8 +80,6 @@ class FusionNet(nn.Module):
         self.dec2 = ConvResConv(256, 256)
         self.dec3 = ConvResConv(128, 128)
         self.dec4 = nn.Sequential(nn.Conv2d(64, 64, 3, padding=1))
-                                  # nn.Conv2d(64, num_classes, kernel_size=1, stride=1))
-        # self.dec4 = ConvResConv(64, 64)
 
         self.deconvbn1024_512 = DeconvBN(1024,512)
         self.deconvbn512_256 = DeconvBN(512, 256)

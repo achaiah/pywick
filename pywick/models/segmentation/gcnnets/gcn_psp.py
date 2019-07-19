@@ -11,6 +11,7 @@ import torch.nn.functional as F
 from torch import nn
 from torchvision import models
 
+__all__ = ['GCN_PSP']
 
 class _GlobalConvModule(nn.Module):
     def __init__(self, in_dim, out_dim, kernel_size):
@@ -73,7 +74,7 @@ class _PyramidSpatialPoolingModule(nn.Module):
 
 
 class GCN_PSP(nn.Module):
-    def __init__(self, num_classes, input_size, k=7, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, k=7, input_size=512):
         super(GCN_PSP, self).__init__()
 
         self.K = k

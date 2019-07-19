@@ -10,6 +10,7 @@ from torch import nn
 
 from .fcn_utils import initialize_weights
 
+__all__ = ['UNet']
 
 class _EncoderBlock(nn.Module):
     def __init__(self, in_channels, out_channels, dropout=False):
@@ -49,7 +50,10 @@ class _DecoderBlock(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, num_classes):
+    """
+    Basic Unet
+    """
+    def __init__(self, num_classes, **kwargs):
         super(UNet, self).__init__()
         self.enc1 = _EncoderBlock(3, 64)
         self.enc2 = _EncoderBlock(64, 128)

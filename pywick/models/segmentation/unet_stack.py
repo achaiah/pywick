@@ -8,9 +8,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+__all__ = ['UNet960', 'UNet_stack']
 
 class ConvBNReluStack(nn.Module):
-    def __init__(self, in_dim, out_dim, kernel_size=3, stride=1, padding=1):
+    def __init__(self, in_dim, out_dim, kernel_size=3, stride=1, padding=1, **kwargs):
         super(ConvBNReluStack, self).__init__()
 
         in_dim = int(in_dim)
@@ -97,7 +98,7 @@ class UNet_stack(nn.Module):
 
         return n_stacks
 
-    def __init__(self, input_size, filters, kernel_size=3, max_stacks=6):
+    def __init__(self, input_size, filters, kernel_size=3, max_stacks=6, **kwargs):
         super(UNet_stack, self).__init__()
 
         self.n_stacks = min(self.get_n_stacks(input_size), max_stacks)

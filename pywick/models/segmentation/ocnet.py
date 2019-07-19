@@ -1,15 +1,17 @@
 # Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/models/ocnet.py (License: Apache 2.0)
 
-""" Object Context Network for Scene Parsing"""
+"""
+Implementation of `OCNet: Object Context Network for Scene Parsing <https://arxiv.org/pdf/1809.00916>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .da_basenets.segbase import SegBaseModel
-from .da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.testnets.da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.testnets.da_basenets.fcn import _FCNHead
 
-__all__ = ['OCNet', 'get_ocnet', 'base_ocnet_resnet101', 'pyramid_ocnet_resnet101', 'asp_ocnet_resnet101',
-           'base_ocnet_resnet152', 'pyramid_ocnet_resnet152', 'asp_ocnet_resnet152']
+__all__ = ['OCNet', 'OCNet_Base_Resnet101', 'OCNet_Pyramid_Resnet101', 'OCNet_ASP_Resnet101', 'OCNet_Base_Resnet152', 'OCNet_Pyramid_Resnet152', 'OCNet_ASP_Resnet152']
 
 
 class OCNet(SegBaseModel):
@@ -33,7 +35,7 @@ class OCNet(SegBaseModel):
     """
 
     def __init__(self, nclass, backbone='resnet101', oc_arch='base', aux=False, pretrained_base=True, **kwargs):
-        super(OCNet, self).__init__(nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs)
+        super(OCNet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
         self.head = _OCHead(nclass, oc_arch, **kwargs)
         if self.aux:
             self.auxlayer = _FCNHead(1024, nclass, **kwargs)
@@ -315,30 +317,30 @@ def get_ocnet(num_classes=1, backbone='resnet50', oc_arch='base', pretrained=Tru
     return model
 
 
-def base_ocnet_resnet101(num_classes=1, **kwargs):
+def OCNet_Base_Resnet101(num_classes=1, **kwargs):
     return get_ocnet(num_classes=num_classes, backbone='resnet101', oc_arch='base', **kwargs)
 
 
-def pyramid_ocnet_resnet101(num_classes=1, **kwargs):
+def OCNet_Pyramid_Resnet101(num_classes=1, **kwargs):
     return get_ocnet(num_classes=num_classes, backbone='resnet101', oc_arch='pyramid', **kwargs)
 
 
-def asp_ocnet_resnet101(num_classes=1, **kwargs):
+def OCNet_ASP_Resnet101(num_classes=1, **kwargs):
     return get_ocnet(num_classes=num_classes, backbone='resnet101', oc_arch='asp', **kwargs)
 
-def base_ocnet_resnet152(num_classes=1, **kwargs):
+def OCNet_Base_Resnet152(num_classes=1, **kwargs):
     return get_ocnet(num_classes=num_classes, backbone='resnet152', oc_arch='base', **kwargs)
 
 
-def pyramid_ocnet_resnet152(num_classes=1, **kwargs):
+def OCNet_Pyramid_Resnet152(num_classes=1, **kwargs):
     return get_ocnet(num_classes=num_classes, backbone='resnet152', oc_arch='pyramid', **kwargs)
 
 
-def asp_ocnet_resnet152(num_classes=1, **kwargs):
+def OCNet_ASP_Resnet152(num_classes=1, **kwargs):
     return get_ocnet(num_classes=num_classes, backbone='resnet152', oc_arch='asp', **kwargs)
 
 
 if __name__ == '__main__':
     img = torch.randn(1, 3, 256, 256)
-    model = asp_ocnet_resnet101()
+    model = OCNet_ASP_Resnet101()
     outputs = model(img)

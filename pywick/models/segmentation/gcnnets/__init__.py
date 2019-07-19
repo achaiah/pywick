@@ -1,5 +1,5 @@
-from .gcn import GCN as GCN_VisDa
-from .gcn_nasnet import GCN_NASNET
-from .gcn_densenet import GCN_DENSENET
-from .gcn_psp import GCN_PSP
-from .gcn_resnext import GCN_RESNEXT
+from .gcn import *
+from .gcn_nasnet import *
+from .gcn_densenet import *
+from .gcn_psp import *
+from .gcn_resnext import *

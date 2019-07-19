@@ -10,6 +10,8 @@ import torch.nn.init as init
 import torch.nn.functional as F
 import numpy as np
 
+__all__ = ['UNetRes']
+
 def initialize_weights(method='kaiming', *models):
     for model in models:
         for module in model.modules():
@@ -167,7 +169,7 @@ class DeconvX2_Res(nn.Module):
 
 
 class UNetRes(nn.Module):
-    def __init__(self, num_class):
+    def __init__(self, num_classes, **kwargs):
         super(UNetRes, self).__init__()
 
         # Assuming Input as 240x320x3
@@ -196,9 +198,7 @@ class UNetRes(nn.Module):
         self.dec2 = DeconvX2_Res(256, 128, 2, stride=2)
         self.dec3 = DeconvX2_Res(128, 64, 2, stride=2)
 
-        self.dec4 = nn.Sequential(nn.Conv2d(64, 64, 3, padding=1),
-                                  # nn.Conv2d(64, 64, 3, padding=1),
-                                  nn.Conv2d(64, num_class, kernel_size=1, stride=1))
+        self.dec4 = nn.Sequential(nn.Conv2d(64, 64, 3, padding=1), nn.Conv2d(64, num_classes, kernel_size=1, stride=1))
 
         self.activation = nn.Sigmoid()
 

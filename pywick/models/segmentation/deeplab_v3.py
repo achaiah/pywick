@@ -10,8 +10,9 @@ import torch.nn.functional as F
 import torchvision.models as models
 import math
 
-model_url = 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth'
+__all__ = ['DeepLabv3']
 
+model_url = 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth'
 
 class Atrous_Bottleneck(nn.Module):
     expansion = 4
@@ -147,7 +148,7 @@ class Atrous_module(nn.Module):
 
 
 class DeepLabv3(nn.Module):
-    def __init__(self, num_classes, small=True, pretrained=False):
+    def __init__(self, num_classes, small=True, pretrained=True, **kwargs):
         super(DeepLabv3, self).__init__()
         block = Atrous_Bottleneck
         self.resnet_features = Atrous_ResNet_features(block, [3, 4, 23], pretrained)

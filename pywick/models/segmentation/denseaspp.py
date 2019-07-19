@@ -1,14 +1,17 @@
 # Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/models/denseaspp.py (License: Apache 2.0)
 
+"""
+Implementation of `DenseASPP for Semantic Segmentation in Street Scenes <http://openaccess.thecvf.com/content_cvpr_2018/papers/Yang_DenseASPP_for_Semantic_CVPR_2018_paper.pdf>`_
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .da_basenets.densenet import *
-from .da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.testnets.da_basenets.densenet import *
+from pywick.models.segmentation.testnets.da_basenets.fcn import _FCNHead
 
-__all__ = ['DenseASPP', 'get_denseaspp', 'denseaspp_densenet121',
-           'denseaspp_densenet161', 'denseaspp_densenet169', 'denseaspp_densenet201']
+__all__ = ['DenseASPP', 'DenseASPP_121', 'DenseASPP_161', 'DenseASPP_169', 'DenseASPP_201']
 
 
 class DenseASPP(nn.Module):
@@ -142,23 +145,23 @@ def get_denseaspp(num_classes=1, backbone='densenet169', pretrained=True, **kwar
     return DenseASPP(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
 
 
-def denseaspp_densenet121(num_classes=1, **kwargs):
+def DenseASPP_121(num_classes=1, **kwargs):
     return get_denseaspp(num_classes=num_classes, backbone='densenet121', **kwargs)
 
 
-def denseaspp_densenet161(num_classes=1, **kwargs):
+def DenseASPP_161(num_classes=1, **kwargs):
     return get_denseaspp(num_classes=num_classes, backbone='densenet161', **kwargs)
 
 
-def denseaspp_densenet169(num_classes=1, **kwargs):
+def DenseASPP_169(num_classes=1, **kwargs):
     return get_denseaspp(num_classes=num_classes, backbone='densenet169', **kwargs)
 
 
-def denseaspp_densenet201(num_classes=1, **kwargs):
+def DenseASPP_201(num_classes=1, **kwargs):
     return get_denseaspp(num_classes=num_classes, backbone='densenet201', **kwargs)
 
 
 if __name__ == '__main__':
     img = torch.randn(2, 3, 480, 480)
-    model = denseaspp_densenet121()
+    model = DenseASPP_121()
     outputs = model(img)

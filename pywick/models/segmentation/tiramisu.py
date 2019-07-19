@@ -7,6 +7,7 @@ Implementation of `The One Hundred Layers Tiramisu: Fully Convolutional DenseNet
 import torch
 import torch.nn as nn
 
+__all__ = ['FCDenseNet', 'FCDenseNet57', 'FCDenseNet67', 'FCDenseNet103']
 
 class DenseLayer(nn.Sequential):
     def __init__(self, in_channels, growth_rate):
@@ -90,7 +91,7 @@ def center_crop(layer, max_height, max_width):
 class FCDenseNet(nn.Module):
     def __init__(self, in_channels=3, down_blocks=(5,5,5,5,5),
                  up_blocks=(5,5,5,5,5), bottleneck_layers=5,
-                 growth_rate=16, out_chans_first_conv=48, n_classes=12):
+                 growth_rate=16, out_chans_first_conv=48, num_classes=12, **kwargs):
         super().__init__()
         self.down_blocks = down_blocks
         self.up_blocks = up_blocks
@@ -156,8 +157,8 @@ class FCDenseNet(nn.Module):
         ## Softmax ##
 
         self.finalConv = nn.Conv2d(in_channels=cur_channels_count,
-               out_channels=n_classes, kernel_size=1, stride=1,
-                   padding=0, bias=True)
+                                   out_channels=num_classes, kernel_size=1, stride=1,
+                                   padding=0, bias=True)
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
@@ -180,22 +181,22 @@ class FCDenseNet(nn.Module):
         return out
 
 
-def FCDenseNet57(n_classes):
+def FCDenseNet57(num_classes, **kwargs):
     return FCDenseNet(
         in_channels=3, down_blocks=(4, 4, 4, 4, 4),
         up_blocks=(4, 4, 4, 4, 4), bottleneck_layers=4,
-        growth_rate=12, out_chans_first_conv=48, n_classes=n_classes)
+        growth_rate=12, out_chans_first_conv=48, num_classes=num_classes, **kwargs)
 
 
-def FCDenseNet67(n_classes):
+def FCDenseNet67(num_classes, **kwargs):
     return FCDenseNet(
         in_channels=3, down_blocks=(5, 5, 5, 5, 5),
         up_blocks=(5, 5, 5, 5, 5), bottleneck_layers=5,
-        growth_rate=16, out_chans_first_conv=48, n_classes=n_classes)
+        growth_rate=16, out_chans_first_conv=48, num_classes=num_classes, **kwargs)
 
 
-def FCDenseNet103(n_classes):
+def FCDenseNet103(num_classes, **kwargs):
     return FCDenseNet(
         in_channels=3, down_blocks=(4,5,7,10,12),
         up_blocks=(12,10,7,5,4), bottleneck_layers=15,
-        growth_rate=16, out_chans_first_conv=48, n_classes=n_classes)
+        growth_rate=16, out_chans_first_conv=48, num_classes=num_classes, **kwargs)

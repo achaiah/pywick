@@ -11,6 +11,8 @@ import torch.nn.functional as F
 import torchvision.models as models
 import numpy as np
 
+__all__ = ['ResnetGCN']
+
 def initialize_weights(method='kaiming', *models):
     for model in models:
         for module in model.modules():
@@ -60,7 +62,7 @@ class BoundaryRefine(nn.Module):
         return x.expand_as(convs)+convs
 
 class ResnetGCN(nn.Module):
-    def __init__(self, num_classes, pretrained=True):
+    def __init__(self, num_classes, pretrained=True, **kwargs):
         super(ResnetGCN, self).__init__()
 
         resent = models.resnet101(pretrained=pretrained)
