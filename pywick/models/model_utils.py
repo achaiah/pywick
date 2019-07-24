@@ -188,7 +188,7 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
             if model_name in m_name:
                 model_exists = True
                 break
-
+        print('stop')
         if model_exists:
             # Print warnings and helpful messages for nets that require additional configuration
             if model_name in ['GCN_PSP', 'GCN_RESNEXT', 'RefineNet4Cascade', 'RefineNet4CascadePoolingImproved', 'Unet_stack']:
@@ -198,9 +198,9 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
 
             # logic to switch between different constructors
             if model_name in ['FusionNet', 'Enet', 'frrn', 'Tiramisu57', 'Tiramisu67', 'Tiramisu101'] or model_name.startswith('UNet') and pretrained:  # FusionNet
-                if pretrained:
                     print("WARN: FusionNet, Enet, FRRN, Tiramisu, UNetXXX do not have a pretrained model! Empty model as been created instead.")
-                net = segmentation.__dict__[model_name](num_classes=num_classes, pretrained=pretrained, **kwargs)
+
+            net = segmentation.__dict__[model_name](num_classes=num_classes, pretrained=pretrained, **kwargs)
 
         else:
             raise Exception('Combination of type: {} and model_name: {} is not valid'.format(model_type, model_name))

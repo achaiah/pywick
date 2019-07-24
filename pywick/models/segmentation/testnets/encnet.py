@@ -10,8 +10,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .da_basenets.segbase import SegBaseModel
-from .da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.da_basenets.fcn import _FCNHead
 
 __all__ = ['EncNet', 'EncModule', 'get_encnet', 'encnet_resnet50', 'encnet_resnet101', 'encnet_resnet152']
 

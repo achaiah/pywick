@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pywick.models.segmentation.testnets.da_basenets.resnet import resnet18
+from pywick.models.segmentation.da_basenets.resnet import resnet18
 
 __all__ = ['BiSeNet', 'BiSeNet_Resnet18']
 
@@ -18,7 +18,7 @@ class BiSeNet(nn.Module):
         super(BiSeNet, self).__init__()
         self.aux = aux
         self.spatial_path = SpatialPath(3, 128, **kwargs)
-        self.context_path = ContextPath(backbone, pretrained, **kwargs)
+        self.context_path = ContextPath(backbone=backbone, pretrained=pretrained, **kwargs)
         self.ffm = FeatureFusion(256, 256, 4, **kwargs)
         self.head = _BiSeHead(256, 64, num_classes, **kwargs)
         if aux:

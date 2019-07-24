@@ -8,9 +8,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .da_basenets.basic import _ConvBNReLU
-from .da_basenets.segbase import SegBaseModel
-from .da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.da_basenets.basic import _ConvBNReLU
+from pywick.models.segmentation.da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.da_basenets.fcn import _FCNHead
 
 __all__ = ['PSANet', 'get_psanet', 'get_psanet_resnet50', 'get_psanet_resnet101', 'get_psanet_resnet152']
 

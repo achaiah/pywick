@@ -8,8 +8,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pywick.models.segmentation.testnets.da_basenets.segbase import SegBaseModel
-from pywick.models.segmentation.testnets.da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.da_basenets.fcn import _FCNHead
 
 __all__ = ['OCNet', 'OCNet_Base_Resnet101', 'OCNet_Pyramid_Resnet101', 'OCNet_ASP_Resnet101', 'OCNet_Base_Resnet152', 'OCNet_Pyramid_Resnet152', 'OCNet_ASP_Resnet152']
 

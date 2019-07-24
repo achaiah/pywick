@@ -8,8 +8,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pywick.models.segmentation.testnets.da_basenets.segbase import SegBaseModel
-from pywick.models.segmentation.testnets.da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.da_basenets.fcn import _FCNHead
 
 __all__ = ['DUNet', 'DUNet_Resnet50', 'DUNet_Resnet101', 'DUNet_Resnet152']
 

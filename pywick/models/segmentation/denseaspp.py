@@ -8,8 +8,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pywick.models.segmentation.testnets.da_basenets.densenet import *
-from pywick.models.segmentation.testnets.da_basenets.fcn import _FCNHead
+from pywick.models.segmentation.da_basenets.densenet import *
+from pywick.models.segmentation.da_basenets.fcn import _FCNHead
 
 __all__ = ['DenseASPP', 'DenseASPP_121', 'DenseASPP_161', 'DenseASPP_169', 'DenseASPP_201']
 

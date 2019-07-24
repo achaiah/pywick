@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from pywick.models.segmentation.testnets.da_basenets.segbase import SegBaseModel
+from pywick.models.segmentation.da_basenets.segbase import SegBaseModel
 
 __all__ = ['DANet', 'DANet_Resnet50', 'DANet_Resnet101', 'DANet_Resnet152']
 
