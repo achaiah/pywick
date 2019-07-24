@@ -24,16 +24,15 @@ class DUNet(SegBaseModel):
         Data-Dependent Decoding Enables Flexible Feature Aggregation." CVPR, 2019
     """
 
-    def __init__(self, nclass, backbone='resnet50', aux=False, pretrained_base=True, **kwargs):
-        super(DUNet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
+    def __init__(self, num_classes, pretrained=True, backbone='resnet101', aux=False, **kwargs):
+        super(DUNet, self).__init__(num_classes, aux, backbone, pretrained=pretrained, **kwargs)
         self.head = _DUHead(2144, **kwargs)
-        self.dupsample = DUpsampling(256, nclass, scale_factor=8, **kwargs)
+        self.dupsample = DUpsampling(256, num_classes, scale_factor=8, **kwargs)
         if aux:
             self.auxlayer = _FCNHead(1024, 256, **kwargs)
-            self.aux_dupsample = DUpsampling(256, nclass, scale_factor=8, **kwargs)
+            self.aux_dupsample = DUpsampling(256, num_classes, scale_factor=8, **kwargs)
 
-        self.__setattr__('exclusive',
-                         ['dupsample', 'head', 'auxlayer', 'aux_dupsample'] if aux else ['dupsample', 'head'])
+        self.__setattr__('exclusive', ['dupsample', 'head', 'auxlayer', 'aux_dupsample'] if aux else ['dupsample', 'head'])
 
     def forward(self, x):
         c1, c2, c3, c4 = self.base_forward(x)
@@ -133,7 +132,7 @@ def get_dunet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
         backbone : str - type of backbone to use (one of `{resnet50, resnet101, resnet152}`)
         pretrained : bool (default: True) - whether to load pretrained backbone network, that was trained on ImageNet.
         """
-    model = DUNet(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
+    model = DUNet(num_classes=num_classes, backbone=backbone, pretrained=pretrained, **kwargs)
     return model
 
 

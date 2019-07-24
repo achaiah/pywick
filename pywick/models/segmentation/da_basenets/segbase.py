@@ -15,10 +15,10 @@ class SegBaseModel(nn.Module):
         'resnet101' or 'resnet152').
     """
 
-    def __init__(self, nclass, aux, backbone='resnet101', pretrained=True, **kwargs):
+    def __init__(self, num_classes, pretrained=True, aux=False, backbone='resnet101', **kwargs):
         super(SegBaseModel, self).__init__()
         self.aux = aux
-        self.nclass = nclass
+        self.nclass = num_classes
         if backbone == 'resnet50':
             self.pretrained = resnet50_v1s(pretrained=pretrained, **kwargs)
         elif backbone == 'resnet101':

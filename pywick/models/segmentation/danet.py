@@ -33,9 +33,9 @@ class DANet(SegBaseModel):
         "Dual Attention Network for Scene Segmentation." *CVPR*, 2019
     """
 
-    def __init__(self, nclass, backbone='resnet50', aux=False, pretrained_base=True, **kwargs):
-        super(DANet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
-        self.head = _DAHead(2048, nclass, aux, **kwargs)
+    def __init__(self, num_classes, pretrained=True, backbone='resnet101', aux=False, **kwargs):
+        super(DANet, self).__init__(num_classes, pretrained=pretrained, aux=aux, backbone=backbone, **kwargs)
+        self.head = _DAHead(2048, num_classes, aux, **kwargs)
 
         self.__setattr__('exclusive', ['head'])
 
@@ -177,7 +177,7 @@ def get_danet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
         This will load pretrained backbone network, that was trained on ImageNet.
     """
 
-    model = DANet(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
+    model = DANet(num_classes=num_classes, backbone=backbone, pretrained=pretrained, **kwargs)
     return model
 
 

@@ -34,11 +34,11 @@ class PSANet(SegBaseModel):
         ECCV-2018.
     """
 
-    def __init__(self, nclass, backbone='resnet', aux=False, pretrained_base=True, **kwargs):
-        super(PSANet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
-        self.head = _PSAHead(nclass, **kwargs)
+    def __init__(self, num_classes, pretrained=True, backbone='resnet101', aux=False, **kwargs):
+        super(PSANet, self).__init__(num_classes, pretrained=pretrained, aux=aux, backbone=backbone, **kwargs)
+        self.head = _PSAHead(num_classes, **kwargs)
         if aux:
-            self.auxlayer = _FCNHead(1024, nclass, **kwargs)
+            self.auxlayer = _FCNHead(1024, num_classes, **kwargs)
 
         self.__setattr__('exclusive', ['head', 'auxlayer'] if aux else ['head'])
 
@@ -127,7 +127,7 @@ def get_psanet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
             This will load pretrained backbone network, that was trained on ImageNet.
         """
 
-    model = PSANet(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
+    model = PSANet(num_classes=num_classes, backbone=backbone, pretrained=pretrained, **kwargs)
     return model
 
 

@@ -17,12 +17,11 @@ __all__ = ['EncNet', 'EncModule', 'get_encnet', 'encnet_resnet50', 'encnet_resne
 
 
 class EncNet(SegBaseModel):
-    def __init__(self, nclass, backbone='resnet50', aux=False, se_loss=True, lateral=False,
-                 pretrained_base=True, **kwargs):
-        super(EncNet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
-        self.head = _EncHead(2048, nclass, se_loss=se_loss, lateral=lateral, **kwargs)
+    def __init__(self, num_classes, pretrained=True, backbone='resnet101', aux=False, se_loss=True, lateral=False, **kwargs):
+        super(EncNet, self).__init__(num_classes, pretrained=pretrained, aux=aux, backbone=backbone, **kwargs)
+        self.head = _EncHead(2048, num_classes, se_loss=se_loss, lateral=lateral, **kwargs)
         if aux:
-            self.auxlayer = _FCNHead(1024, nclass, **kwargs)
+            self.auxlayer = _FCNHead(1024, num_classes, **kwargs)
 
         self.__setattr__('exclusive', ['head', 'auxlayer'] if aux else ['head'])
 
@@ -42,8 +41,7 @@ class EncNet(SegBaseModel):
 
 
 class _EncHead(nn.Module):
-    def __init__(self, in_channels, nclass, se_loss=True, lateral=True,
-                 norm_layer=nn.BatchNorm2d, norm_kwargs=None, **kwargs):
+    def __init__(self, in_channels, nclass, se_loss=True, lateral=True, norm_layer=nn.BatchNorm2d, norm_kwargs=None, **kwargs):
         super(_EncHead, self).__init__()
         self.lateral = lateral
         self.conv5 = nn.Sequential(
@@ -184,7 +182,7 @@ class Mean(nn.Module):
 
 
 def get_encnet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
-    return EncNet(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
+    return EncNet(num_classes=num_classes, backbone=backbone, pretrained=pretrained, **kwargs)
 
 
 def encnet_resnet50(num_classes=1, **kwargs):

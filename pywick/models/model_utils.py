@@ -135,15 +135,31 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
         """
         Additional Segmentation Option Parameters
         -----------------------------------------
-        DANet, DUNet, EncNet, OCNet, PSANet
-            - :param backbone: (str, default: 'resnet101') The type of backbone to use (one of `{'resnet50', 'resnet101', 'resnet152'}`)
-            - :param dilated: (bool, default: True) Whether to use the dilated version of the backbone
         
-        BiSeNet, DANet, DUNet, EncNet, OCNet, PSANet
+        BiSeNet
+            - :param backbone: (str, default: 'resnet18') The type of backbone to use (one of `{'resnet18'}`)
             - :param aux: (bool, default: False) Whether to output auxiliary loss (typically an FC loss to help with multi-class segmentation)
+            
+        DANet_ResnetXXX, DUNet_ResnetXXX, EncNet, OCNet_XXX_XXX, PSANet_XXX
+            - :param aux: (bool, default: False) Whether to output auxiliary loss (typically an FC loss to help with multi-class segmentation)
+            - :param backbone: (str, default: 'resnet101') The type of backbone to use (one of `{'resnet50', 'resnet101', 'resnet152'}`)
+            - :param norm_layer (Pytorch nn.Module, default: nn.BatchNorm2d) The normalization layer to use. Typically it is not necessary to change this parameter unless you know what you're doing.
+        
+        DenseASPP_XXX
+            - :param aux: (bool, default: False) Whether to output auxiliary loss (typically an FC loss to help with multi-class segmentation)
+            - :param backbone: (str, default: 'densenet161') The type of backbone to use (one of `{'densenet121', 'densenet161', 'densenet169', 'densenet201'}`)
+            - :param dilate_scale (int, default: 8) The size of the dilation to use (one of `{8, 16}`)
+            - :param norm_layer (Pytorch nn.Module, default: nn.BatchNorm2d) The normalization layer to use. Typically it is not necessary to change this parameter unless you know what you're doing.
             
         DRNSeg
             - :param model_name: (str - required) The type of backbone to use. One of `{'DRN_C_42', 'DRN_C_58', 'DRN_D_38', 'DRN_D_54', 'DRN_D_105'}`
+            
+        EncNet_ResnetXXX
+            - :param aux: (bool, default: False) Whether to output auxiliary loss (typically an FC loss to help with multi-class segmentation)
+            - :param backbone: (str, default: 'resnet101') The type of backbone to use (one of `{'resnet50', 'resnet101', 'resnet152'}`)
+            - :param norm_layer (Pytorch nn.Module, default: nn.BatchNorm2d) The normalization layer to use. Typically it is not necessary to change this parameter unless you know what you're doing.
+            - :param se_loss (bool, default: True) Whether to compute se_loss
+            - :param lateral (bool, default: False)
         
         frrn
             - :param model_type: (str - required) The type of model to use. One of `{'A', 'B'}`
@@ -181,126 +197,11 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
                 print('WARN: Did you remember to set the input_shape parameter: tuple(int, int)?')
 
             # logic to switch between different constructors
-            if model_name in ['FusionNet', 'Enet', 'frrn']:  # FusionNet
+            if model_name in ['FusionNet', 'Enet', 'frrn', 'Tiramisu57', 'Tiramisu67', 'Tiramisu101'] or model_name.startswith('UNet') and pretrained:  # FusionNet
                 if pretrained:
-                    print("WARN: Enet does not have a pretrained model! Empty model as been created instead.")
-                net = segmentation.__dict__[model_name](num_classes=num_classes, **kwargs)
-            else:
+                    print("WARN: FusionNet, Enet, FRRN, Tiramisu, UNetXXX do not have a pretrained model! Empty model as been created instead.")
                 net = segmentation.__dict__[model_name](num_classes=num_classes, pretrained=pretrained, **kwargs)
 
-            elif model_name == 'TEST_DenseASPP_121':
-                net = TEST_DenseASPP_121(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_DenseASPP_161':
-                net = TEST_DenseASPP_161(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_DenseASPP_169':
-                net = TEST_DenseASPP_169(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_DenseASPP_201':
-                net = TEST_DenseASPP_201(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_DiLinknet':
-                net = TEST_DiLinknet(num_classes=num_classes, pretrained=False)
-            elif model_name == 'TEST_DLR_Resnet':
-                net = create_DLR_V3_pretrained(num_classes=num_classes)
-            elif model_name == 'TEST_DLX_Resnet':
-                net = create_DLX_V3_pretrained(num_classes=num_classes)
-            elif model_name == 'TEST_DLV2':
-                net = TEST_DLV2(n_classes=num_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24])
-                net = TEST_DLV3_Xception(n_classes=num_classes, os=8, pretrained=True, _print=False)
-            elif model_name == 'TEST_DLV3':
-                net = TEST_DLV3(n_classes=num_classes, n_blocks=[3, 4, 23, 3], pyramids=[12, 24, 36], grids=[1, 2, 4], output_stride=8)
-            elif model_name == 'TEST_DUNet_Res50':
-                net = TEST_DUNet_res50(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_DUNet_Res101':
-                net = TEST_DUNet_res101(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_DUNet_Res152':
-                net = TEST_DUNet_res152(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_EncNet_Res101':
-                net = TEST_EncNet_Res101(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_EncNet_Res152':
-                net = TEST_EncNet_Res152(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_LinkCeption':
-                net = TEST_LinkCeption(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_LinkDensenet121':
-                net = TEST_LinkDenseNet121(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_LinkDensenet161':
-                net = TEST_LinkDenseNet161(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_Linknet50':
-                net = TEST_Linknet50(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_Linknet101':
-                net = TEST_Linknet101(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_Linknet152':
-                net = TEST_Linknet152(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_LinkNext_Mnas':
-                net = TEST_LinkNext_Mnas(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_Linknext':
-                net = TEST_Linknext(num_classes=num_classes)
-            elif model_name == 'TEST_OCNet_Base_Res101':
-                net = TEST_OCNet_Base_Res101(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_OCNet_ASP_Res101':
-                net = TEST_OCNet_ASP_Res101(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_OCNet_Pyr_Res101':
-                net = TEST_OCNet_Pyr_Res101(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_OCNet_Base_Res152':
-                net = TEST_OCNet_Base_Res152(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_OCNet_ASP_Res152':
-                net = TEST_OCNet_ASP_Res152(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_OCNet_Pyr_Res152':
-                net = TEST_OCNet_Pyr_Res152(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_PSANet_Res50':
-                net = TEST_PSANet_res50(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_PSANet_Res101':
-                net = TEST_PSANet_res101(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_PSANet_Res152':
-                net = TEST_PSANet_res152(num_classes=num_classes, pretrained=pretrained)
-            elif model_name == 'TEST_PSPNet2':
-                net = TEST_PSPNet2(num_classes=num_classes)
-            elif model_name == 'TEST_Tiramisu57':
-                net = TEST_Tiramisu57(num_classes=num_classes)
-            elif model_name == 'TEST_Unet_nested_dilated':
-                net = TEST_Unet_nested_dilated(n_classes=num_classes)
-            elif model_name == 'TEST_Unet_plus_plus':
-                net = Unet_Plus_Plus(in_channels=3, n_classes=num_classes)
-            elif model_name == 'Tiramisu57':  # Tiramisu
-                net = FCDenseNet57(num_classes=num_classes)
-                if pretrained:
-                    print("Tiramisu67 Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'Tiramisu67':                                     # Tiramisu
-                net = FCDenseNet67(num_classes=num_classes)
-                if pretrained:
-                    print("Tiramisu67 Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'Tiramisu103':                                   # Tiramisu
-                net = FCDenseNet103(num_classes=num_classes)
-                if pretrained:
-                    print("Tiramisu103 Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'Unet':                                          # standard unet
-                net = UNet(num_classes=num_classes)
-                if pretrained:
-                    print("UNet Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'UNet256':                                       # Unet for 256px square imgs
-                net = UNet256(in_shape=(3,256,256))
-                if pretrained:
-                    print("UNet256 Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'UNet512':                                       # Unet for 512px square imgs
-                net = UNet512(in_shape=(3, 512, 512))
-                if pretrained:
-                    print("UNet512 Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'UNet1024':                                      # Unet for 1024px square imgs
-                net = UNet1024(in_shape=(3, 1024, 1024))
-                if pretrained:
-                    print("UNet1024 Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'UNet960':                                       # Another Unet specifically with 960px resolution
-                net = UNet960(filters=12)
-                if pretrained:
-                    print("UNet960 Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'unet_dilated':                                  # dilated unet
-                net = uNetDilated(num_classes=num_classes)
-            elif model_name == 'Unet_res':                                      # residual unet
-                net = UNetRes(num_classes=num_classes)
-                if pretrained:
-                    print("UNet_res Does not have a pretrained model! Empty model has been created instead.")
-            elif model_name == 'UNet_stack':                                    # Stacked Unet variation with resnet connections
-                net = UNet_stack(input_size=(input_size, input_size), filters=12)
-                if pretrained:
-                    print("UNet_stack Does not have a pretrained model! Empty model has been created instead.")
         else:
             raise Exception('Combination of type: {} and model_name: {} is not valid'.format(model_type, model_name))
 
@@ -314,17 +215,24 @@ def get_supported_models(type):
     :return: list (strings) of supported models
     '''
 
+    import pkgutil
     if type == ModelType.SEGMENTATION:
-        return [x for x in segmentation.__dict__.keys() if '__' not in x]  # includes directory and filenames
+        excludes = list()  # <-- exclude non-model names
+        for importer, modname, ispkg in pkgutil.walk_packages(path=segmentation.__path__, prefix=segmentation.__name__+".", onerror=lambda x: None):
+            excludes.append(modname.split('.')[-1])
+        return [x for x in segmentation.__dict__.keys() if ('__' not in x and x not in excludes)]  # filter out hidden object attributes and module names
     elif type == ModelType.CLASSIFICATION:
-        # excludes are just filenames that are in the 'classification' directory (and are not names of real networks in __init__.py)
-        excludes = ['dpn', 'inception_resv2_wide', 'nasnet', 'nasnet_mobile', 'pnasnet', 'pyramid_resnet',
-                    'resnet_swish', 'resnext_features', 'resnext', 'se_module', 'se_resnet', 'senet', 'wide_resnet', 'wide_resnet_2',
-                    'resnet', 'vgg', 'squeezenet', 'inception', 'densenet']         # <-- this line reserved for exclusions from torchvision
-        pywick_names = [x for x in classification.__dict__.keys() if '__' not in x]     # includes directory and filenames
-        pt_names = [x for x in torch_models.__dict__.keys() if '__' not in x]  # includes directory and filenames
-        names = pywick_names + pt_names
-        return [x for x in names if x not in excludes]      # filtered list
+        pywick_excludes = list()
+        for importer, modname, ispkg in pkgutil.walk_packages(path=classification.__path__, prefix=classification.__name__+".", onerror=lambda x: None):
+            pywick_excludes.append(modname.split('.')[-1])
+        pywick_names = [x for x in classification.__dict__.keys() if '__' not in x and x not in pywick_excludes]     # includes directory and filenames
+
+        pt_excludes = list()
+        for importer, modname, ispkg in pkgutil.walk_packages(path=torch_models.__path__, prefix=torch_models.__name__+".", onerror=lambda x: None):
+            pt_excludes.append(modname.split('.')[-1])
+        pt_names = [x for x in torch_models.__dict__.keys() if '__' not in x and x not in pt_excludes]  # includes directory and filenames
+
+        return pywick_names + pt_names
     else:
         return None
 

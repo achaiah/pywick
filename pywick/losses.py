@@ -1239,7 +1239,7 @@ class FocalBinaryTverskyLoss(Function):
             alpha = beta = 1 => tanimoto coeff
             alpha + beta = 1 => F beta coeff
             add focal index -> loss=(1-T_index)**(1/gamma)
-        """
+    """
 
     def __init__(ctx, alpha=0.5, beta=0.7, gamma=1.33333, reduction='mean'):
         """
@@ -1325,6 +1325,7 @@ class FocalBinaryTverskyLoss(Function):
         grad_input = torch.cat((dL_dp1, dL_dp0), dim=1)
         # grad_input = torch.cat((grad_out.item() * dL_dp0, dL_dp0 * grad_out.item()), dim=1)
         return grad_input, None
+
 
 class MultiTverskyLoss(nn.Module):
     """

@@ -34,11 +34,11 @@ class OCNet(SegBaseModel):
         arXiv preprint arXiv:1809.00916 (2018).
     """
 
-    def __init__(self, nclass, backbone='resnet101', oc_arch='base', aux=False, pretrained_base=True, **kwargs):
-        super(OCNet, self).__init__(nclass, aux, backbone, pretrained=pretrained_base, **kwargs)
-        self.head = _OCHead(nclass, oc_arch, **kwargs)
+    def __init__(self, num_classes, pretrained=True, backbone='resnet101', oc_arch='base', aux=False, **kwargs):
+        super(OCNet, self).__init__(num_classes, pretrained=pretrained, aux=aux, backbone=backbone, **kwargs)
+        self.head = _OCHead(num_classes, oc_arch, **kwargs)
         if self.aux:
-            self.auxlayer = _FCNHead(1024, nclass, **kwargs)
+            self.auxlayer = _FCNHead(1024, num_classes, **kwargs)
 
         self.__setattr__('exclusive', ['head', 'auxlayer'] if aux else ['head'])
 
@@ -313,7 +313,7 @@ class ASPOCModule(nn.Module):
 
 
 def get_ocnet(num_classes=1, backbone='resnet50', oc_arch='base', pretrained=True, **kwargs):
-    model = OCNet(nclass=num_classes, backbone=backbone, oc_arch=oc_arch, pretrained_base=pretrained, **kwargs)
+    model = OCNet(num_classes=num_classes, backbone=backbone, oc_arch=oc_arch, pretrained=pretrained, **kwargs)
     return model
 
 

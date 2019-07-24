@@ -179,7 +179,7 @@ class ResStackDecoder (nn.Module):
 
 # 1024x1024
 class UNet1024 (nn.Module):
-    def __init__(self, in_shape):
+    def __init__(self, in_shape=(3, 1024, 1024), **kwargs):
         super(UNet1024, self).__init__()
         C,H,W = in_shape
         #assert(C==3)
@@ -235,7 +235,7 @@ class UNet1024 (nn.Module):
 
 # 512x512
 class UNet512 (nn.Module):
-    def __init__(self, in_shape):
+    def __init__(self, in_shape=(3, 512, 512), **kwargs):
         super(UNet512, self).__init__()
         C,H,W = in_shape
         #assert(C==3)
@@ -287,7 +287,7 @@ class UNet512 (nn.Module):
 
 # 256x256
 class UNet256 (nn.Module):
-    def __init__(self, in_shape):
+    def __init__(self, in_shape=(3, 256, 256), **kwargs):
         super(UNet256, self).__init__()
         C,H,W = in_shape
         #assert(C==3)
@@ -340,7 +340,7 @@ class UNet256 (nn.Module):
 
 # 128x128
 class UNet128 (nn.Module):
-    def __init__(self, in_shape):
+    def __init__(self, in_shape=(3, 128, 128), **kwargs):
         super(UNet128, self).__init__()
         C,H,W = in_shape
         #assert(C==3)

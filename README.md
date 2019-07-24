@@ -192,28 +192,28 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
 - [**XCeption**](https://arxiv.org/pdf/1610.02357.pdf)
 
 ## Image Segmentation Models
-1. **Deeplab v2** ([DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs](https://arxiv.org/abs/1606.00915))
-2. **Deeplab v3** ([Rethinking Atrous Convolution for Semantic Image Segmentation](https://arxiv.org/abs/1706.05587))
-3. **DRNNet** ([Dilated Residual Networks](http://openaccess.thecvf.com/content_cvpr_2017/papers/Yu_Dilated_Residual_Networks_CVPR_2017_paper.pdf))
-4. **DUC, HDC**
-  ([understanding convolution for semantic segmentation](https://arxiv.org/pdf/1702.08502.pdf))
-5. **ENet** ([ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation](https://arxiv.org/abs/1606.02147))
-6. **Vanilla FCN:** FCN32, FCN16, FCN8, in the versions of VGG, ResNet
+- **BiSeNet** ([Bilateral Segmentation Network for Real-time Semantic Segmentation](https://arxiv.org/abs/1808.00897))
+- **DANet** ([Dual Attention Network for Scene Segmentation](https://arxiv.org/abs/1809.02983))
+- **Deeplab v2** ([DeepLab: Semantic Image Segmentation with Deep Convolutional Nets, Atrous Convolution, and Fully Connected CRFs](https://arxiv.org/abs/1606.00915))
+- **Deeplab v3** ([Rethinking Atrous Convolution for Semantic Image Segmentation](https://arxiv.org/abs/1706.05587))
+- **DenseASPP** ([DenseASPP for Semantic Segmentation in Street Scenes](http://openaccess.thecvf.com/content_cvpr_2018/papers/Yang_DenseASPP_for_Semantic_CVPR_2018_paper.pdf))
+- **DRNNet** ([Dilated Residual Networks](http://openaccess.thecvf.com/content_cvpr_2017/papers/Yu_Dilated_Residual_Networks_CVPR_2017_paper.pdf))
+- **DUC, HDC** ([understanding convolution for semantic segmentation](https://arxiv.org/abs/1702.08502))
+- **DUNet** ([Decoders Matter for Semantic Segmentation](https://arxiv.org/abs/1903.02120))
+- **ENet** ([ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation](https://arxiv.org/abs/1606.02147))
+- **Vanilla FCN:** FCN32, FCN16, FCN8, in the versions of VGG, ResNet
     and DenseNet respectively ([Fully convolutional networks for semantic segmentation](http://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Long_Fully_Convolutional_Networks_2015_CVPR_paper.pdf))
-7. **FRRN** ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
-8. **FusionNet** ([FusionNet in Tensorflow by Hyungjoo Andrew Cho](https://github.com/NySunShine/fusion-net))
-9. **GCN** ([Large Kernel Matters](https://arxiv.org/pdf/1703.02719))
-10. **LinkNet**
-    ([Link-Net](https://codeac29.github.io/projects/linknet/))
-11. **PSPNet**
-    ([Pyramid scene parsing network](https://arxiv.org/pdf/1612.01105))
-12. **RefineNet** ([RefineNet](https://arxiv.org/abs/1611.06612))
-13. **SegNet** ([Segnet: A deep convolutional encoder-decoder architecture for image segmentation](https://arxiv.org/pdf/1511.00561))
-14. **Tiramisu**
-    ([The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for Semantic Segmentation](https://arxiv.org/pdf/1611.09326))
-15. **U-Net**
-    ([U-net: Convolutional networks for biomedical image segmentation](https://arxiv.org/pdf/1505.04597))
-16. Additional variations of many of the above
+- **FRRN** ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
+- **FusionNet** ([FusionNet in Tensorflow by Hyungjoo Andrew Cho](https://github.com/NySunShine/fusion-net))
+- **GCN** ([Large Kernel Matters](https://arxiv.org/pdf/1703.02719))
+- **LinkNet** ([Link-Net](https://codeac29.github.io/projects/linknet/))
+- **OCNet** ([Object Context Network for Scene Parsing](https://arxiv.org/abs/1809.00916))
+- **PSPNet** ([Pyramid scene parsing network](https://arxiv.org/abs/1612.01105))
+- **RefineNet** ([RefineNet](https://arxiv.org/abs/1611.06612))
+- **SegNet** ([Segnet: A deep convolutional encoder-decoder architecture for image segmentation](https://arxiv.org/pdf/1511.00561))
+- **Tiramisu** ([The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for Semantic Segmentation](https://arxiv.org/abs/1611.09326))
+- **U-Net** ([U-net: Convolutional networks for biomedical image segmentation](https://arxiv.org/abs/1505.04597))
+- Additional variations of many of the above
 
 ###### To load one of these models:
 [Read the docs](https://pywick.readthedocs.io/en/latest/api/pywick.models.html)
@@ -224,16 +224,13 @@ from pywick.models.model_utils import get_model, ModelType
 
 model = get_model(model_type=ModelType.CLASSIFICATION, model_name='resnet18', num_classes=1000, pretrained=True)
 ```
-For a complete list of models (including many experimental ones) you may
-want to take a look at the respective
-`pywick.models.[`[classification](pywick/models/classification/__init__.py)
-/ [segmentation](pywick/models/segmentation/__init__.py)`].__init__`
-file
+For a complete list of models (including many experimental ones) you can call the `get_supported_models` method e.g. 
+`pywick.models.model_utils.get_supported_models(ModelType.SEGMENTATION)`
 
 ## Data Augmentation and Datasets
-The PyWick package provides a ton of good data augmentation and transformation
+The PyWick package provides wide variety of good data augmentation and transformation
 tools which can be applied during data loading. The package also provides the flexible
-`TensorDataset`, `FolderDataset` and 'MultiFolderDataset' classes to handle most dataset needs.
+`TensorDataset`, `FolderDataset` and `MultiFolderDataset` classes to handle most dataset needs.
 
 ### Torch Transforms
 ##### These transforms work directly on torch tensors
@@ -356,7 +353,7 @@ based in part on the excellent
 [Torchsample](https://github.com/ncullen93/torchsample) framework
 originally published by @ncullen93. Additionally, many models have been
 gently borrowed/modified from @Cadene pretrained models
-[repo](https://github.com/Cadene/pretrained-models.pytorch).
+[repo](https://github.com/Cadene/pretrained-models.pytorch) as well as @Tramac segmentation [repo](https://github.com/Tramac/awesome-semantic-segmentation-pytorch).
 
 ##### Thank you to the following people and the projects they maintain:
 - @ncullen93
@@ -364,6 +361,7 @@ gently borrowed/modified from @Cadene pretrained models
 - @deallynomore
 - @recastrodiaz
 - @zijundeng
+- @Tramac
 - And many others! (attributions listed in the codebase as they occur)
 
 ##### Thank you to the following projects from which we gently borrowed code and models
@@ -372,6 +370,7 @@ gently borrowed/modified from @Cadene pretrained models
 - [DeepLab_pytorch](https://github.com/doiken23/DeepLab_pytorch)
 - [Pytorch for Semantic Segmentation](https://github.com/zijundeng/pytorch-semantic-segmentation)
 - [Binseg Pytorch](https://github.com/saeedizadi/binseg_pytoch)
+- [awesome-semantic-segmentation-pytorch](https://github.com/Tramac/awesome-semantic-segmentation-pytorch)
 - And many others! (attributions listed in the codebase as they occur)
 
 

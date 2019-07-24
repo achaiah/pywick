@@ -298,10 +298,10 @@ class ASPP_module(nn.Module):
 
 
 class DeepLabv3_plus(nn.Module):
-    def __init__(self, nInputChannels=3, n_classes=21, os=16, pretrained=False, _print=True):
+    def __init__(self, num_classes=21, pretrained=False, nInputChannels=3, os=16, _print=True, **kwargs):
         if _print:
             print("Constructing DeepLabv3+ model...")
-            print("Number of classes: {}".format(n_classes))
+            print("Number of classes: {}".format(num_classes))
             print("Output stride: {}".format(os))
             print("Number of Input Channels: {}".format(nInputChannels))
         super(DeepLabv3_plus, self).__init__()
@@ -343,7 +343,7 @@ class DeepLabv3_plus(nn.Module):
                                          nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
                                          nn.BatchNorm2d(256),
                                          nn.ReLU(),
-                                         nn.Conv2d(256, n_classes, kernel_size=1, stride=1))
+                                         nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
 
     def forward(self, input):
         x, low_level_features = self.xception_features(input)
@@ -414,13 +414,13 @@ def get_10x_lr_params(model):
                 yield k
 
 
-def create_DLX_V3_pretrained(num_classes=1):
+def create_DLX_V3_pretrained(num_classes=1, **kwargs):
     """
     Creates a pretrained version of the DeepLab Xception model but substitutes num_classes for output instead of default 21.
     :param num_classes:
     :return:
     """
-    model = DeepLabv3_plus(nInputChannels=3, n_classes=21, os=8, pretrained=True, _print=True)
+    model = DeepLabv3_plus(num_classes=21, pretrained=True, nInputChannels=3, os=8, _print=True, **kwargs)
     last_linear = nn.Sequential(nn.Conv2d(304, 256, kernel_size=3, stride=1, padding=1, bias=False),
                                      nn.BatchNorm2d(256),
                                      nn.ReLU(),
@@ -431,7 +431,7 @@ def create_DLX_V3_pretrained(num_classes=1):
     model.last_linear = last_linear
 
 if __name__ == "__main__":
-    model = DeepLabv3_plus(nInputChannels=3, n_classes=21, os=8, pretrained=True, _print=True)
+    model = DeepLabv3_plus(nInputChannels=3, num_classes=21, os=8, pretrained=True, _print=True)
     model.eval()
     image = torch.randn(1, 3, 512, 512)
     with torch.no_grad():

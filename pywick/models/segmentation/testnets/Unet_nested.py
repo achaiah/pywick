@@ -67,7 +67,7 @@ def init_weights(net, init_type='normal'):
 
 class UNet(nn.Module):
 
-    def __init__(self, in_channels=3, n_classes=4, feature_scale=4, is_deconv=True, is_batchnorm=True):
+    def __init__(self, in_channels=3, num_classes=4, feature_scale=4, is_deconv=True, is_batchnorm=True):
         super(UNet, self).__init__()
         self.is_deconv = is_deconv
         self.in_channels = in_channels
@@ -105,7 +105,7 @@ class UNet(nn.Module):
         self.up_concat1 = unetUp(filters[1], filters[0], self.is_deconv)
 
         # final conv (without any concat)
-        self.final_1 = nn.Conv2d(filters[0], n_classes, 1)
+        self.final_1 = nn.Conv2d(filters[0], num_classes, 1)
         # self.final_2 = nn.Conv2d(filters[0], n_classes, 1)
         # self.final_3 = nn.Conv2d(filters[0], n_classes, 1)
 
@@ -247,7 +247,7 @@ class UNet_Nested(nn.Module):
 
 class UNet_Nested_dilated(nn.Module):
 
-    def __init__(self, in_channels=3, n_classes=4, feature_scale=4, is_deconv=True, is_batchnorm=True, is_ds=True):
+    def __init__(self, num_classes=4, in_channels=3, feature_scale=4, is_deconv=True, is_batchnorm=True, is_ds=True, **kwargs):
         super(UNet_Nested_dilated, self).__init__()
         self.is_deconv = is_deconv
         self.in_channels = in_channels
@@ -293,10 +293,10 @@ class UNet_Nested_dilated(nn.Module):
         self.up_concat04 = unetUp(filters[1], filters[0], self.is_deconv, 5)
 
         # final conv (without any concat)
-        self.final_1 = nn.Conv2d(filters[0], n_classes, 1)
-        self.final_2 = nn.Conv2d(filters[0], n_classes, 1)
-        self.final_3 = nn.Conv2d(filters[0], n_classes, 1)
-        self.final_4 = nn.Conv2d(filters[0], n_classes, 1)
+        self.final_1 = nn.Conv2d(filters[0], num_classes, 1)
+        self.final_2 = nn.Conv2d(filters[0], num_classes, 1)
+        self.final_3 = nn.Conv2d(filters[0], num_classes, 1)
+        self.final_4 = nn.Conv2d(filters[0], num_classes, 1)
 
         # initialise weights
         for m in self.modules():

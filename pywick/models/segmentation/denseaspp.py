@@ -15,27 +15,27 @@ __all__ = ['DenseASPP', 'DenseASPP_121', 'DenseASPP_161', 'DenseASPP_169', 'Dens
 
 
 class DenseASPP(nn.Module):
-    def __init__(self, nclass, backbone='densenet121', aux=False, pretrained_base=True, dilate_scale=8, **kwargs):
+    def __init__(self, num_classes, pretrained=True, backbone='densenet161', aux=False, dilate_scale=8, **kwargs):
         super(DenseASPP, self).__init__()
-        self.nclass = nclass
+        self.nclass = num_classes
         self.aux = aux
         self.dilate_scale = dilate_scale
         if backbone == 'densenet121':
-            self.pretrained = dilated_densenet121(dilate_scale, pretrained=pretrained_base, **kwargs)
+            self.pretrained = dilated_densenet121(dilate_scale, pretrained=pretrained, **kwargs)
         elif backbone == 'densenet161':
-            self.pretrained = dilated_densenet161(dilate_scale, pretrained=pretrained_base, **kwargs)
+            self.pretrained = dilated_densenet161(dilate_scale, pretrained=pretrained, **kwargs)
         elif backbone == 'densenet169':
-            self.pretrained = dilated_densenet169(dilate_scale, pretrained=pretrained_base, **kwargs)
+            self.pretrained = dilated_densenet169(dilate_scale, pretrained=pretrained, **kwargs)
         elif backbone == 'densenet201':
-            self.pretrained = dilated_densenet201(dilate_scale, pretrained=pretrained_base, **kwargs)
+            self.pretrained = dilated_densenet201(dilate_scale, pretrained=pretrained, **kwargs)
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
         in_channels = self.pretrained.num_features
 
-        self.head = _DenseASPPHead(in_channels, nclass)
+        self.head = _DenseASPPHead(in_channels, num_classes, **kwargs)
 
         if aux:
-            self.auxlayer = _FCNHead(in_channels, nclass, **kwargs)
+            self.auxlayer = _FCNHead(in_channels, num_classes, **kwargs)
 
         self.__setattr__('exclusive', ['head', 'auxlayer'] if aux else ['head'])
 
@@ -142,7 +142,7 @@ def get_denseaspp(num_classes=1, backbone='densenet169', pretrained=True, **kwar
 
    """
 
-    return DenseASPP(nclass=num_classes, backbone=backbone, pretrained_base=pretrained, **kwargs)
+    return DenseASPP(num_classes=num_classes, pretrained=pretrained, backbone=backbone, **kwargs)
 
 
 def DenseASPP_121(num_classes=1, **kwargs):

@@ -24,7 +24,7 @@ from .msc import MSC
 def DeepLabV2_ResNet101_MSC(n_classes):
     return MSC(
         scale=DeepLabV2(
-            n_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24]
+            num_classes=n_classes, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24]
         ),
         pyramids=[0.5, 0.75],
 )
@@ -62,7 +62,7 @@ class _ASPPModule(nn.Module):
 
 class DeepLabV2(nn.Sequential):
 
-    def __init__(self, n_classes, n_blocks, pyramids):
+    def __init__(self, num_classes, n_blocks, pyramids, **kwargs):
         super(DeepLabV2, self).__init__()
         self.add_module(
             "layer1",
@@ -79,7 +79,7 @@ class DeepLabV2(nn.Sequential):
         self.add_module("layer3", _ResBlock(n_blocks[1], 256, 128, 512, 2, 1))
         self.add_module("layer4", _ResBlock(n_blocks[2], 512, 256, 1024, 1, 2))
         self.add_module("layer5", _ResBlock(n_blocks[3], 1024, 512, 2048, 1, 4))
-        self.add_module("aspp", _ASPPModule(2048, n_classes, pyramids))
+        self.add_module("aspp", _ASPPModule(2048, num_classes, pyramids))
 
     def forward(self, x):
         # return super(DeepLabV2, self).forward(x)
@@ -94,7 +94,7 @@ class DeepLabV2(nn.Sequential):
 
 
 if __name__ == "__main__":
-    model = DeepLabV2(n_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24])
+    model = DeepLabV2(num_classes=21, n_blocks=[3, 4, 23, 3], pyramids=[6, 12, 18, 24])
     model.freeze_bn()
     model.eval()
     print(list(model.named_children()))

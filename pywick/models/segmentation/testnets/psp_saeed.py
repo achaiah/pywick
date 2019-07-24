@@ -54,11 +54,11 @@ class PyramidPoolingModule(nn.Module):
 
 
 class PSPNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, pretrained=True, **kwargs):
         super(PSPNet, self).__init__()
 
-        feats = list(models.resnet101(pretrained=True).modules())
-        resent = models.resnet101(pretrained=True)
+        feats = list(models.resnet101(pretrained=pretrained).modules())
+        resent = models.resnet101(pretrained=pretrained)
 
         self.layer0 = nn.Sequential(resent.conv1, resent.bn1, resent.relu, resent.maxpool)
         self.layer1 = resent.layer1

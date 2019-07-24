@@ -7,7 +7,7 @@ Implementation of `The One Hundred Layers Tiramisu: Fully Convolutional DenseNet
 import torch
 import torch.nn as nn
 
-__all__ = ['FCDenseNet', 'FCDenseNet57', 'FCDenseNet67', 'FCDenseNet103']
+__all__ = ['FCDenseNet', 'Tiramisu57', 'Tiramisu67', 'Tiramisu103']
 
 class DenseLayer(nn.Sequential):
     def __init__(self, in_channels, growth_rate):
@@ -181,21 +181,21 @@ class FCDenseNet(nn.Module):
         return out
 
 
-def FCDenseNet57(num_classes, **kwargs):
+def Tiramisu57(num_classes, **kwargs):
     return FCDenseNet(
         in_channels=3, down_blocks=(4, 4, 4, 4, 4),
         up_blocks=(4, 4, 4, 4, 4), bottleneck_layers=4,
         growth_rate=12, out_chans_first_conv=48, num_classes=num_classes, **kwargs)
 
 
-def FCDenseNet67(num_classes, **kwargs):
+def Tiramisu67(num_classes, **kwargs):
     return FCDenseNet(
         in_channels=3, down_blocks=(5, 5, 5, 5, 5),
         up_blocks=(5, 5, 5, 5, 5), bottleneck_layers=5,
         growth_rate=16, out_chans_first_conv=48, num_classes=num_classes, **kwargs)
 
 
-def FCDenseNet103(num_classes, **kwargs):
+def Tiramisu103(num_classes, **kwargs):
     return FCDenseNet(
         in_channels=3, down_blocks=(4,5,7,10,12),
         up_blocks=(12,10,7,5,4), bottleneck_layers=15,

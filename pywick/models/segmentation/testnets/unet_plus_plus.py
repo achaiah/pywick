@@ -49,7 +49,7 @@ class Final1x1ConvLayer(nn.Module):
 
 
 class NestNet(nn.Module):
-    def __init__(self, in_channels, n_classes, deep_supervision=True):
+    def __init__(self, num_classes, in_channels=3, deep_supervision=True, **kwargs):
         super().__init__()
         self.deep_supervision = deep_supervision
 
@@ -103,10 +103,10 @@ class NestNet(nn.Module):
         self.x_40 = StandardUnit(in_channels=filters[3], out_channels=filters[4])
 
         # 1x1 conv layer
-        self.final_1x1_x01 = Final1x1ConvLayer(in_channels=filters[0], out_channels=n_classes)
-        self.final_1x1_x02 = Final1x1ConvLayer(in_channels=filters[0], out_channels=n_classes)
-        self.final_1x1_x03 = Final1x1ConvLayer(in_channels=filters[0], out_channels=n_classes)
-        self.final_1x1_x04 = Final1x1ConvLayer(in_channels=filters[0], out_channels=n_classes)
+        self.final_1x1_x01 = Final1x1ConvLayer(in_channels=filters[0], out_channels=num_classes)
+        self.final_1x1_x02 = Final1x1ConvLayer(in_channels=filters[0], out_channels=num_classes)
+        self.final_1x1_x03 = Final1x1ConvLayer(in_channels=filters[0], out_channels=num_classes)
+        self.final_1x1_x04 = Final1x1ConvLayer(in_channels=filters[0], out_channels=num_classes)
 
     def forward(self, inputs, L=4):
         if not (1 <= L <= 4):
@@ -173,7 +173,7 @@ class NestNet(nn.Module):
 if __name__ == '__main__':
     inputs = torch.rand((3, 1, 96, 96)).cuda()
 
-    unet_plus_plus = NestNet(in_channels=1, n_classes=3).cuda()
+    unet_plus_plus = NestNet(in_channels=1, num_classes=3).cuda()
 
     from datetime import datetime
 

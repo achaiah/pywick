@@ -6,6 +6,29 @@ Segmentation
     :undoc-members:
     :exclude-members: features, forward, logits
 
+BiSeNet
+--------------------------------------------------
+
+.. automodule:: pywick.models.segmentation.bisenet
+    :members:
+    :undoc-members:
+    :exclude-members: forward
+
+DANet
+--------------------------------------------------
+
+.. automodule:: pywick.models.segmentation.danet
+    :members:
+    :undoc-members:
+    :exclude-members: forward
+
+DenseASPP
+--------------------------------------------------
+
+.. automodule:: pywick.models.segmentation.denseaspp
+    :members:
+    :exclude-members: forward
+
 Deeplab V2 Resnet
 --------------------------------------------------
 
@@ -45,6 +68,14 @@ DUC, HDC
     :members:
     :undoc-members:
     :exclude-members: features, forward, logits
+
+DUNet
+--------------------------------------------------
+
+.. automodule:: pywick.models.segmentation.dunet
+    :members: DUNet, DUNet_Resnet50, DUNet_Resnet101, DUNet_Resnet152
+    :undoc-members:
+    :exclude-members: forward
 
 ENet
 --------------------------------------
@@ -152,6 +183,14 @@ Linknet
     :undoc-members:
     :exclude-members: features, forward, logits, freeze, require_encoder_grad, unfreeze
 
+OCNet
+----------------------------------------
+
+.. automodule:: pywick.models.segmentation.refinenet.ocnet
+    :members:
+    :undoc-members:
+    :exclude-members: forward
+
 RefineNet
 ----------------------------------------
 
@@ -180,7 +219,7 @@ Tiramisu
 ------------------------------------------
 
 .. automodule:: pywick.models.segmentation.tiramisu
-    :members: FCDenseNet, FCDenseNet57, FCDenseNet67, FCDenseNet103
+    :members: FCDenseNet, Tiramisu57, Tiramisu67, Tiramisu103
     :undoc-members:
     :exclude-members: features, forward, logits
 
