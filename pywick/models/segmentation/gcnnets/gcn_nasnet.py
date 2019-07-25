@@ -10,7 +10,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-__all__ = ['GCN_NASNET']
+__all__ = ['GCN_NASNet']
 
 ################### GCN ######################
 
@@ -76,9 +76,9 @@ class _LearnedBilinearDeconvModule(nn.Module):
         return w
 
 
-class GCN_NASNET(nn.Module):
+class GCN_NASNet(nn.Module):
     def __init__(self, num_classes, pretrained=True, k=7):
-        super(GCN_NASNET, self).__init__()
+        super(GCN_NASNet, self).__init__()
 
         self.K = k
 

@@ -137,7 +137,7 @@ GCN Densenet
 -------------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.gcnnets.gcn_densenet
-    :members: GCN_DENSENET
+    :members: GCN_Densenet
     :undoc-members:
     :exclude-members: features, forward, logits
 
@@ -145,7 +145,7 @@ GCN NASNet
 -----------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.gcnnets.gcn_nasnet
-    :members: GCN_NASNET
+    :members: GCN_NASNet
     :undoc-members:
     :exclude-members: features, forward, logits
 
@@ -171,7 +171,7 @@ GCN ResNext
 ------------------------------------------------------
 
 .. automodule:: pywick.models.segmentation.gcnnets.gcn_resnext
-    :members: GCN_RESNEXT
+    :members: GCN_Resnext
     :undoc-members:
     :exclude-members: features, forward, logits
 

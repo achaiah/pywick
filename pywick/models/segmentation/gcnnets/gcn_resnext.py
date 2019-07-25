@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-__all__ = ['GCN_RESNEXT']
+__all__ = ['GCN_Resnext']
 
 ################## GCN Modules #####################
 
@@ -159,10 +159,10 @@ class ResNeXt(nn.Module):
 
 ############################## GCN #################################
 
-class GCN_RESNEXT(nn.Module):
+class GCN_Resnext(nn.Module):
 
     def __init__(self, num_classes, pretrained=True, k=7, input_size=512):
-        super(GCN_RESNEXT, self).__init__()
+        super(GCN_Resnext, self).__init__()
 
         self.num_classes = num_classes
         self.K = k

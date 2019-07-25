@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from torch import nn
 from torchvision import models
 
-__all__ = ['GCN_DENSENET']
+__all__ = ['GCN_Densenet']
 
 class _GlobalConvModule(nn.Module):
     def __init__(self, in_dim, out_dim, kernel_size):
@@ -48,9 +48,9 @@ class _BoundaryRefineModule(nn.Module):
         return out
 
 
-class GCN_DENSENET(nn.Module):
+class GCN_Densenet(nn.Module):
     def __init__(self, num_classes, pretrained=True, k=7):
-        super(GCN_DENSENET, self).__init__()
+        super(GCN_Densenet, self).__init__()
 
         self.K = k
 
