@@ -25,7 +25,7 @@ class DUNet(SegBaseModel):
     """
 
     def __init__(self, num_classes, pretrained=True, backbone='resnet101', aux=False, **kwargs):
-        super(DUNet, self).__init__(num_classes, aux, backbone, pretrained=pretrained, **kwargs)
+        super(DUNet, self).__init__(num_classes, pretrained=pretrained, aux=aux, backbone=backbone, **kwargs)
         self.head = _DUHead(2144, **kwargs)
         self.dupsample = DUpsampling(256, num_classes, scale_factor=8, **kwargs)
         if aux:

@@ -188,7 +188,6 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
             if model_name in m_name:
                 model_exists = True
                 break
-        print('stop')
         if model_exists:
             # Print warnings and helpful messages for nets that require additional configuration
             if model_name in ['GCN_PSP', 'GCN_RESNEXT', 'RefineNet4Cascade', 'RefineNet4CascadePoolingImproved', 'Unet_stack']:

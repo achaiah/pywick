@@ -857,13 +857,10 @@ class mIoULoss(nn.Module):
 # Source: https://github.com/snakers4/mnasnet-pytorch/blob/master/src/models/semseg_loss.py
 # Combination Loss from BCE and Dice
 class ComboSemsegLoss(nn.Module):
-    def __init__(self,
-                 use_running_mean=False,
-                 bce_weight=1,
-                 dice_weight=1,
-                 eps=1e-10,
-                 gamma=0.9
-                 ):
+    """
+
+    """
+    def __init__(self, use_running_mean=False, bce_weight=1, dice_weight=1, eps=1e-10, gamma=0.9, combined_loss_only=False):
         super().__init__()
 
         self.nll_loss = nn.BCEWithLogitsLoss()
@@ -872,6 +869,7 @@ class ComboSemsegLoss(nn.Module):
         self.bce_weight = bce_weight
         self.eps = eps
         self.gamma = gamma
+        self.combined_loss_only = combined_loss_only
 
         self.use_running_mean = use_running_mean
         self.bce_weight = bce_weight
@@ -918,7 +916,10 @@ class ComboSemsegLoss(nn.Module):
 
         loss = bce_loss * bmw + dice_loss * dmw
 
-        return loss, bce_loss, dice_loss
+        if self.combined_loss_only:
+            return loss
+        else:
+            return loss, bce_loss, dice_loss
 
 
 class ComboSemsegLossWeighted(nn.Module):
@@ -929,6 +930,7 @@ class ComboSemsegLossWeighted(nn.Module):
                  eps=1e-10,
                  gamma=0.9,
                  use_weight_mask=False,
+                 combined_loss_only=False
                  ):
         super().__init__()
 
@@ -939,6 +941,7 @@ class ComboSemsegLossWeighted(nn.Module):
         self.bce_weight = bce_weight
         self.eps = eps
         self.gamma = gamma
+        self.combined_loss_only = combined_loss_only
 
         self.use_running_mean = use_running_mean
         self.bce_weight = bce_weight
@@ -1000,7 +1003,10 @@ class ComboSemsegLossWeighted(nn.Module):
 
         loss = bce_loss * bmw + dice_loss * dmw
 
-        return loss, bce_loss, dice_loss
+        if self.combined_loss_only:
+            return loss
+        else:
+            return loss, bce_loss, dice_loss
 
 
 # ====================== #
@@ -1228,7 +1234,7 @@ class FocalBinaryTverskyLoss(Function):
 
         `Authors' implementation <https://github.com/nabsabraham/focal-tversky-unet>`_ in Keras.
 
-        Args
+        Params:
             :param alpha: controls the penalty for false positives.
             :param beta: penalty for false negative.
             :param gamma : focal coefficient range[1,3]
