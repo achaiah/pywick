@@ -338,6 +338,7 @@ class ModuleTrainer(object):
                         self._optimizer.zero_grad()
                         output_batch = fit_forward_fn(input_batch)
                         loss = fit_loss_fn(output_batch, target_batch)
+                        assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
                         loss.backward()
                         self._optimizer.step()
                         # ---------------------------------------------
@@ -445,7 +446,9 @@ class ModuleTrainer(object):
                         # ---------------------------------------------
                         self._optimizer.zero_grad()
                         output_batch = fit_forward_fn(input_batch)
+
                         loss = fit_loss_fn(output_batch, target_batch)
+                        assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
                         loss.backward()
                         self._optimizer.step()
                         # ---------------------------------------------
@@ -601,6 +604,7 @@ class ModuleTrainer(object):
                 self._optimizer.zero_grad()
                 output_batch = eval_forward_fn(input_batch)
                 loss = eval_loss_fn(output_batch, target_batch)
+                assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
 
                 if conditions_container:
                     cond_logs = conditions_container(CondType.POST, epoch_num=None, batch_num=batch_idx, net=self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)
@@ -657,6 +661,7 @@ class ModuleTrainer(object):
                 self._optimizer.zero_grad()
                 output_batch = eval_forward_fn(input_batch)
                 loss = eval_loss_fn(output_batch, target_batch)
+                assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
 
                 if conditions_container:
                     cond_logs = conditions_container(CondType.POST, epoch_num=None, batch_num=batch_idx, net=self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)

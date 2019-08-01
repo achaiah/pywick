@@ -28,6 +28,13 @@ Hey, [check this out](https://pywick.readthedocs.io/en/latest/), we now
 have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
 work in progress though so apologies for anything that's broken.
 
+## What's New (highlights)
+- **Aug. 1, 2019**
+    - New segmentation NNs: BiSeNet, DANet, DenseASPP, DUNet, OCNet, PSANet
+    - New Loss Functions: Focal Tversky Loss, OHEM CrossEntropy Loss, various combination losses
+    - Major restructuring and standardization of NN models and loading functionality
+    - General bug fixes and code improvements 
+
 ## Install
 `pip install pywick`
 
