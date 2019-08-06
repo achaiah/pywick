@@ -3,9 +3,9 @@ import os
 import os.path
 import argparse
 import numpy as np
-import tqdm
+from tqdm import tqdm
 
-from .datasets.FolderDataset import FolderDataset, rgb_image_loader
+from pywick.datasets.FolderDataset import FolderDataset, rgb_image_loader
 
 opt = dict()
 parser = argparse.ArgumentParser()
@@ -29,7 +29,7 @@ dataset_mean_std = {
 }
 
 
-def get_dataset_mean_std(dataset=None, img_size=None, output_div=255.0, dataset_name='imagenet'):
+def get_dataset_mean_std(dataset=None, img_size=None, output_div=255.0, dataset_name=None):
     """
         Computes channel-wise mean and std of the dataset. The process is memory-intensive as the entire dataset must fit into memory.
         Therefore, each image is scaled down to img_size first (default: 256).
@@ -89,7 +89,7 @@ def create_dataset_stats(data_path, output_path=None, verbose=False):
     dataset = FolderDataset(root=data_path, class_mode='label', default_loader=rgb_image_loader)
 
     stats['num_items'] = len(dataset)
-    mean, std = get_dataset_mean_std(dataset, img_size=256)
+    mean, std = get_dataset_mean_std(dataset=dataset, img_size=256)
     stats['mean'], stats['std'] = mean.tolist(), std.tolist()       # convert from numpy array to python
 
     if verbose:
