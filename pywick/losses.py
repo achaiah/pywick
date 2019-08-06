@@ -324,9 +324,9 @@ def dice_coefficient(logit, label, isCuda=True):
     dice = torch.masked_select(B, A).sum()*2.0 / (B.sum() + A.sum())
     return dice
 
+
 # ==================================== #
 # Source: https://github.com/EKami/carvana-challenge
-
 class WeightedSoftDiceLoss(torch.nn.Module):
     def __init__(self):
         super(WeightedSoftDiceLoss, self).__init__()
@@ -342,6 +342,7 @@ class WeightedSoftDiceLoss(torch.nn.Module):
         score = 2. * ((w2*intersection).sum(1)+1) / ((w2*m1).sum(1) + (w2*m2).sum(1)+1)
         score = 1 - score.sum()/num
         return score
+
 
 def dice_coeff(pred, target):
     smooth = 1.
@@ -361,6 +362,7 @@ def dice_coeff_hard_np(y_true, y_pred):
     score = (2. * intersection + smooth) / (np.sum(y_true_f) + np.sum(y_pred_f) + smooth)
 
     return score
+
 
 # ==================================== #
 # Source: https://github.com/doodledood/carvana-image-masking-challenge/blob/master/losses.py
@@ -530,6 +532,7 @@ class BCEDicePenalizeBorderLoss(nn.Module):
 
         return loss
 
+
 # ==== Focal Loss with extra parameters ==== #
 # Source: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/FocalLoss/FocalLoss.py
 # License: MIT
@@ -615,6 +618,7 @@ class FocalLoss2(nn.Module):
             loss = loss.sum()
         return loss
 
+
 # -------- #
 # Source: https://github.com/huaifeng1993/DFANet/blob/master/loss.py
 class FocalLoss3(nn.Module):
@@ -676,6 +680,7 @@ class FocalLoss3(nn.Module):
         return loss
 # -------- #
 
+
 # -------- #
 # Source: https://discuss.pytorch.org/t/is-this-a-correct-implementation-for-focal-loss-in-pytorch/43327/4
 class BinaryFocalLoss(nn.Module):
@@ -695,6 +700,7 @@ class BinaryFocalLoss(nn.Module):
         F_loss = self.alpha * (1 - pt) ** self.gamma * BCE_loss
         return F_loss.mean()
 # -------- #
+
 
 # ==== Additional Losses === #
 # Source: https://github.com/atlab/attorch/blob/master/attorch/losses.py
@@ -762,6 +768,7 @@ class BCEWithLogitsViewLoss(nn.BCEWithLogitsLoss):
         Simply passes along input.view(-1), target.view(-1)
         '''
         return super().forward(input.view(-1), target.view(-1))
+
 
 # ===================== #
 # Source: https://discuss.pytorch.org/t/one-hot-encoding-with-autograd-dice-loss/9781/5
@@ -864,16 +871,27 @@ class mIoULoss(nn.Module):
         ## Return average loss over classes and batch
         return -loss.mean()
 
+
 # ====================== #
 # Source: https://github.com/snakers4/mnasnet-pytorch/blob/master/src/models/semseg_loss.py
 # Combination Loss from BCE and Dice
 class ComboSemsegLoss(nn.Module):
     """
-
+        Combination BinaryCrossEntropy (BCE) and Dice Loss with an optional running mean and loss weighing.
     """
-    def __init__(self, use_running_mean=False, bce_weight=1, dice_weight=1, eps=1e-10, gamma=0.9, combined_loss_only=False):
-        super().__init__()
 
+    def __init__(self, use_running_mean=False, bce_weight=1, dice_weight=1, eps=1e-6, gamma=0.9, combined_loss_only=False):
+        """
+
+        :param use_running_mean: - bool (default: False) Whether to accumulate a running mean and add it to the loss with (1-gamma)
+        :param bce_weight: - float (default: 1.0) Weight multiplier for the BCE loss (relative to dice)
+        :param dice_weight: - float (default: 1.0) Weight multiplier for the Dice loss (relative to BCE)
+        :param eps: -
+        :param gamma:
+        :param combined_loss_only:
+        """
+
+        super().__init__()
         '''
         Note: BCEWithLogitsLoss already performs a torch.sigmoid(pred)
         before applying BCE!
@@ -943,7 +961,7 @@ class ComboSemsegLossWeighted(nn.Module):
                  use_running_mean=False,
                  bce_weight=1,
                  dice_weight=1,
-                 eps=1e-10,
+                 eps=1e-6,
                  gamma=0.9,
                  use_weight_mask=False,
                  combined_loss_only=False
@@ -1263,7 +1281,7 @@ class FocalBinaryTverskyFunc(Function):
             add focal index -> loss=(1-T_index)**(1/gamma)
     """
 
-    def __init__(ctx, alpha=0.5, beta=0.7, gamma=1.33333, reduction='mean'):
+    def __init__(ctx, alpha=0.5, beta=0.7, gamma=1.0, reduction='mean'):
         """
         :param alpha: controls the penalty for false positives.
         :param beta: penalty for false negative.
@@ -1416,7 +1434,7 @@ class FocalBinaryTverskyLoss(MultiTverskyLoss):
                 add focal index -> loss=(1-T_index)**(1/gamma)
         """
 
-    def __init__(self, alpha=0.5, beta=0.7, gamma=1.33333, reduction='mean'):
+    def __init__(self, alpha=0.5, beta=0.7, gamma=1.0, reduction='mean'):
         """
         :param alpha (Tensor, float, optional): controls the penalty for false positives.
         :param beta (Tensor, float, optional): controls the penalty for false negative.
@@ -1426,3 +1444,65 @@ class FocalBinaryTverskyLoss(MultiTverskyLoss):
 
     def forward(self, inputs, targets):
         return super().forward(inputs, targets.unsqueeze(1))
+
+# ===================== #
+# Source: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/LovaszSoftmax/lovasz_loss.py
+def lovasz_grad(gt_sorted):
+    """
+    Computes gradient of the Lovasz extension w.r.t sorted errors
+    See Alg. 1 in paper
+    """
+    p = len(gt_sorted)
+    gts = gt_sorted.sum()
+    intersection = gts - gt_sorted.float().cumsum(0)
+    union = gts + (1 - gt_sorted).float().cumsum(0)
+    jaccard = 1. - intersection / union
+    if p > 1:  # cover 1-pixel case
+        jaccard[1:p] = jaccard[1:p] - jaccard[0:-1]
+    return jaccard
+
+
+class LovaszSoftmax(nn.Module):
+    def __init__(self, reduction='mean'):
+        super(LovaszSoftmax, self).__init__()
+        self.reduction = reduction
+
+    def prob_flatten(self, input, target):
+        assert input.dim() in [4, 5]
+        num_class = input.size(1)
+        if input.dim() == 4:
+            input = input.permute(0, 2, 3, 1).contiguous()
+            input_flatten = input.view(-1, num_class)
+        elif input.dim() == 5:
+            input = input.permute(0, 2, 3, 4, 1).contiguous()
+            input_flatten = input.view(-1, num_class)
+        target_flatten = target.view(-1)
+        return input_flatten, target_flatten
+
+    def lovasz_softmax_flat(self, inputs, targets):
+        num_classes = inputs.size(1)
+        losses = []
+        for c in range(num_classes):
+            target_c = (targets == c).float()
+            if num_classes == 1:
+                input_c = inputs[:, 0]
+            else:
+                input_c = inputs[:, c]
+            loss_c = (torch.autograd.Variable(target_c) - input_c).abs()
+            loss_c_sorted, loss_index = torch.sort(loss_c, 0, descending=True)
+            target_c_sorted = target_c[loss_index]
+            losses.append(torch.dot(loss_c_sorted, torch.autograd.Variable(lovasz_grad(target_c_sorted))))
+        losses = torch.stack(losses)
+
+        if self.reduction == 'none':
+            loss = losses
+        elif self.reduction == 'sum':
+            loss = losses.sum()
+        else:
+            loss = losses.mean()
+        return loss
+
+    def forward(self, inputs, targets):
+        inputs, targets = self.prob_flatten(inputs, targets)
+        losses = self.lovasz_softmax_flat(inputs, targets)
+        return losses
