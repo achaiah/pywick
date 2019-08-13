@@ -14,11 +14,10 @@ Make sure to read the documentation and notes (in the code) for each loss to und
 `Read this blog post <https://gombru.github.io/2018/05/23/cross_entropy_loss/>`_
 
 Note:
-    ```
     Logit is the vector of raw (non-normalized) predictions that a classification model generates, which is ordinarily then passed to a normalization function.
     If the model is solving a multi-class classification problem, logits typically become an input to the softmax function. The softmax function then generates
     a vector of (normalized) probabilities with one value for each possible class.
-    ```
+
 For example, BCEWithLogitsLoss is a BCE that accepts R((-inf, inf)) and automatically applies torch.sigmoid to convert it to ([0,1]) space.
 """
 
@@ -36,6 +35,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Function
 from torch.autograd import Variable
+from torch import Tensor
+from typing import Iterable, Set
 
 VOID_LABEL = 255
 N_CLASSES = 1
@@ -1506,3 +1507,268 @@ class LovaszSoftmax(nn.Module):
         inputs, targets = self.prob_flatten(inputs, targets)
         losses = self.lovasz_softmax_flat(inputs, targets)
         return losses
+
+
+# ===================== #
+# Ported from: https://github.com/xuuuuuuchen/Active-Contour-Loss/blob/master/Active-Contour-Loss.py (MIT)
+class ActiveContourLoss(nn.Module):
+    """
+        `Learning Active Contour Models for Medical Image Segmentation <http://openaccess.thecvf.com/content_CVPR_2019/papers/Chen_Learning_Active_Contour_Models_for_Medical_Image_Segmentation_CVPR_2019_paper.pdf>`_
+
+        Params
+            :param len_w: (float, default=1.0) - The multiplier to use when adding boundary loss.
+            :param reg_w: (float, default=1.0) - The multiplier to use when adding region loss.
+    """
+
+    def __init__(self, len_w=1.0, reg_w=1.0):
+        super(ActiveContourLoss, self).__init__()
+        self.len_w = len_w
+        self.reg_w = reg_w
+
+    def forward(self, y_pred, y_true):
+        image_size = y_pred.size(3)
+        y_true = y_true.unsqueeze(1)
+
+        """
+        length term
+        """
+        x = y_pred[:, :, 1:, :] - y_pred[:, :, :-1, :]  # horizontal and vertical directions
+        y = y_pred[:, :, :, 1:] - y_pred[:, :, :, :-1]
+
+        delta_x = x[:, :, 1:, :-2] ** 2
+        delta_y = y[:, :, :-2, 1:] ** 2
+        delta_u = torch.abs(delta_x + delta_y)
+
+        epsilon = 1e-8  # a parameter to avoid square root = zero issues
+        length = torch.sum(torch.sqrt(delta_u + epsilon))  # equ.(11) in the paper
+
+        """
+        region term
+        """
+        C_1 = torch.ones((image_size, image_size))
+        C_2 = torch.zeros((image_size, image_size))
+        # C_1 = torch.ones((256, 256))
+        # C_2 = torch.zeros((256, 256))
+
+        region_in = torch.abs(torch.sum(y_pred[:, 0, :, :] * ((y_true[:, 0, :, :] - C_1) ** 2)))  # equ.(12) in the paper
+        region_out = torch.abs(torch.sum((1 - y_pred[:, 0, :, :]) * ((y_true[:, 0, :, :] - C_2) ** 2)))  # equ.(12) in the paper
+
+        loss = self.len_w * length + self.reg_w * (region_in + region_out)
+
+        return loss
+
+
+# ===================== #
+# Sources:  https://github.com/JunMa11/SegLoss
+#           https://github.com/MIC-DKFZ/nnUNet/tree/master/nnunet (Apache 2.0)
+def uniq(a: Tensor) -> Set:
+    return set(torch.unique(a.cpu()).numpy())
+
+
+def sset(a: Tensor, sub: Iterable) -> bool:
+    return uniq(a).issubset(sub)
+
+
+def simplex(t: Tensor, axis=1) -> bool:
+    _sum = t.sum(axis).type(torch.float32)
+    _ones = torch.ones_like(_sum, dtype=torch.float32)
+    return torch.allclose(_sum, _ones)
+
+
+def one_hot(t: Tensor, axis=1) -> bool:
+    return simplex(t, axis) and sset(t, [0, 1])
+
+
+def numpy_haussdorf(pred: np.ndarray, target: np.ndarray) -> float:
+    from scipy.spatial.distance import directed_hausdorff
+    assert len(pred.shape) == 2
+    assert pred.shape == target.shape
+
+    return max(directed_hausdorff(pred, target)[0], directed_hausdorff(target, pred)[0])
+
+
+def haussdorf(preds: Tensor, target: Tensor) -> Tensor:
+    assert preds.shape == target.shape
+    assert one_hot(preds)
+    assert one_hot(target)
+
+    B, C, _, _ = preds.shape
+
+    res = torch.zeros((B, C), dtype=torch.float32, device=preds.device)
+    n_pred = preds.cpu().numpy()
+    n_target = target.cpu().numpy()
+
+    for b in range(B):
+        if C == 2:
+            res[b, :] = numpy_haussdorf(n_pred[b, 0], n_target[b, 0])
+            continue
+
+        for c in range(C):
+            res[b, c] = numpy_haussdorf(n_pred[b, c], n_target[b, c])
+
+    return res
+
+
+def softmax_helper(x):
+    rpt = [1 for _ in range(len(x.size()))]
+    rpt[1] = x.size(1)
+    x_max = x.max(1, keepdim=True)[0].repeat(*rpt)
+    e_x = torch.exp(x - x_max)
+    return e_x / e_x.sum(1, keepdim=True).repeat(*rpt)
+
+
+def sum_tensor(inp, axes, keepdim=False):
+    axes = np.unique(axes).astype(int)
+    if keepdim:
+        for ax in axes:
+            inp = inp.sum(int(ax), keepdim=True)
+    else:
+        for ax in sorted(axes, reverse=True):
+            inp = inp.sum(int(ax))
+    return inp
+
+
+def get_tp_fp_fn(net_output, gt, axes=None, mask=None, square=False):
+    """
+    net_output must be (b, c, x, y(, z)))
+    gt must be a label map (shape (b, 1, x, y(, z)) OR shape (b, x, y(, z))) or one hot encoding (b, c, x, y(, z))
+    if mask is provided it must have shape (b, 1, x, y(, z)))
+    :param net_output:
+    :param gt:
+    :param axes:
+    :param mask: mask must be 1 for valid pixels and 0 for invalid pixels
+    :param square: if True then fp, tp and fn will be squared before summation
+    :return:
+    """
+    if axes is None:
+        axes = tuple(range(2, len(net_output.size())))
+
+    shp_x = net_output.shape
+    shp_y = gt.shape
+
+    with torch.no_grad():
+        if len(shp_x) != len(shp_y):
+            gt = gt.view((shp_y[0], 1, *shp_y[1:]))
+
+        if all([i == j for i, j in zip(net_output.shape, gt.shape)]):
+            # if this is the case then gt is probably already a one hot encoding
+            y_onehot = gt
+        else:
+            gt = gt.long()
+            y_onehot = torch.zeros(shp_x)
+            if net_output.device.type == "cuda":
+                y_onehot = y_onehot.cuda(net_output.device.index)
+            y_onehot.scatter_(1, gt, 1)
+
+    tp = net_output * y_onehot
+    fp = net_output * (1 - y_onehot)
+    fn = (1 - net_output) * y_onehot
+
+    if mask is not None:
+        tp = torch.stack(tuple(x_i * mask[:, 0] for x_i in torch.unbind(tp, dim=1)), dim=1)
+        fp = torch.stack(tuple(x_i * mask[:, 0] for x_i in torch.unbind(fp, dim=1)), dim=1)
+        fn = torch.stack(tuple(x_i * mask[:, 0] for x_i in torch.unbind(fn, dim=1)), dim=1)
+
+    if square:
+        tp = tp ** 2
+        fp = fp ** 2
+        fn = fn ** 2
+
+    tp = sum_tensor(tp, axes, keepdim=False)
+    fp = sum_tensor(fp, axes, keepdim=False)
+    fn = sum_tensor(fn, axes, keepdim=False)
+
+    return tp, fp, fn
+
+
+class BDLoss(nn.Module):
+    def __init__(self):
+        """
+        compute boudary loss
+        only compute the loss of foreground
+        ref: https://github.com/LIVIAETS/surface-loss/blob/108bd9892adca476e6cdf424124bc6268707498e/losses.py#L74
+        """
+        super(BDLoss, self).__init__()
+        # self.do_bg = do_bg
+
+    def forward(self, logits, target, bound):
+        """
+        Takes 2D or 3D logits.
+
+        logits: (batch_size, class, x,y,(z))
+        target: ground truth, shape: (batch_size, 1, x,y,(z))
+        bound: precomputed distance map, shape (batch_size, class, x,y,(z))
+
+        Torch Eigensum description: https://stackoverflow.com/questions/55894693/understanding-pytorch-einsum
+        """
+        compute_directive = "bcxy,bcxy->bcxy"
+        if len(logits) == 5:
+            compute_directive = "bcxyz,bcxyz->bcxyz"
+
+        net_output = softmax_helper(logits)
+        # print('net_output shape: ', net_output.shape)
+        pc = net_output[:, 1:, ...].type(torch.float32)
+        dc = bound[:,1:, ...].type(torch.float32)
+
+        multipled = torch.einsum(compute_directive, pc, dc)
+        bd_loss = multipled.mean()
+
+        return bd_loss
+
+
+# ===================== #
+# Source:  https://github.com/kevinzakka/pytorch-goodies/blob/master/losses.py
+class TverskyLoss(nn.Module):
+    """Computes the Tversky loss [1].
+        Args:
+            :param alpha: controls the penalty for false positives.
+            :param beta: controls the penalty for false negatives.
+            :param eps: added to the denominator for numerical stability.
+        Returns:
+            tversky_loss: the Tversky loss.
+        Notes:
+            alpha = beta = 0.5 => dice coeff
+            alpha = beta = 1 => tanimoto coeff
+            alpha + beta = 1 => F beta coeff
+        References:
+            [1]: https://arxiv.org/abs/1706.05721
+    """
+
+    def __init__(self, alpha, beta, eps=1e-7):
+        super(TverskyLoss, self).__init__()
+
+        self.alpha = alpha
+        self.beta = beta
+        self.eps = eps
+
+    def forward(self, logits, targets):
+        """
+        Args:
+            :param logits: a tensor of shape [B, C, H, W]. Corresponds to the raw output or logits of the model.
+            :param targets: a tensor of shape [B, H, W] or [B, 1, H, W].
+            :return: loss
+        """
+        num_classes = logits.shape[1]
+        if num_classes == 1:
+            true_1_hot = torch.eye(num_classes + 1)[targets.squeeze(1).long()]
+            true_1_hot = true_1_hot.permute(0, 3, 1, 2).float()
+            true_1_hot_f = true_1_hot[:, 0:1, :, :]
+            true_1_hot_s = true_1_hot[:, 1:2, :, :]
+            true_1_hot = torch.cat([true_1_hot_s, true_1_hot_f], dim=1)
+            pos_prob = torch.sigmoid(logits)
+            neg_prob = 1 - pos_prob
+            probas = torch.cat([pos_prob, neg_prob], dim=1)
+        else:
+            true_1_hot = torch.eye(num_classes)[targets.squeeze(1)]
+            true_1_hot = true_1_hot.permute(0, 3, 1, 2).float()
+            probas = F.softmax(logits, dim=1)
+        true_1_hot = true_1_hot.type(logits.type())
+        dims = (0,) + tuple(range(2, logits.ndimension()))
+        intersection = torch.sum(probas * true_1_hot, dims)
+        fps = torch.sum(probas * (1 - true_1_hot), dims)
+        fns = torch.sum((1 - probas) * true_1_hot, dims)
+        num = intersection
+        denom = intersection + (self.alpha * fps) + (self.beta * fns)
+        tversky_loss = (num / (denom + self.eps)).mean()
+
+        return 1 - tversky_loss

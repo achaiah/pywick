@@ -178,7 +178,7 @@ GCN ResNext
 Linknet
 ----------------------------------------
 
-.. automodule:: pywick.models.segmentation.testnets.mnas_linknets.linknet
+.. automodule:: pywick.models.segmentation.mnas_linknets.linknet
     :members: LinkCeption, LinkDenseNet121, LinkDenseNet161, LinkInceptionResNet, LinkNet18, LinkNet34, LinkNet50, LinkNet101, LinkNet152, LinkNeXt, CoarseLinkNet50
     :undoc-members:
     :exclude-members: features, forward, logits, freeze, require_encoder_grad, unfreeze
@@ -186,7 +186,7 @@ Linknet
 OCNet
 ----------------------------------------
 
-.. automodule:: pywick.models.segmentation.refinenet.ocnet
+.. automodule:: pywick.models.segmentation.ocnet
     :members:
     :undoc-members:
     :exclude-members: forward
@@ -243,7 +243,7 @@ Unet Dilated
 -----------------------------------------------
 
 .. automodule:: pywick.models.segmentation.unet_dilated
-    :members: uNetDilated
+    :members:
     :undoc-members:
     :exclude-members: features, forward, logits
 
@@ -251,7 +251,7 @@ Unet Residual
 -------------------------------------------
 
 .. automodule:: pywick.models.segmentation.unet_res
-    :members: UNetRes
+    :members:
     :undoc-members:
     :exclude-members: features, forward, logits
 
