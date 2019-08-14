@@ -15,7 +15,8 @@ __all__ = ['ResNeXt', 'resnext101'] # support resnext 101
 
 # can not used for now
 model_urls = {
-    'resnext101': 'http://sceneparsing.csail.mit.edu/model/pretrained_resnet/resnext101-imagenet.pth'
+    # 'resnext101': 'http://sceneparsing.csail.mit.edu/model/pretrained_resnet/resnext101-imagenet.pth'
+    'resnext101': 'http://data.lip6.fr/cadene/pretrainedmodels/resnext101_64x4d-e77a0586.pth'
 }
 
 
@@ -143,6 +144,7 @@ def resnext101(pretrained=True, **kwargs):
 
 
 def load_url(url, model_root='/models/pytorch', map_location=None, **kwargs):
+    model_root = os.path.expanduser(model_root)
     if not os.path.exists(model_root):
         os.makedirs(model_root)
     filename = url.split('/')[-1]
