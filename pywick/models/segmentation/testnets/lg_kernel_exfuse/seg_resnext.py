@@ -66,7 +66,7 @@ class GroupBottleneck(nn.Module):
 
 class ResNeXt(nn.Module):
 
-    def __init__(self, block, layers, groups=32, num_classes=1000):
+    def __init__(self, block, layers, groups=32, num_classes=1000, **kwargs):
         self.inplanes = 128
         super(ResNeXt, self).__init__()
         self.conv1 = conv3x3(3, 64, stride=2)
@@ -130,7 +130,7 @@ class ResNeXt(nn.Module):
         return x
 
 
-def resnext101(pretrained=False, **kwargs):
+def resnext101(pretrained=True, **kwargs):
     """Constructs a ResNet-101 model.
 
     Args:
@@ -138,15 +138,15 @@ def resnext101(pretrained=False, **kwargs):
     """
     model = ResNeXt(GroupBottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(load_url(model_urls['resnext101']), strict=False)
+        model.load_state_dict(load_url(model_urls['resnext101'], **kwargs), strict=False)
     return model
 
 
-def load_url(url, model_dir='./models/backbones/pretrained', map_location=None):
-    if not os.path.exists(model_dir):
-        os.makedirs(model_dir)
+def load_url(url, model_root='/models/pytorch', map_location=None, **kwargs):
+    if not os.path.exists(model_root):
+        os.makedirs(model_root)
     filename = url.split('/')[-1]
-    cached_file = os.path.join(model_dir, filename)
+    cached_file = os.path.join(model_root, filename)
     if not os.path.exists(cached_file):
         sys.stderr.write('Downloading: "{}" to {}\n'.format(url, cached_file))
         urlretrieve(url, cached_file)

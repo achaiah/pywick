@@ -14,7 +14,7 @@ from . import seg_resnext as resnext
 # this is for encoder part
 # resnet encoder
 class Resnet(nn.Module):
-    def __init__(self, orig_resnet):
+    def __init__(self, orig_resnet, **kwargs):
         super(Resnet, self).__init__()
 
         # take pretrained resnet, except AvgPool and FC
@@ -52,18 +52,15 @@ class Resnet(nn.Module):
 
 # dilated resnet encoder
 class ResnetDilated(nn.Module):
-    def __init__(self, orig_resnet, dilate_scale=8):
+    def __init__(self, orig_resnet, dilate_scale=8, **kwargs):
         super(ResnetDilated, self).__init__()
         from functools import partial
 
         if dilate_scale == 8:
-            orig_resnet.layer3.apply(
-                partial(self._nostride_dilate, dilate=2))
-            orig_resnet.layer4.apply(
-                partial(self._nostride_dilate, dilate=4))
+            orig_resnet.layer3.apply(partial(self._nostride_dilate, dilate=2))
+            orig_resnet.layer4.apply(partial(self._nostride_dilate, dilate=4))
         elif dilate_scale == 16:
-            orig_resnet.layer4.apply(
-                partial(self._nostride_dilate, dilate=2))
+            orig_resnet.layer4.apply(partial(self._nostride_dilate, dilate=2))
 
         # take pretrained resnet, except AvgPool and FC
         self.conv1 = orig_resnet.conv1
@@ -416,25 +413,25 @@ class ModelBuilder():
             net_encoder = ResnetDilated(orig_resnet,
                                         dilate_scale=16)
         elif arch == 'resnet50':
-            orig_resnet = resnet.__dict__['resnet50'](pretrained=pretrained)
+            orig_resnet = resnet.resnet50(**kwargs)
             net_encoder = Resnet(orig_resnet)
         elif arch == 'resnet50_dilated8':
-            orig_resnet = resnet.__dict__['resnet50'](pretrained=pretrained)
+            orig_resnet = resnet.resnet50(**kwargs)
             net_encoder = ResnetDilated(orig_resnet, dilate_scale=8)
         elif arch == 'resnet50_dilated16':
-            orig_resnet = resnet.__dict__['resnet50'](pretrained=pretrained)
+            orig_resnet = resnet.resnet50(**kwargs)
             net_encoder = ResnetDilated(orig_resnet, dilate_scale=16)
         elif arch == 'resnet101':
-            orig_resnet = resnet.__dict__['resnet101'](pretrained=pretrained)
+            orig_resnet = resnet.resnet101(**kwargs)
             net_encoder = Resnet(orig_resnet)
         elif arch == 'resnet101_dilated8':
-            orig_resnet = resnet.__dict__['resnet101'](pretrained=pretrained)
+            orig_resnet = resnet.resnet101(**kwargs)
             net_encoder = ResnetDilated(orig_resnet, dilate_scale=8)
         elif arch == 'resnet101_dilated16':
-            orig_resnet = resnet.__dict__['resnet101'](pretrained=pretrained)
+            orig_resnet = resnet.resnet101(**kwargs)
             net_encoder = ResnetDilated(orig_resnet, dilate_scale=16)
         elif arch == 'resnext101':
-            orig_resnext = resnext.__dict__['resnext101'](pretrained=pretrained)
+            orig_resnext = resnext.resnext101(**kwargs)
             net_encoder = Resnet(orig_resnext) # we can still use class Resnet
         else:
             raise Exception('Architecture undefined!')

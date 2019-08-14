@@ -101,7 +101,7 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000):
+    def __init__(self, block, layers, num_classes=1000, **kwargs):
         self.inplanes = 128
         super(ResNet, self).__init__()
         self.conv1 = conv3x3(3, 64, stride=2)
@@ -166,7 +166,7 @@ class ResNet(nn.Module):
 
 
 
-def resnet50(pretrained=False, **kwargs):
+def resnet50(pretrained=True, **kwargs):
     """Constructs a ResNet-50 model.
 
     Args:
@@ -174,11 +174,11 @@ def resnet50(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(load_url(model_urls['resnet50']), strict=False)
+        model.load_state_dict(load_url(model_urls['resnet50'], **kwargs), strict=False)
     return model
 
 
-def resnet101(pretrained=False, **kwargs):
+def resnet101(pretrained=True, **kwargs):
     """Constructs a ResNet-101 model.
 
     Args:
@@ -190,12 +190,12 @@ def resnet101(pretrained=False, **kwargs):
     return model
 
 
-def load_url(url, model_dir='~/.torch/models', map_location='cpu', **kwargs):
-    model_dir = os.path.expanduser(model_dir)
-    if not os.path.exists(model_dir):
-        os.makedirs(model_dir)
+def load_url(url, model_root='~/.torch/models', map_location='cpu', **kwargs):
+    model_root = os.path.expanduser(model_root)
+    if not os.path.exists(model_root):
+        os.makedirs(model_root)
     filename = url.split('/')[-1]
-    cached_file = os.path.join(model_dir, filename)
+    cached_file = os.path.join(model_root, filename)
     if not os.path.exists(cached_file):
         sys.stderr.write('Downloading: "{}" to {}\n'.format(url, cached_file))
         urlretrieve(url, cached_file)
