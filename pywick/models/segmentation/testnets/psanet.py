@@ -12,26 +12,22 @@ from pywick.models.segmentation.da_basenets.basic import _ConvBNReLU
 from pywick.models.segmentation.da_basenets.segbase import SegBaseModel
 from pywick.models.segmentation.da_basenets.fcn import _FCNHead
 
-__all__ = ['PSANet', 'get_psanet', 'get_psanet_resnet50', 'get_psanet_resnet101', 'get_psanet_resnet152']
+__all__ = ['PSANet', 'get_psanet', 'get_psanet_resnet50', 'PSANet_Resnet101', 'PSANet_Resnet152']
 
 
 class PSANet(SegBaseModel):
     r"""PSANet
     Parameters
     ----------
-    nclass : int
+    :param num_classes : int
         Number of categories for the training dataset.
-    backbone : string
+    :param backbone : string
         Pre-trained dilated backbone network type (default:'resnet50'; 'resnet50',
         'resnet101' or 'resnet152').
-    norm_layer : object
+    :param norm_layer : object
         Normalization layer used in backbone network (default: :class:`nn.BatchNorm`;
         for Synchronized Cross-GPU BachNormalization).
-    aux : bool
-        Auxiliary loss.
-    Reference:
-        Hengshuang Zhao, et al. "PSANet: Point-wise Spatial Attention Network for Scene Parsing."
-        ECCV-2018.
+    :param aux : (bool, default=False)  Whether to use auxiliary loss.
     """
 
     def __init__(self, num_classes, pretrained=True, backbone='resnet101', aux=False, **kwargs):
@@ -135,12 +131,12 @@ def get_psanet_resnet50(num_classes=1, **kwargs):
     return get_psanet(num_classes=num_classes, backbone='resnet50', **kwargs)
 
 
-def get_psanet_resnet101(num_classes=1, **kwargs):
-    return get_psanet(num_classes=num_classes, backbone='resnet101', **kwargs)
+def PSANet_Resnet101(num_classes=1, backbone='resnet101', **kwargs):
+    return get_psanet(num_classes=num_classes, backbone=backbone, **kwargs)
 
 
-def get_psanet_resnet152(num_classes=1, **kwargs):
-    return get_psanet(num_classes=num_classes, backbone='resnet152', **kwargs)
+def PSANet_Resnet152(num_classes=1, backbone='resnet152', **kwargs):
+    return get_psanet(num_classes=num_classes, backbone=backbone, **kwargs)
 
 
 if __name__ == '__main__':

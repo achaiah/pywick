@@ -1510,12 +1510,15 @@ class LovaszSoftmax(nn.Module):
 
 
 # ===================== #
-# Ported from: https://github.com/xuuuuuuchen/Active-Contour-Loss/blob/master/Active-Contour-Loss.py (MIT)
+# Inspired by: https://github.com/xuuuuuuchen/Active-Contour-Loss/blob/master/Active-Contour-Loss.py (MIT)
+# Unfortunately the implementation above seems wrong, so reimplementing per the gist of the paper
 class ActiveContourLoss(nn.Module):
     """
         `Learning Active Contour Models for Medical Image Segmentation <http://openaccess.thecvf.com/content_CVPR_2019/papers/Chen_Learning_Active_Contour_Models_for_Medical_Image_Segmentation_CVPR_2019_paper.pdf>`_
+        Note that is only works for B/W masks right now... which is kind of the point of this loss as contours in RGB should be cast to B/W
+        before computing the loss.
 
-        Params
+        Params:
             :param len_w: (float, default=1.0) - The multiplier to use when adding boundary loss.
             :param reg_w: (float, default=1.0) - The multiplier to use when adding region loss.
     """
@@ -1524,36 +1527,63 @@ class ActiveContourLoss(nn.Module):
         super(ActiveContourLoss, self).__init__()
         self.len_w = len_w
         self.reg_w = reg_w
+        self.epsilon = 1e-8  # a parameter to avoid square root = zero issues
 
-    def forward(self, y_pred, y_true):
-        image_size = y_pred.size(3)
-        y_true = y_true.unsqueeze(1)
+    def forward(self, logits, target):
+        image_size = logits.size(3)
+        target = target.unsqueeze(1)
 
-        """
-        length term
-        """
-        x = y_pred[:, :, 1:, :] - y_pred[:, :, :-1, :]  # horizontal and vertical directions
-        y = y_pred[:, :, :, 1:] - y_pred[:, :, :, :-1]
-
-        delta_x = x[:, :, 1:, :-2] ** 2
-        delta_y = y[:, :, :-2, 1:] ** 2
-        delta_u = torch.abs(delta_x + delta_y)
-
-        epsilon = 1e-8  # a parameter to avoid square root = zero issues
-        length = torch.sum(torch.sqrt(delta_u + epsilon))  # equ.(11) in the paper
+        # must convert raw logits to predicted probabilities for each pixel along channel
+        probs = F.softmax(logits, dim=1)
 
         """
-        region term
+        length term:
+            - Subtract adjacent pixels from each other in X and Y directions
+            - Determine where they differ from the ground truth (targets)
+            - Calculate MSE
         """
-        C_1 = torch.ones((image_size, image_size))
-        C_2 = torch.zeros((image_size, image_size))
-        # C_1 = torch.ones((256, 256))
-        # C_2 = torch.zeros((256, 256))
+        # horizontal and vertical directions
+        x = probs[:, :, 1:, :] - probs[:, :, :-1, :]      # differences in horizontal direction
+        y = probs[:, :, :, 1:] - probs[:, :, :, :-1]      # differences in vertical direction
 
-        region_in = torch.abs(torch.sum(y_pred[:, 0, :, :] * ((y_true[:, 0, :, :] - C_1) ** 2)))  # equ.(12) in the paper
-        region_out = torch.abs(torch.sum((1 - y_pred[:, 0, :, :]) * ((y_true[:, 0, :, :] - C_2) ** 2)))  # equ.(12) in the paper
+        target_x = target[:, :, 1:, :] - target[:, :, :-1, :]
+        target_y = target[:, :, :, 1:] - target[:, :, :, :-1]
 
-        loss = self.len_w * length + self.reg_w * (region_in + region_out)
+        # find difference between values of probs and targets
+        delta_x = (target_x - x).abs()          # do we need to subtract absolute values or relative?
+        delta_y = (target_y - y).abs()
+
+        # get MSE of the differences per pixel
+        # importantly because deltas are mostly < 1, a simple square of the error will actually yield LOWER results
+        # so we select 0.5 as the middle ground where small error will be further minimized while large error will
+        # be highlighted (pushed to be > 1 and up to 2.5 for maximum error).
+        # len_error_sq = ((delta_x + 0.5) ** 2) + ((delta_y + 0.5) ** 2)
+        # length = torch.sqrt(len_error_sq.sum() + self.epsilon)
+
+        # the length loss here is simply the MSE of x and y deltas
+        length_loss = torch.sqrt(delta_x.sum() ** 2 + delta_y.sum() ** 2 + self.epsilon)
+
+
+        """
+        region term (should this be done in log space to avoid instabilities?)
+            - compute the error produced by all pixels that are not equal to 0 outside of the ground truth mask
+            - compute error produced by all pixels that are not equal to 1 inside the mask
+        """
+        # reference code for selecting masked values from a tensor
+        # t_m_bool = t_mask.type(torch.ByteTensor)
+        # t_result = t_in.masked_select(t_m_bool)
+
+        C_1 = torch.ones((image_size, image_size), device=target.device)
+        # C_2 = torch.zeros((image_size, image_size), device=target.device)
+
+        # the sum of all pixel values that are not equal 0 outside of the ground truth mask
+        error_in = probs[:, 0, :, :] * ((target[:, 0, :, :] - C_1) ** 2)  # invert the ground truth mask and multiply by probs
+
+        # the sum of all pixel values that are not equal 1 inside of the ground truth mask
+        probs_diff = (probs[:, 0, :, :] - target[:, 0, :, :]).abs()     # subtract mask from probs giving us the errors
+        error_out = (probs_diff * target[:, 0, :, :])                   # multiply mask by error, giving us the error terms inside the mask.
+
+        loss = self.len_w * length_loss + self.reg_w * (error_in.sum() + error_out.sum())
 
         return loss
 
