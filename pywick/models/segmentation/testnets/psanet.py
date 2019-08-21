@@ -12,7 +12,7 @@ from pywick.models.segmentation.da_basenets.basic import _ConvBNReLU
 from pywick.models.segmentation.da_basenets.segbase import SegBaseModel
 from pywick.models.segmentation.da_basenets.fcn import _FCNHead
 
-__all__ = ['PSANet', 'get_psanet', 'get_psanet_resnet50', 'PSANet_Resnet101', 'PSANet_Resnet152']
+__all__ = ['PSANet', 'get_psanet', 'PSANet_Resnet50', 'PSANet_Resnet101', 'PSANet_Resnet152']
 
 
 class PSANet(SegBaseModel):
@@ -56,10 +56,11 @@ class PSANet(SegBaseModel):
 
 
 class _PSAHead(nn.Module):
-    def __init__(self, nclass, norm_layer=nn.BatchNorm2d, **kwargs):
+    def __init__(self, nclass, input_size, norm_layer=nn.BatchNorm2d, **kwargs):
         super(_PSAHead, self).__init__()
-        # psa_out_channels = crop_size // 8 ** 2
-        self.psa = _PointwiseSpatialAttention(2048, 3600, norm_layer)
+        psa_out_channels = (input_size // 8) ** 2
+        # self.psa = _PointwiseSpatialAttention(2048, 3600, norm_layer) # <-- original definition. Does not work. Why 3600?
+        self.psa = _PointwiseSpatialAttention(2048, psa_out_channels, norm_layer)
 
         self.conv_post = _ConvBNReLU(1024, 2048, 1, norm_layer=norm_layer)
         self.project = nn.Sequential(
@@ -127,7 +128,7 @@ def get_psanet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):
     return model
 
 
-def get_psanet_resnet50(num_classes=1, **kwargs):
+def PSANet_Resnet50(num_classes=1, **kwargs):
     return get_psanet(num_classes=num_classes, backbone='resnet50', **kwargs)
 
 
@@ -140,6 +141,6 @@ def PSANet_Resnet152(num_classes=1, backbone='resnet152', **kwargs):
 
 
 if __name__ == '__main__':
-    model = get_psanet_resnet50()
+    model = PSANet_Resnet50()
     img = torch.randn(1, 3, 480, 480)
     output = model(img)
