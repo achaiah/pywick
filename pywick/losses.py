@@ -1562,7 +1562,7 @@ class ActiveContourLoss(nn.Module):
         target = target.unsqueeze(1)
 
         # must convert raw logits to predicted probabilities for each pixel along channel
-        probs = F.softmax(logits, dim=1)
+        probs = F.softmax(logits, dim=0)
 
         """
         length term:
