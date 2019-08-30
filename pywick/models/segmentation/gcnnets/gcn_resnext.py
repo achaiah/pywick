@@ -161,7 +161,7 @@ class ResNeXt(nn.Module):
 
 class GCN_Resnext(nn.Module):
 
-    def __init__(self, num_classes, pretrained=True, k=7, input_size=512):
+    def __init__(self, num_classes, pretrained=True, k=7, input_size=512, **kwargs):
         super(GCN_Resnext, self).__init__()
 
         self.num_classes = num_classes

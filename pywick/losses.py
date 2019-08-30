@@ -527,14 +527,14 @@ class BCEDicePenalizeBorderLoss(nn.Module):
         a = F.avg_pool2d(labels, kernel_size=self.kernel_size, padding=self.kernel_size // 2, stride=1)
         ind = a.ge(0.01) * a.le(0.99)
         ind = ind.float()
-        weights = torch.ones(a.size())
+        weights = torch.ones(a.size()).to(device=logits.device)
 
         w0 = weights.sum()
-        weights = weights + ind.cpu() * 2
+        weights = weights + ind * 2
         w1 = weights.sum()
         weights = weights / w1 * w0
 
-        loss = self.bce(logits.cpu(), labels.cpu(), weights) + self.dice(logits.cpu(), labels.cpu(), weights)
+        loss = self.bce(logits, labels, weights) + self.dice(logits, labels, weights)
 
         return loss
 
@@ -1601,11 +1601,11 @@ class ActiveContourLoss(nn.Module):
         # t_m_bool = t_mask.type(torch.ByteTensor)
         # t_result = t_in.masked_select(t_m_bool)
 
-        C_1 = torch.ones((image_size, image_size), device=target.device)
+        # C_1 = torch.ones((image_size, image_size), device=target.device)
         # C_2 = torch.zeros((image_size, image_size), device=target.device)
 
         # the sum of all pixel values that are not equal 0 outside of the ground truth mask
-        error_in = probs[:, 0, :, :] * ((target[:, 0, :, :] - C_1) ** 2)  # invert the ground truth mask and multiply by probs
+        error_in = probs[:, 0, :, :] * ((target[:, 0, :, :] - 1) ** 2)  # invert the ground truth mask and multiply by probs
 
         # the sum of all pixel values that are not equal 1 inside of the ground truth mask
         probs_diff = (probs[:, 0, :, :] - target[:, 0, :, :]).abs()     # subtract mask from probs giving us the errors
@@ -1614,7 +1614,8 @@ class ActiveContourLoss(nn.Module):
         if self.apply_log:
             loss = torch.log(length_loss) + torch.log(error_in.sum() + error_out.sum())
         else:
-            loss = self.len_w * length_loss + self.reg_w * (error_in.sum() + error_out.sum())
+            # loss = self.len_w * length_loss
+            loss = self.reg_w * (error_in.sum() + error_out.sum())
 
         return torch.clamp(loss, min=0.0)        # make sure we don't return negative values
 

@@ -49,7 +49,7 @@ class _BoundaryRefineModule(nn.Module):
 
 
 class GCN_Densenet(nn.Module):
-    def __init__(self, num_classes, pretrained=True, k=7):
+    def __init__(self, num_classes, pretrained=True, k=7, **kwargs):
         super(GCN_Densenet, self).__init__()
 
         self.K = k
