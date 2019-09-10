@@ -1,7 +1,7 @@
 # Source: https://github.com/moskomule/eve.pytorch
 
 import math
-from torch.optim import Optimizer
+from torch.optim.optimizer import Optimizer
 
 
 class Eve(Optimizer):

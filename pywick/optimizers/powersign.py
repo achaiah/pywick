@@ -1,7 +1,7 @@
 # Source: https://github.com/cydonia999/AddSign_PowerSign_in_PyTorch/tree/master/torch/optim
 
 import torch
-from torch.optim import Optimizer
+from torch.optim.optimizer import Optimizer
 import math
 
 

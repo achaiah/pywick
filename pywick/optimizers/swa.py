@@ -1,7 +1,7 @@
 # Source: https://github.com/pytorch/contrib
 
 from collections import defaultdict
-from torch.optim import Optimizer
+from torch.optim.optimizer import Optimizer
 import torch
 import warnings
 

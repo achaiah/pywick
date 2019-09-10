@@ -1,7 +1,7 @@
 # Source: https://github.com/pytorch/pytorch/pull/3740
 
 import torch
-from torch.optim.optimizer import Optimizer, required
+from torch.optim.optimizer import Optimizer
 from torch.optim import SGD
 
 
@@ -49,7 +49,7 @@ class SGDW(Optimizer):
         The Nesterov version is analogously modified.
     """
 
-    def __init__(self, params, lr=required, momentum=0, dampening=0, weight_decay=0, nesterov=False):
+    def __init__(self, params, lr=0.003, momentum=0, dampening=0, weight_decay=0, nesterov=False):
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening, weight_decay=weight_decay, nesterov=nesterov)
         if nesterov and (momentum <= 0 or dampening != 0):
             raise ValueError("Nesterov momentum requires a momentum and zero dampening")

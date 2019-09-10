@@ -12,3 +12,7 @@ from .nadam import Nadam
 from .powersign import PowerSign
 from .sgdw import SGDW
 from .swa import SWA
+from .radam import RAdam
+from .lookahead import Lookahead
+from .ralamb import Ralamb
+from .rangerlars import RangerLars
