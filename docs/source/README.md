@@ -209,7 +209,7 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
 - **DUNet** ([Decoders Matter for Semantic Segmentation](https://arxiv.org/abs/1903.02120))
 - **ENet** ([ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation](https://arxiv.org/abs/1606.02147))
 - **Vanilla FCN:** FCN32, FCN16, FCN8, in the versions of VGG, ResNet
-    and DenseNet respectively ([Fully convolutional networks for semantic segmentation](http://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Long_Fully_Convolutional_Networks_2015_CVPR_paper.pdf))
+    and OptDenseNet respectively ([Fully convolutional networks for semantic segmentation](http://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Long_Fully_Convolutional_Networks_2015_CVPR_paper.pdf))
 - **FRRN** ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
 - **FusionNet** ([FusionNet in Tensorflow by Hyungjoo Andrew Cho](https://github.com/NySunShine/fusion-net))
 - **GCN** ([Large Kernel Matters](https://arxiv.org/pdf/1703.02719))

@@ -385,8 +385,18 @@ class ModuleTrainer(object):
         """
         self.model.train(mode=True)
         # ----------------------------------------------------------------------
-        num_inputs = loader.dataset.num_inputs
-        num_targets = loader.dataset.num_targets
+
+        # set defaults here (assuming a standard Pytorch dataset)
+        num_inputs = 1
+        num_targets = 1
+
+        # More flexible datasets can provide their own num_inputs / num_targets
+        if hasattr(loader.dataset, 'num_inputs'):
+            num_inputs = loader.dataset.num_inputs
+
+        if hasattr(loader.dataset, 'num_targets'):
+            num_targets = loader.dataset.num_targets
+
         len_inputs = len(loader.sampler) if loader.sampler else len(loader.dataset)
         batch_size = loader.batch_size
 
