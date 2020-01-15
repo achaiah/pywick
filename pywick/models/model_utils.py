@@ -4,6 +4,7 @@ from . import segmentation
 from enum import Enum
 from torchvision import models as torch_models
 from torchvision.models.inception import InceptionAux
+import torch
 import torch.nn as nn
 import os
 import errno
@@ -62,7 +63,9 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
     :param pretrained: (bool):
         whether to load the default pretrained version of the model
         NOTE! NOTE! For classification, the lowercase model names are the pretrained variants while the Uppercase model names are not.
-        It is IN ERROR to specify an Uppercase model name variant with pretrained=True but one can specify a lowercase model variant with pretrained=False
+        The only exception applies to torch.hub models (all efficientnet, mixnet, mobilenetv3, mnasnet, spnasnet variants) where a single
+        lower-case string can be used for vanilla and pretrained versions. Otherwise, it is IN ERROR to specify an Uppercase model name variant
+        with pretrained=True but one can specify a lowercase model variant with pretrained=False
         (default: True)
     :return: model
     """
@@ -74,60 +77,63 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
     print("INFO: Loading Model:   --   " + model_name + "  with number of classes: " + str(num_classes))
     
     if model_type == ModelType.CLASSIFICATION:
-
-        # 1. Load model (pretrained or vanilla)
-        fc_name = get_fc_names(model_name=model_name, model_type=model_type)[-1:][0]    # we're only interested in the last layer name
-        new_fc = None            # Custom layer to replace with (if none, then it will be handled generically)
-        if model_name in torch_models.__dict__:
-            print('INFO: Loading torchvision model: {}\t Pretrained: {}'.format(model_name, pretrained))
-            model = torch_models.__dict__[model_name](pretrained=pretrained)  # find a model included in the torchvision package
+        torch_hub_names = torch.hub.list('rwightman/gen-efficientnet-pytorch')
+        if model_name in torch_hub_names:
+            model = torch.hub.load('rwightman/gen-efficientnet-pytorch', model_name, pretrained=pretrained, num_classes=num_classes)
         else:
-            net_list = ['fbresnet', 'inception', 'mobilenet', 'nasnet', 'polynet', 'resnext', 'se_resnet', 'senet', 'shufflenet', 'xception']
-            if pretrained:
-                print('INFO: Loading a pretrained model: {}'.format(model_name))
-                if 'dpn' in model_name:
-                    model = classification.__dict__[model_name](pretrained=True)  # find a model included in the pywick classification package
-                elif any(net_name in model_name for net_name in net_list):
-                    model = classification.__dict__[model_name](pretrained='imagenet')
+            # 1. Load model (pretrained or vanilla)
+            fc_name = get_fc_names(model_name=model_name, model_type=model_type)[-1:][0]    # we're only interested in the last layer name
+            new_fc = None            # Custom layer to replace with (if none, then it will be handled generically)
+            if model_name in torch_models.__dict__:
+                print('INFO: Loading torchvision model: {}\t Pretrained: {}'.format(model_name, pretrained))
+                model = torch_models.__dict__[model_name](pretrained=pretrained)  # find a model included in the torchvision package
             else:
-                print('INFO: Loading a vanilla model: {}'.format(model_name))
-                model = classification.__dict__[model_name](pretrained=None)  # pretrained must be set to None for the extra models... go figure
+                net_list = ['fbresnet', 'inception', 'mobilenet', 'nasnet', 'polynet', 'resnext', 'se_resnet', 'senet', 'shufflenet', 'xception']
+                if pretrained:
+                    print('INFO: Loading a pretrained model: {}'.format(model_name))
+                    if 'dpn' in model_name:
+                        model = classification.__dict__[model_name](pretrained=True)  # find a model included in the pywick classification package
+                    elif any(net_name in model_name for net_name in net_list):
+                        model = classification.__dict__[model_name](pretrained='imagenet')
+                else:
+                    print('INFO: Loading a vanilla model: {}'.format(model_name))
+                    model = classification.__dict__[model_name](pretrained=None)  # pretrained must be set to None for the extra models... go figure
 
-        # 2. Create custom FC layers for non-standardized models
-        if 'squeezenet' in model_name:
-            final_conv = nn.Conv2d(512, num_classes, kernel_size=1)
-            new_fc = nn.Sequential(
-                nn.Dropout(p=0.5),
-                final_conv,
-                nn.ReLU(inplace=True),
-                nn.AvgPool2d(13, stride=1)
-            )
-            model.num_classes = num_classes
-        elif 'vgg' in model_name:
-            new_fc = nn.Sequential(
-                nn.Linear(512 * 7 * 7, 4096),
-                nn.ReLU(True),
-                nn.Dropout(),
-                nn.Linear(4096, 4096),
-                nn.ReLU(True),
-                nn.Dropout(),
-                nn.Linear(4096, num_classes)
-            )
-        elif 'inception3' in model_name.lower() or 'inception_v3' in model_name.lower():
-            # Replace the extra aux_logits FC layer if aux_logits are enabled
-            if getattr(model, 'aux_logits', False):
-                model.AuxLogits = InceptionAux(768, num_classes)
-        elif 'dpn' in model_name.lower():
-            old_fc = getattr(model, fc_name)
-            new_fc = nn.Conv2d(old_fc.in_channels, num_classes, kernel_size=1, bias=True)
+            # 2. Create custom FC layers for non-standardized models
+            if 'squeezenet' in model_name:
+                final_conv = nn.Conv2d(512, num_classes, kernel_size=1)
+                new_fc = nn.Sequential(
+                    nn.Dropout(p=0.5),
+                    final_conv,
+                    nn.ReLU(inplace=True),
+                    nn.AvgPool2d(13, stride=1)
+                )
+                model.num_classes = num_classes
+            elif 'vgg' in model_name:
+                new_fc = nn.Sequential(
+                    nn.Linear(512 * 7 * 7, 4096),
+                    nn.ReLU(True),
+                    nn.Dropout(),
+                    nn.Linear(4096, 4096),
+                    nn.ReLU(True),
+                    nn.Dropout(),
+                    nn.Linear(4096, num_classes)
+                )
+            elif 'inception3' in model_name.lower() or 'inception_v3' in model_name.lower():
+                # Replace the extra aux_logits FC layer if aux_logits are enabled
+                if getattr(model, 'aux_logits', False):
+                    model.AuxLogits = InceptionAux(768, num_classes)
+            elif 'dpn' in model_name.lower():
+                old_fc = getattr(model, fc_name)
+                new_fc = nn.Conv2d(old_fc.in_channels, num_classes, kernel_size=1, bias=True)
 
-        # 3. For standard FC layers (nn.Linear) perform a reflection lookup and generate a new FC
-        if new_fc is None:
-            old_fc = getattr(model, fc_name)
-            new_fc = nn.Linear(old_fc.in_features, num_classes)
+            # 3. For standard FC layers (nn.Linear) perform a reflection lookup and generate a new FC
+            if new_fc is None:
+                old_fc = getattr(model, fc_name)
+                new_fc = nn.Linear(old_fc.in_features, num_classes)
 
-        # 4. perform replacement of the last FC / Linear layer with a new one
-        setattr(model, fc_name, new_fc)
+            # 4. perform replacement of the last FC / Linear layer with a new one
+            setattr(model, fc_name, new_fc)
 
         return model
 
@@ -231,7 +237,9 @@ def get_supported_models(type):
             pt_excludes.append(modname.split('.')[-1])
         pt_names = [x for x in torch_models.__dict__.keys() if '__' not in x and x not in pt_excludes]  # includes directory and filenames
 
-        return pywick_names + pt_names
+        torch_hub_names = torch.hub.list('rwightman/gen-efficientnet-pytorch')
+
+        return pywick_names + pt_names + torch_hub_names
     else:
         return None
 

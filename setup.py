@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pywick',
-      version='0.5.3',
+      version='0.5.5',
       description='High-level batteries-included training framework for Pytorch',
       author='Achaiah',
       install_requires=[

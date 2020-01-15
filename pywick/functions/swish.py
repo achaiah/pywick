@@ -1,5 +1,6 @@
 # Source: https://forums.fast.ai/t/implementing-new-activation-functions-in-fastai-library/17697
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -52,3 +53,18 @@ class Aria2(nn.Module):
     def forward(self, x):
         aria2 = 1 + ((F.exp(-x) ** self.b) ** (-self.a))
         return x * aria2
+
+
+# Source: https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/activations/activations.py (Apache 2.0)
+def hard_swish(x, inplace: bool = False):
+    inner = F.relu6(x + 3.).div_(6.)
+    return x.mul_(inner) if inplace else x.mul(inner)
+
+
+class HardSwish(nn.Module):
+    def __init__(self, inplace: bool = False):
+        super(HardSwish, self).__init__()
+        self.inplace = inplace
+
+    def forward(self, x):
+        return hard_swish(x, self.inplace)

@@ -29,8 +29,18 @@ have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
 work in progress though so apologies for anything that's broken.
 
 ## What's New (highlights)
+- **Jan. 15, 2020**
+  - New release: 0.5.5
+  - Mish activation function (SoTA)
+  - [rwightman's](https://github.com/rwightman/gen-efficientnet-pytorch) models of pretrained/ported variants for classification (44 total)
+    - efficientnet Tensorflow port b0-b8, with and without AP, el/em/es, cc
+    - mixnet L/M/S
+    - mobilenetv3
+    - mnasnet
+    - spnasnet
+  - Additional loss functions
 - **Aug. 1, 2019**
-    - New segmentation NNs: BiSeNet, DANet, DenseASPP, DUNet, OCNet, PSANet
+  -   New segmentation NNs: BiSeNet, DANet, DenseASPP, DUNet, OCNet, PSANet
     - New Loss Functions: Focal Tversky Loss, OHEM CrossEntropy Loss, various combination losses
     - Major restructuring and standardization of NN models and loading functionality
     - General bug fixes and code improvements 
@@ -40,8 +50,7 @@ work in progress though so apologies for anything that's broken.
 
 or specific version from git:
 
-`pip
-install git+https://github.com/achaiah/pywick.git@v0.5.3`
+`pip install git+https://github.com/achaiah/pywick.git@v0.5.5`
 
 ## ModuleTrainer
 The `ModuleTrainer` class provides a high-level training interface which abstracts
