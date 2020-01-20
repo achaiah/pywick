@@ -29,8 +29,8 @@ have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
 work in progress though so apologies for anything that's broken.
 
 ## What's New (highlights)
-- **Jan. 15, 2020**
-  - New release: 0.5.5
+- **Jan. 20, 2020**
+  - New release: 0.5.6 (minor fix from 0.5.5 for pypi)
   - Mish activation function (SoTA)
   - [rwightman's](https://github.com/rwightman/gen-efficientnet-pytorch) models of pretrained/ported variants for classification (44 total)
     - efficientnet Tensorflow port b0-b8, with and without AP, el/em/es, cc
@@ -46,11 +46,13 @@ work in progress though so apologies for anything that's broken.
     - General bug fixes and code improvements 
 
 ## Install
+Pywick requires **pytorch >= 1.0**
+
 `pip install pywick`
 
 or specific version from git:
 
-`pip install git+https://github.com/achaiah/pywick.git@v0.5.5`
+`pip install git+https://github.com/achaiah/pywick.git@v0.5.6`
 
 ## ModuleTrainer
 The `ModuleTrainer` class provides a high-level training interface which abstracts
@@ -192,10 +194,15 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
   - [**SqueezeNet**](https://arxiv.org/abs/1602.07360)
   - [**VGG**](https://arxiv.org/abs/1409.1556)
 - [**BatchNorm Inception**](https://arxiv.org/pdf/1502.03167.pdf)
-- [**Dual Path Networks**](https://arxiv.org/abs/1707.01629/)
+- [**Dual Path Networks**](https://arxiv.org/abs/1707.01629)
+- [**EfficientNet variants b0-b8**](https://arxiv.org/abs/1905.11946)
 - [**FBResnet**](https://github.com/facebook/fb.resnet.torch)
+- [**FBNet-C**](https://arxiv.org/abs/1812.03443)
 - [**Inception v4**](http://arxiv.org/abs/1602.07261)
 - [**InceptionResnet v2**](https://arxiv.org/abs/1602.07261)
+- [**Mixnet L/M/S**](https://arxiv.org/abs/1907.09595)
+- [**MnasNet**](https://arxiv.org/abs/1807.11626)
+- [**MobileNet V3**](https://arxiv.org/abs/1905.02244)
 - [**NasNet and NasNet Mobile**](https://arxiv.org/abs/1707.07012)
 - [**PNASNet**](https://arxiv.org/abs/1712.00559)
 - [**Polynet**](https://arxiv.org/abs/1611.05725)
@@ -204,6 +211,7 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
 - [**ResNext**](https://arxiv.org/abs/1611.05431)
 - [**SE Net**](https://arxiv.org/pdf/1709.01507.pdf)
 - **SE Inception**
+- [**Single-Pass NAS Net**](https://arxiv.org/abs/1904.02877)
 - [**Wide Resnet**](https://arxiv.org/abs/1605.07146)
 - [**XCeption**](https://arxiv.org/pdf/1610.02357.pdf)
 
