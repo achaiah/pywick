@@ -1,5 +1,12 @@
 # Pywick
 
+<div align="center">
+![docs][https://img.shields.io/badge/dynamic/json.svg?label=docs&url=https%3A%2F%2Fpypi.org%2Fpypi%2Fpywick%2Fjson&query=%24.info.version&colorB=brightgreen&prefix=v] 
+![Downloads][https://pepy.tech/badge/pywick] ![pypi][https://img.shields.io/pypi/v/pywick.svg]
+![fastai python compatibility][https://img.shields.io/pypi/pyversions/pywick.svg]
+![license][https://img.shields.io/pypi/l/pywick.svg]
+</div>
+
 #### High-Level Training framework for Pytorch
 
 Pywick is a high-level Pytorch training framework that aims to get you
