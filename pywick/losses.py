@@ -699,6 +699,7 @@ class BinaryFocalLoss(nn.Module):
         super().__init__()
         self.gamma = gamma
         self.eps = eps
+        self.alpha = alpha
 
     def forward(self, inputs, targets):
         BCE_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')

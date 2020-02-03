@@ -1,6 +1,6 @@
 # Pywick
 
-<div style="text-align: center;">
+<div style="text-align:center">
 
 [![docs](https://img.shields.io/badge/dynamic/json.svg?label=docs&url=https%3A%2F%2Fpypi.org%2Fpypi%2Fpywick%2Fjson&query=%24.info.version&colorB=brightgreen&prefix=v)](https://pywick.readthedocs.io/en/latest/)
 [![Downloads](https://pepy.tech/badge/pywick)](https://pywick.readthedocs.io/en/latest/)
