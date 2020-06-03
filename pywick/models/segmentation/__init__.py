@@ -23,7 +23,7 @@ from .enet import *
 from .fcn8s import *
 from .fcn16s import *
 from .fcn32s import *
-from .frrn import *
+from .frrn1 import *
 from .fusionnet import *
 from .gcnnets import *
 from .lexpsp import *
