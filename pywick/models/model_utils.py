@@ -82,6 +82,8 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
             model = torch.hub.load('rwightman/gen-efficientnet-pytorch', model_name, pretrained=pretrained, num_classes=num_classes)
         else:
             # 1. Load model (pretrained or vanilla)
+            import ssl
+            ssl._create_default_https_context = ssl._create_unverified_context
             fc_name = get_fc_names(model_name=model_name, model_type=model_type)[-1:][0]    # we're only interested in the last layer name
             new_fc = None            # Custom layer to replace with (if none, then it will be handled generically)
             if model_name in torch_models.__dict__:
