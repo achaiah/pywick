@@ -8,7 +8,7 @@ Classification
 BatchNormInception
 -----------------------------------------------
 
-.. automodule:: pywick.models.classification.bninception
+.. automodule:: pywick.models.classification.bn_inception
     :members:
     :undoc-members:
     :exclude-members: features, forward, logits
@@ -41,7 +41,7 @@ Inception\_Resv2\_wide
 InceptionResnetV2
 -----------------------------------------------------
 
-.. automodule:: pywick.models.classification.inceptionresnetv2
+.. automodule:: pywick.models.classification.inceptionresnet_v2
     :members:
     :undoc-members:
     :exclude-members: features, forward, logits
@@ -49,7 +49,7 @@ InceptionResnetV2
 InceptionV4
 -----------------------------------------------
 
-.. automodule:: pywick.models.classification.inceptionv4
+.. automodule:: pywick.models.classification.inception_v4
     :members:
     :undoc-members:
     :exclude-members: features, forward, logits
@@ -81,7 +81,7 @@ PNASNnet
 Polynet
 -------------------------------------------
 
-.. automodule:: pywick.models.classification.polynet
+.. automodule:: pywick.models.classification.poly_net
     :members:
     :undoc-members:
     :exclude-members: features, forward, logits
@@ -137,7 +137,7 @@ WideResnet
 XCeption
 --------------------------------------------
 
-.. automodule:: pywick.models.classification.xception
+.. automodule:: pywick.models.classification.xception1
     :members:
     :undoc-members:
     :exclude-members: features, forward, logits

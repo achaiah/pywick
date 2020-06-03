@@ -112,7 +112,7 @@ FCN32 VGG
 FRRN
 --------------------------------------
 
-.. automodule:: pywick.models.segmentation.frrn
+.. automodule:: pywick.models.segmentation.frrn1
     :members: frrn
     :undoc-members:
     :exclude-members: features, forward, logits
