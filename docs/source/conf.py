@@ -183,5 +183,5 @@ autodoc_mock_imports = [
     "torch",
     "torchvision",
     "numpy",
-    "pandas",
+    "pandas"
 ]

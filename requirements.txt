@@ -1,8 +1,8 @@
-h5py
 hickle
 numpy
 pandas
 pillow
+pyyaml
 six
 torch
 torchvision
