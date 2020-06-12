@@ -431,7 +431,7 @@ class ThresholdedL1Loss(nn.Module):
     def forward(self, logits, targets):
         targets = targets.view(-1)
         probs = torch.sigmoid(logits).view(-1)
-        probs = (probs > 0.5).float()
+        probs = (probs > self.threshold).float()
 
         losses = torch.abs(targets - probs)
         loss = torch.mean(losses)
