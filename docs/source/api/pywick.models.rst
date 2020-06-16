@@ -8,6 +8,7 @@ Models
 .. toctree::
 
     pywick.models.torchvision
+    pywick.models.rwightman
     pywick.models.classification
     pywick.models.localization
     pywick.models.segmentation

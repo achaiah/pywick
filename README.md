@@ -39,6 +39,9 @@ have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
 work in progress though so apologies for anything that's broken.
 
 ## What's New (highlights)
+- **Jun. 15, 2020**
+  - 200+ models added from [rwightman's](https://github.com/rwightman/pytorch-image-models) repo via `torch.hub`! See docs for all the variants!
+  - Some minor bug fixes
 - **Jan. 20, 2020**
   - New release: 0.5.6 (minor fix from 0.5.5 for pypi)
   - Mish activation function (SoTA)
@@ -203,25 +206,33 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
   - [**ShuffleNet v2**](https://arxiv.org/abs/1807.11164)
   - [**SqueezeNet**](https://arxiv.org/abs/1602.07360)
   - [**VGG**](https://arxiv.org/abs/1409.1556)
-- [**BatchNorm Inception**](https://arxiv.org/pdf/1502.03167.pdf)
+- [**BatchNorm Inception**](https://arxiv.org/abs/1502.03167)
+- [**Deep High-Resolution Representation Learning for Human Pose Estimation**](https://arxiv.org/abs/1902.09212v1)
+- [**Deep Layer Aggregation**](https://arxiv.org/abs/1707.06484)
 - [**Dual Path Networks**](https://arxiv.org/abs/1707.01629)
-- [**EfficientNet variants b0-b8**](https://arxiv.org/abs/1905.11946)
+- [**EfficientNet variants (b0-b8, el, em, es, lite1-lite4, pruned, AP/NS)**](https://arxiv.org/abs/1905.11946)
+- [**ECA-Net: Efficient Channel Attention for Deep Convolutional Neural Networks**](https://arxiv.org/abs/1910.03151v4)
 - [**FBResnet**](https://github.com/facebook/fb.resnet.torch)
 - [**FBNet-C**](https://arxiv.org/abs/1812.03443)
 - [**Inception v4**](http://arxiv.org/abs/1602.07261)
 - [**InceptionResnet v2**](https://arxiv.org/abs/1602.07261)
-- [**Mixnet L/M/S**](https://arxiv.org/abs/1907.09595)
+- [**Mixnet variants (l, m, s, xl, xxl)**](https://arxiv.org/abs/1907.09595)
 - [**MnasNet**](https://arxiv.org/abs/1807.11626)
 - [**MobileNet V3**](https://arxiv.org/abs/1905.02244)
-- [**NasNet and NasNet Mobile**](https://arxiv.org/abs/1707.07012)
+- [**NasNet variants (mnas, pnas, mobile)**](https://arxiv.org/abs/1707.07012)
 - [**PNASNet**](https://arxiv.org/abs/1712.00559)
 - [**Polynet**](https://arxiv.org/abs/1611.05725)
 - [**Pyramid Resnet**](https://arxiv.org/abs/1610.02915)
-- **Resnet + Swish**
-- [**ResNext**](https://arxiv.org/abs/1611.05431)
-- [**SE Net**](https://arxiv.org/pdf/1709.01507.pdf)
-- **SE Inception**
+- [**RegNet - Designing Network Design Spaces**](https://arxiv.org/abs/2003.13678)
+- **[Resnet variants (gluon, res2net, se, ssl, tv, wide)](https://arxiv.org/abs/1512.03385)**
+- [**ResNeSt: Split-Attention Networks**](https://arxiv.org/abs/2004.08955)
+- [**ResNext variants (ig, se, ssl, swsl, tv)**](https://arxiv.org/abs/1611.05431)
+- [**SE Net variants (gluon, resnet, resnext, inception)**](https://arxiv.org/pdf/1709.01507.pdf)
+- [**SelecSLS Convolutional Net**](https://github.com/mehtadushy/SelecSLS-Pytorch)
+- [**Selective Kernel Networks**](https://arxiv.org/abs/1903.06586)
+- [**Semi-Supervised and Semi-Weakly Supervised ImageNet Models**](https://github.com/facebookresearch/semi-supervised-ImageNet1K-models)
 - [**Single-Pass NAS Net**](https://arxiv.org/abs/1904.02877)
+- [**TResNet: High Performance GPU-Dedicated Architecture**](https://arxiv.org/abs/2003.13630)
 - [**Wide Resnet**](https://arxiv.org/abs/1605.07146)
 - [**XCeption**](https://arxiv.org/pdf/1610.02357.pdf)
 
