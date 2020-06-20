@@ -26,6 +26,13 @@ Eve
     :members: Eve
     :undoc-members:
 
+Lookahead
+------------------------------
+
+.. automodule:: pywick.optimizers.lookahead
+    :members: Lookahead
+    :undoc-members:
+
 Nadam
 ------------------------------
 
@@ -38,6 +45,27 @@ PowerSign
 
 .. automodule:: pywick.optimizers.powersign
     :members: PowerSign
+    :undoc-members:
+
+RAdam
+------------------------------
+
+.. automodule:: pywick.optimizers.nadam
+    :members: Nadam
+    :undoc-members:
+
+Ralamb
+------------------------------
+
+.. automodule:: pywick.optimizers.radam
+    :members: RAdam
+    :undoc-members:
+
+RangerLARS
+------------------------------
+
+.. automodule:: pywick.optimizers.rangerlars
+    :members: RangerLars
     :undoc-members:
 
 SGDW

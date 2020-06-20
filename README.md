@@ -24,7 +24,7 @@ for months on end then this is probably the right place for you :)
 
 Among other things Pywick includes:
 - State of the art normalization, activation, loss functions and
-  optimizers not included in the standard Pytorch library.
+  optimizers not included in the standard Pytorch library (Addsign, Eve, Lookahead, Radam, Ralamb, RangerLARS etc).
 - A high-level module for training with callbacks, constraints, metrics,
   conditions and regularizers.
 - Dozens of popular object classification and semantic segmentation models.
