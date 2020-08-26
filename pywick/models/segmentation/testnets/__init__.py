@@ -14,5 +14,6 @@ from .psanet import *
 from .psp_saeed import PSPNet as TEST_PSPNet2
 from .tkcnet.tkcnet import TKCNet_Resnet101
 from .tiramisu_test import FCDenseNet57 as TEST_Tiramisu57
+from .upernet import *
 from .Unet_nested import UNet_Nested_dilated as TEST_Unet_nested_dilated
 from .unet_plus_plus import NestNet as Unet_Plus_Plus
