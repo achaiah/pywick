@@ -7,6 +7,7 @@ import torch
 
 from . import Callback
 
+__all__ = ['CSVLogger']
 
 class CSVLogger(Callback):
     """

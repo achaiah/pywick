@@ -2,6 +2,8 @@ import warnings
 
 from . import Callback
 
+__all__ = ['LRScheduler']
+
 
 class LRScheduler(Callback):
     """

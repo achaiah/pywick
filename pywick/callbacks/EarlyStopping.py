@@ -1,5 +1,7 @@
 from . import Callback
 
+__all__ = ['EarlyStopping']
+
 class EarlyStopping(Callback):
     """
     Early Stopping to terminate training early under certain conditions

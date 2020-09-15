@@ -1,5 +1,8 @@
 from . import Callback
 
+__all__ = ['History']
+
+
 class History(Callback):
     """
     Callback that records events into a `History` object.

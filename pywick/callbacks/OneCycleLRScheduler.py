@@ -11,6 +11,7 @@ from torch.optim import Optimizer
 from . import Callback
 import torch
 
+__all__ = ['OnceCycleLRScheduler']
 
 class OneCycleLR(torch.optim.lr_scheduler.StepLR):
     r"""Sets the learning rate of each parameter group according to the

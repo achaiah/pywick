@@ -1,5 +1,8 @@
 from . import Callback
 
+__all__ = ['ReduceLROnPlateau']
+
+
 class ReduceLROnPlateau(Callback):
     """
     Reduce the learning rate if the train or validation loss plateaus
