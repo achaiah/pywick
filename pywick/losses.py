@@ -2018,7 +2018,7 @@ class RMILoss(nn.Module):
     This version need a lot of memory if do not dwonsample.
     """
     def __init__(self,
-                 num_classes=21,
+                 num_classes=1,
                  rmi_radius=3,
                  rmi_pool_way=1,
                  rmi_pool_size=4,
@@ -2026,7 +2026,8 @@ class RMILoss(nn.Module):
                  loss_weight_lambda=0.5,
                  lambda_way=1,
                  ignore_index=255,
-                 train_fp16=False, **_):
+                 train_fp16=False,
+                 is_cuda=True, **_):
         super(RMILoss, self).__init__()
         self.num_classes = num_classes
         # radius choices
@@ -2049,6 +2050,7 @@ class RMILoss(nn.Module):
         # ignore class
         self.ignore_index = ignore_index
         self.train_fp16 = train_fp16
+        self.is_cuda = is_cuda
 
     @staticmethod
     def map_get_pairs(labels_4D, probs_4D, radius=3, is_combine=True):
@@ -2211,8 +2213,12 @@ class RMILoss(nn.Module):
         # combine the high dimension points from label and probability map. new shape [N, C, radius * radius, H, W]
         la_vectors, pr_vectors = self.map_get_pairs(labels_4D, probs_4D, radius=self.rmi_radius, is_combine=0)
 
-        la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor).requires_grad_(False)
-        pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor)
+        if self.is_cuda:
+            la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor).requires_grad_(False)
+            pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor)
+        else:
+            la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.DoubleTensor).requires_grad_(False)
+            pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.DoubleTensor)
 
         # small diagonal matrix, shape = [1, 1, radius * radius, radius * radius]
         diag_matrix = torch.eye(self.half_d).unsqueeze(dim=0).unsqueeze(dim=0)
