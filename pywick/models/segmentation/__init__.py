@@ -19,6 +19,7 @@ from .denseaspp import *
 from .drn_seg import *
 from .duc_hdc import *
 from .dunet import *
+from .emanet.emanet import EMANet, EmaNet152
 from .enet import *
 from .fcn8s import *
 from .fcn16s import *
@@ -38,3 +39,4 @@ from .u_net import *
 from .unet_dilated import *
 from .unet_res import *
 from .unet_stack import *
+from .upernet import *

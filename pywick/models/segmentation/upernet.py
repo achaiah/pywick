@@ -109,6 +109,24 @@ def summary(model, input_shape, batch_size=-1, intputshow=True):
     return model_info
 
 
+def apply_leaf(m, f):
+    c = m if isinstance(m, (list, tuple)) else list(m.children())
+    if isinstance(m, nn.Module):
+        f(m)
+    if len(c)>0:
+        for l in c:
+            apply_leaf(l,f)
+
+
+def set_trainable_attr(m, b):
+    m.trainable = b
+    for p in m.parameters(): p.requires_grad = b
+
+
+def set_trainable(l, b):
+    apply_leaf(l, lambda m: set_trainable_attr(m,b))
+
+
 class BaseModel(nn.Module):
     def __init__(self):
         super(BaseModel, self).__init__()
@@ -242,7 +260,7 @@ class FPN_fuse(nn.Module):
 
 class UperNet(BaseModel):
     # Implementing only the object path
-    def __init__(self, num_classes, in_channels=3, backbone='resnet101', pretrained=True, use_aux=True, fpn_out=256, freeze_bn=False, **_):
+    def __init__(self, num_classes, in_channels=3, backbone='resnet101', pretrained=True, fpn_out=256, freeze_bn=False, freeze_backbone=False, **_):
         super(UperNet, self).__init__()
 
         if backbone == 'resnet34' or backbone == 'resnet18':
@@ -254,6 +272,8 @@ class UperNet(BaseModel):
         self.FPN = FPN_fuse(feature_channels, fpn_out=fpn_out)
         self.head = nn.Conv2d(fpn_out, num_classes, kernel_size=3, padding=1)
         if freeze_bn: self.freeze_bn()
+        if freeze_backbone:
+            set_trainable([self.backbone], False)
 
     def forward(self, x):
         input_size = (x.size()[2], x.size()[3])
