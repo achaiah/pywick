@@ -2003,6 +2003,49 @@ class AngularPenaltySMLoss(nn.Module):
 
 
 # ===================== #
+# Source:  https://github.com/JunMa11/SegLoss/blob/master/losses_pytorch/dice_loss.py
+class AsymLoss(nn.Module):
+    def __init__(self, apply_nonlin=None, batch_dice=False, do_bg=True, smooth=1., square=False, **_):
+        """
+        paper: https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8573779
+        """
+        super(AsymLoss, self).__init__()
+
+        self.square = square
+        self.do_bg = do_bg
+        self.batch_dice = batch_dice
+        self.apply_nonlin = apply_nonlin
+        self.smooth = smooth
+        self.beta = 1.5
+
+    def forward(self, x, y, loss_mask=None):
+        shp_x = x.shape
+
+        if self.batch_dice:
+            axes = [0] + list(range(2, len(shp_x)))
+        else:
+            axes = list(range(2, len(shp_x)))
+
+        if self.apply_nonlin is not None:
+            x = self.apply_nonlin(x)
+
+        tp, fp, fn = get_tp_fp_fn(x, y, axes, loss_mask, self.square)# shape: (batch size, class num)
+        weight = (self.beta**2)/(1+self.beta**2)
+        asym = (tp + self.smooth) / (tp + weight*fn + (1-weight)*fp + self.smooth)
+
+        if not self.do_bg:
+            if self.batch_dice:
+                asym = asym[1:]
+            else:
+                asym = asym[:, 1:]
+        asym = asym.mean()
+
+        return -asym
+
+
+
+
+# ===================== #
 # Source:  https://github.com/BloodAxe/pytorch-toolbelt
 # Used to enhance facial segmentation
 def wing_loss(output: torch.Tensor, target: torch.Tensor, width=5, curvature=0.5, reduction="mean"):
@@ -2344,7 +2387,7 @@ class BoundaryLoss(nn.Module):
         # softmax so that predicted map can be distributed in [0, 1]
         pred = torch.softmax(pred, dim=1)
 
-        # one-hot vector of ground truth
+        # one-hot vector of ground truth (this needs to be rewritten to accommodate the batch dimension so doesn't work for now)
         one_hot_gt = F.one_hot(gt.to(torch.int64), c)
 
         # boundary map
