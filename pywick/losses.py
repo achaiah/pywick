@@ -1614,9 +1614,10 @@ class ActiveContourLoss(nn.Module):
         """
         lenth term
         """
+        target = target.unsqueeze(1)        # add extra dimension to the B/W masks
 
-        x = target[:, :, 1:, :] - target[:, :, :-1, :]  # horizontal and vertical directions
-        y = target[:, :, :, 1:] - target[:, :, :, :-1]
+        x = logits[:, :, 1:, :] - target[:, :, :-1, :]  # horizontal and vertical directions
+        y = logits[:, :, :, 1:] - target[:, :, :, :-1]
 
         delta_x = x[:,:,1:,:-2]**2
         delta_y = y[:,:,:-2,1:]**2
@@ -2315,23 +2316,13 @@ class RMILoss(nn.Module):
 # Source: https://github.com/yiskw713/boundary_loss_for_remote_sensing/
 # Boundary Loss for Remote Sensing Imagery Semantic Segmentation: https://arxiv.org/abs/1905.07852
 
-def one_hot_bnd(label, n_classes, requires_grad=True):
-    """Return One Hot Label"""
-    device = label.device
-    one_hot_label = torch.eye(
-        n_classes, device=device, requires_grad=requires_grad)[label]
-    one_hot_label = one_hot_label.transpose(1, 3).transpose(2, 3)
-
-    return one_hot_label
-
-
 class BoundaryLoss(nn.Module):
     """Boundary Loss proposed in:
     Alexey Bokhovkin et al., Boundary Loss for Remote Sensing Imagery Semantic Segmentation
     https://arxiv.org/abs/1905.07852
     """
 
-    def __init__(self, theta0=3, theta=5):
+    def __init__(self, theta0=3, theta=5, **_):
         super().__init__()
 
         self.theta0 = theta0
@@ -2354,23 +2345,19 @@ class BoundaryLoss(nn.Module):
         pred = torch.softmax(pred, dim=1)
 
         # one-hot vector of ground truth
-        one_hot_gt = one_hot_bnd(gt, c)
+        one_hot_gt = F.one_hot(gt.to(torch.int64), c)
 
         # boundary map
-        gt_b = F.max_pool2d(
-            1 - one_hot_gt, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
+        gt_b = F.max_pool2d(1 - one_hot_gt, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
         gt_b -= 1 - one_hot_gt
 
-        pred_b = F.max_pool2d(
-            1 - pred, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
+        pred_b = F.max_pool2d(1 - pred, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
         pred_b -= 1 - pred
 
         # extended boundary map
-        gt_b_ext = F.max_pool2d(
-            gt_b, kernel_size=self.theta, stride=1, padding=(self.theta - 1) // 2)
+        gt_b_ext = F.max_pool2d(gt_b, kernel_size=self.theta, stride=1, padding=(self.theta - 1) // 2)
 
-        pred_b_ext = F.max_pool2d(
-            pred_b, kernel_size=self.theta, stride=1, padding=(self.theta - 1) // 2)
+        pred_b_ext = F.max_pool2d(pred_b, kernel_size=self.theta, stride=1, padding=(self.theta - 1) // 2)
 
         # reshape
         gt_b = gt_b.view(n, c, -1)
