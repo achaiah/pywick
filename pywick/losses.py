@@ -32,6 +32,7 @@ For example, BCEWithLogitsLoss is a BCE that accepts R((-inf, inf)) and automati
 import numpy as np
 import torch
 import math
+from .models.segmentation.testnets.drnet.drnet import DRCLoss
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Function

@@ -6,6 +6,7 @@ from .deeplabv3_xception import DeepLabv3_plus as TEST_DLV3_Xception
 from .deeplabv3_xception import create_DLX_V3_pretrained as TEST_DLX_V3
 from .deeplabv3_resnet import create_DLR_V3_pretrained as TEST_DLR_V3
 from .difnet import DifNet101, DifNet152
+from .drnet import DRNet
 from .encnet import EncNet as TEST_EncNet, encnet_resnet50 as TEST_EncNet_Res50, encnet_resnet101 as TEST_EncNet_Res101, encnet_resnet152 as TEST_EncNet_Res152
 from .exfuse import UnetExFuse
 from .gscnn import GSCNN
