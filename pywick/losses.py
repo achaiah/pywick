@@ -1593,8 +1593,54 @@ class LovaszSoftmax(nn.Module):
 
 # ===================== #
 # Inspired by: https://github.com/xuuuuuuchen/Active-Contour-Loss/blob/master/Active-Contour-Loss.py (MIT)
-# Unfortunately the implementation above seems wrong, so reimplementing per the gist of the paper
 class ActiveContourLoss(nn.Module):
+    """
+        `Learning Active Contour Models for Medical Image Segmentation <http://openaccess.thecvf.com/content_CVPR_2019/papers/Chen_Learning_Active_Contour_Models_for_Medical_Image_Segmentation_CVPR_2019_paper.pdf>`_
+        Note that is only works for B/W masks right now... which is kind of the point of this loss as contours in RGB should be cast to B/W
+        before computing the loss.
+
+        Params:
+            :param mu:          (float, default=1.0) - Scales the inner region loss relative to outer region (less or more prominent)
+            :param lambdaP:     (float, default=1.0) - Scales the combined region loss compared to the length loss (less or more prominent)
+    """
+
+    def __init__(self, lambdaP=1., mu=1., **_):
+        super(ActiveContourLoss, self).__init__()
+        self.lambdaP = lambdaP
+        self.mu = mu
+
+    def forward(self, logits, target):
+
+        """
+        lenth term
+        """
+
+        x = target[:, :, 1:, :] - target[:, :, :-1, :]  # horizontal and vertical directions
+        y = target[:, :, :, 1:] - target[:, :, :, :-1]
+
+        delta_x = x[:,:,1:,:-2]**2
+        delta_y = y[:,:,:-2,1:]**2
+        delta_u = torch.abs(delta_x + delta_y)
+
+        length = torch.mean(torch.sqrt(delta_u + 0.00000001))   # equ.(11) in the paper
+
+        """
+        region term
+        """
+
+        C_1 = torch.ones_like(logits)
+        C_2 = torch.zeros_like(target)
+
+        region_in = torch.abs(torch.mean(target[:, 0, :, :] * ((logits[:, 0, :, :] - C_1) ** 2)))           # equ.(12) in the paper
+        region_out = torch.abs(torch.mean((1 - target[:, 0, :, :]) * ((logits[:, 0, :, :] - C_2) ** 2)))    # equ.(12) in the paper
+
+        lambdaP = 1     # lambda parameter could be various.
+        mu = 1          # mu parameter could be various.
+
+        return length + lambdaP * (mu * region_in + region_out)
+
+
+class ActiveContourLossAlt(nn.Module):
     """
         `Learning Active Contour Models for Medical Image Segmentation <http://openaccess.thecvf.com/content_CVPR_2019/papers/Chen_Learning_Active_Contour_Models_for_Medical_Image_Segmentation_CVPR_2019_paper.pdf>`_
         Note that is only works for B/W masks right now... which is kind of the point of this loss as contours in RGB should be cast to B/W
@@ -1607,7 +1653,7 @@ class ActiveContourLoss(nn.Module):
     """
 
     def __init__(self, len_w=1., reg_w=1., apply_log=True, **kwargs):
-        super(ActiveContourLoss, self).__init__()
+        super(ActiveContourLossAlt, self).__init__()
         self.len_w = len_w
         self.reg_w = reg_w
         self.epsilon = 1e-8  # a parameter to avoid square root = zero issues
