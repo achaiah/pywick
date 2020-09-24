@@ -14,6 +14,7 @@ from .History import *
 from .LambdaCallback import *
 from .LRScheduler import *
 from .ModelCheckpoint import *
+from .OneCycleLRScheduler import *
 from .ReduceLROnPlateau import *
 from .SimpleModelCheckpoint import *
 from .TQDM import *

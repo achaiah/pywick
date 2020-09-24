@@ -1,6 +1,9 @@
 from tqdm import tqdm
 from . import Callback
 
+__all__ = ['TQDM']
+
+
 class TQDM(Callback):
 
     def __init__(self):

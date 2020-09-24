@@ -1,9 +1,10 @@
 hickle
+inplace_abn
 numpy
 pandas
 pillow
 pyyaml
 six
-torch
+torch >= 1.4.0
 torchvision
 tqdm

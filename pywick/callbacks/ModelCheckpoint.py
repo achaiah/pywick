@@ -8,6 +8,9 @@ import torch
 from . import Callback
 
 
+__all__ = ['ModelCheckpoint']
+
+
 class ModelCheckpoint(Callback):
     """
     Model Checkpoint to save model weights during training. 'Best' is determined by minimizing the value found under monitored_log_key in the logs

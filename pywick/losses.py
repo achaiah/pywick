@@ -31,12 +31,14 @@ For example, BCEWithLogitsLoss is a BCE that accepts R((-inf, inf)) and automati
 
 import numpy as np
 import torch
+import math
+from .models.segmentation.testnets.drnet.drnet import DRCLoss
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Function
 from torch.autograd import Variable
 from torch import Tensor
-from typing import Iterable, Set
+from typing import Iterable, Set, Any
 
 VOID_LABEL = 255
 N_CLASSES = 1
@@ -494,7 +496,7 @@ class WeightedBCELoss2d(nn.Module):
 
 
 class WeightedSoftDiceLoss(nn.Module):
-    def __init__(self, **kwargs):
+    def __init__(self, **_):
         super(WeightedSoftDiceLoss, self).__init__()
 
     def forward(self, logits, labels, weights):
@@ -512,7 +514,7 @@ class WeightedSoftDiceLoss(nn.Module):
 
 
 class BCEDicePenalizeBorderLoss(nn.Module):
-    def __init__(self, kernel_size=21, **kwargs):
+    def __init__(self, kernel_size=21, **_):
         super(BCEDicePenalizeBorderLoss, self).__init__()
         self.bce = WeightedBCELoss2d()
         self.dice = WeightedSoftDiceLoss()
@@ -1289,6 +1291,60 @@ class OHEMSegmentationLosses(OhemCrossEntropy2d):
         return tvect
 
 
+# ====================== #
+# Source: https://github.com/yinmh17/DNL-Semantic-Segmentation/blob/master/model/seg/loss/ohem_ce_loss.py
+# OHEM CrossEntropy Loss
+
+class OhemCELoss(nn.Module):
+    def __init__(self, configer):
+        super(OhemCELoss, self).__init__()
+        self.configer = configer
+        weight = self.configer.get('loss.params.ohem_ce_loss.weight', default=None)
+        self.weight = torch.FloatTensor(weight) if weight is not None else weight
+        self.reduction = self.configer.get('loss.params.ohem_ce_loss.reduction', default='mean')
+        self.ignore_index = self.configer.get('loss.params.ohem_ce_loss.ignore_index', default=-100)
+        self.thresh = self.configer.get('loss.params.ohem_ce_loss.thresh', default=0.7)
+        self.min_kept = max(1, self.configer.get('loss.params.ohem_ce_loss.minkeep', default=1))
+
+    def forward(self, predict, target):
+        """
+            Args:
+                predict:(n, c, h, w)
+                target:(n, h, w)
+                weight (Tensor, optional): a manual rescaling weight given to each class.
+                                           If given, has to be a Tensor of size "nclasses"
+        """
+        batch_kept = self.min_kept * target.size(0)
+        target = self._scale_target(target, (predict.size(2), predict.size(3)))
+        prob_out = F.softmax(predict, dim=1)
+        tmp_target = target.clone()
+        tmp_target[tmp_target == self.ignore_index] = 0
+        prob = prob_out.gather(1, tmp_target.unsqueeze(1))
+        mask = target.contiguous().view(-1, ) != self.ignore_index
+        sort_prob, sort_indices = prob.contiguous().view(-1, )[mask].contiguous().sort()
+        min_threshold = sort_prob[min(batch_kept, sort_prob.numel() - 1)] if sort_prob.numel() > 0 else 0.0
+        threshold = max(min_threshold, self.thresh)
+        loss_matrix = F.cross_entropy(predict, target,
+                                      weight=self.weight.to(predict.device) if self.weight is not None else None,
+                                      ignore_index=self.ignore_index, reduction='none')
+        loss_matrix = loss_matrix.contiguous().view(-1, )
+        sort_loss_matirx = loss_matrix[mask][sort_indices]
+        select_loss_matrix = sort_loss_matirx[sort_prob < threshold]
+        if self.reduction == 'sum' or select_loss_matrix.numel() == 0:
+            return select_loss_matrix.sum()
+        elif self.reduction == 'mean':
+            return select_loss_matrix.mean()
+        else:
+            raise NotImplementedError('Reduction Error!')
+
+    @staticmethod
+    def _scale_target(targets_, scaled_size):
+        targets = targets_.clone().unsqueeze(1).float()
+        targets = F.interpolate(targets, size=scaled_size, mode='nearest')
+        return targets.squeeze(1).long()
+
+
+# ====================== #
 # Source: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/TverskyLoss/binarytverskyloss.py (MIT)
 class FocalBinaryTverskyFunc(Function):
     """
@@ -1538,8 +1594,55 @@ class LovaszSoftmax(nn.Module):
 
 # ===================== #
 # Inspired by: https://github.com/xuuuuuuchen/Active-Contour-Loss/blob/master/Active-Contour-Loss.py (MIT)
-# Unfortunately the implementation above seems wrong, so reimplementing per the gist of the paper
 class ActiveContourLoss(nn.Module):
+    """
+        `Learning Active Contour Models for Medical Image Segmentation <http://openaccess.thecvf.com/content_CVPR_2019/papers/Chen_Learning_Active_Contour_Models_for_Medical_Image_Segmentation_CVPR_2019_paper.pdf>`_
+        Note that is only works for B/W masks right now... which is kind of the point of this loss as contours in RGB should be cast to B/W
+        before computing the loss.
+
+        Params:
+            :param mu:          (float, default=1.0) - Scales the inner region loss relative to outer region (less or more prominent)
+            :param lambdaP:     (float, default=1.0) - Scales the combined region loss compared to the length loss (less or more prominent)
+    """
+
+    def __init__(self, lambdaP=1., mu=1., **_):
+        super(ActiveContourLoss, self).__init__()
+        self.lambdaP = lambdaP
+        self.mu = mu
+
+    def forward(self, logits, target):
+
+        """
+        lenth term
+        """
+        target = target.unsqueeze(1)        # add extra dimension to the B/W masks
+
+        x = logits[:, :, 1:, :] - target[:, :, :-1, :]  # horizontal and vertical directions
+        y = logits[:, :, :, 1:] - target[:, :, :, :-1]
+
+        delta_x = x[:,:,1:,:-2]**2
+        delta_y = y[:,:,:-2,1:]**2
+        delta_u = torch.abs(delta_x + delta_y)
+
+        length = torch.mean(torch.sqrt(delta_u + 0.00000001))   # equ.(11) in the paper
+
+        """
+        region term
+        """
+
+        C_1 = torch.ones_like(logits)
+        C_2 = torch.zeros_like(target)
+
+        region_in = torch.abs(torch.mean(target[:, 0, :, :] * ((logits[:, 0, :, :] - C_1) ** 2)))           # equ.(12) in the paper
+        region_out = torch.abs(torch.mean((1 - target[:, 0, :, :]) * ((logits[:, 0, :, :] - C_2) ** 2)))    # equ.(12) in the paper
+
+        lambdaP = 1     # lambda parameter could be various.
+        mu = 1          # mu parameter could be various.
+
+        return length + lambdaP * (mu * region_in + region_out)
+
+
+class ActiveContourLossAlt(nn.Module):
     """
         `Learning Active Contour Models for Medical Image Segmentation <http://openaccess.thecvf.com/content_CVPR_2019/papers/Chen_Learning_Active_Contour_Models_for_Medical_Image_Segmentation_CVPR_2019_paper.pdf>`_
         Note that is only works for B/W masks right now... which is kind of the point of this loss as contours in RGB should be cast to B/W
@@ -1552,7 +1655,7 @@ class ActiveContourLoss(nn.Module):
     """
 
     def __init__(self, len_w=1., reg_w=1., apply_log=True, **kwargs):
-        super(ActiveContourLoss, self).__init__()
+        super(ActiveContourLossAlt, self).__init__()
         self.len_w = len_w
         self.reg_w = reg_w
         self.epsilon = 1e-8  # a parameter to avoid square root = zero issues
@@ -1898,3 +2001,422 @@ class AngularPenaltySMLoss(nn.Module):
         denominator = torch.exp(numerator) + torch.sum(torch.exp(self.s * excl), dim=1)
         L = numerator - torch.log(denominator)
         return -torch.mean(L)
+
+
+# ===================== #
+# Source:  https://github.com/JunMa11/SegLoss/blob/master/losses_pytorch/dice_loss.py
+class AsymLoss(nn.Module):
+    def __init__(self, apply_nonlin=None, batch_dice=False, do_bg=True, smooth=1., square=False, **_):
+        """
+        paper: https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8573779
+        """
+        super(AsymLoss, self).__init__()
+
+        self.square = square
+        self.do_bg = do_bg
+        self.batch_dice = batch_dice
+        self.apply_nonlin = apply_nonlin
+        self.smooth = smooth
+        self.beta = 1.5
+
+    def forward(self, x, y, loss_mask=None):
+        shp_x = x.shape
+
+        if self.batch_dice:
+            axes = [0] + list(range(2, len(shp_x)))
+        else:
+            axes = list(range(2, len(shp_x)))
+
+        if self.apply_nonlin is not None:
+            x = self.apply_nonlin(x)
+
+        tp, fp, fn = get_tp_fp_fn(x, y, axes, loss_mask, self.square)# shape: (batch size, class num)
+        weight = (self.beta**2)/(1+self.beta**2)
+        asym = (tp + self.smooth) / (tp + weight*fn + (1-weight)*fp + self.smooth)
+
+        if not self.do_bg:
+            if self.batch_dice:
+                asym = asym[1:]
+            else:
+                asym = asym[:, 1:]
+        asym = asym.mean()
+
+        return -asym
+
+
+
+
+# ===================== #
+# Source:  https://github.com/BloodAxe/pytorch-toolbelt
+# Used to enhance facial segmentation
+def wing_loss(output: torch.Tensor, target: torch.Tensor, width=5, curvature=0.5, reduction="mean"):
+    """
+    https://arxiv.org/pdf/1711.06753.pdf
+    :param output:
+    :param target:
+    :param width:
+    :param curvature:
+    :param reduction:
+    :return:
+    """
+    diff_abs = (target - output).abs()
+    loss = diff_abs.clone()
+
+    idx_smaller = diff_abs < width
+    idx_bigger = diff_abs >= width
+
+    loss[idx_smaller] = width * torch.log(1 + diff_abs[idx_smaller] / curvature)
+
+    C = width - width * math.log(1 + width / curvature)
+    loss[idx_bigger] = loss[idx_bigger] - C
+
+    if reduction == "sum":
+        loss = loss.sum()
+
+    if reduction == "mean":
+        loss = loss.mean()
+
+    return loss
+
+
+class WingLoss(nn.modules.loss._Loss):
+    """
+        Used to enhance facial segmentation
+    """
+    def __init__(self, width=5, curvature=0.5, reduction="mean"):
+        super(WingLoss, self).__init__(reduction=reduction)
+        self.width = width
+        self.curvature = curvature
+
+    def forward(self, prediction, target):
+        return wing_loss(prediction, target, self.width, self.curvature, self.reduction)
+
+
+# ===================== #
+# Source:  https://github.com/NVIDIA/semantic-segmentation
+# ..which is adapted from: https://github.com/ZJULearning/RMI (MIT License)
+# Segmentation loss (memory intensive)
+
+_CLIP_MIN = 1e-6        	# min clip value after softmax or sigmoid operations
+_POS_ALPHA = 5e-4		    # add this factor to ensure the AA^T is positive definite
+_IS_SUM = 1			        # sum the loss per channel
+
+
+class RMILoss(nn.Module):
+    """
+    region mutual information
+    I(A, B) = H(A) + H(B) - H(A, B)
+    This version needs a lot of memory if do not downsample.
+    Note that this loss CAN be negative but that is expected.
+    """
+    def __init__(self,
+                 num_classes=1,
+                 rmi_radius=3,
+                 rmi_pool_way=1,
+                 rmi_pool_size=4,
+                 rmi_pool_stride=4,
+                 loss_weight_lambda=0.5,
+                 lambda_way=1,
+                 ignore_index=255,
+                 train_fp16=False,
+                 is_cuda=True, **_):
+        super(RMILoss, self).__init__()
+        self.num_classes = num_classes
+        # radius choices
+        assert rmi_radius in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        self.rmi_radius = rmi_radius
+        assert rmi_pool_way in [0, 1, 2, 3]
+        self.rmi_pool_way = rmi_pool_way
+
+        # set the pool_size = rmi_pool_stride
+        assert rmi_pool_size == rmi_pool_stride
+        self.rmi_pool_size = rmi_pool_size
+        self.rmi_pool_stride = rmi_pool_stride
+        self.weight_lambda = loss_weight_lambda
+        self.lambda_way = lambda_way
+
+        # dimension of the distribution
+        self.half_d = self.rmi_radius * self.rmi_radius
+        self.d = 2 * self.half_d
+        self.kernel_padding = self.rmi_pool_size // 2
+        # ignore class
+        self.ignore_index = ignore_index
+        self.train_fp16 = train_fp16
+        self.is_cuda = is_cuda
+
+    @staticmethod
+    def map_get_pairs(labels_4D, probs_4D, radius=3, is_combine=True):
+        """get map pairs
+        Args:
+            labels_4D	:	labels, shape [N, C, H, W]
+            probs_4D	:	probabilities, shape [N, C, H, W]
+            radius		:	the square radius
+        Return:
+            tensor with shape [N, C, radius * radius, H - (radius - 1), W - (radius - 1)]
+        """
+        # pad to ensure the following slice operation is valid
+        #pad_beg = int(radius // 2)
+        #pad_end = radius - pad_beg
+
+        # the original height and width
+        label_shape = labels_4D.size()
+        h, w = label_shape[2], label_shape[3]
+        new_h, new_w = h - (radius - 1), w - (radius - 1)
+        # https://pytorch.org/docs/stable/nn.html?highlight=f%20pad#torch.nn.functional.pad
+        #padding = (pad_beg, pad_end, pad_beg, pad_end)
+        #labels_4D, probs_4D = F.pad(labels_4D, padding), F.pad(probs_4D, padding)
+
+        # get the neighbors
+        la_ns = []
+        pr_ns = []
+        #for x in range(0, radius, 1):
+        for y in range(0, radius, 1):
+            for x in range(0, radius, 1):
+                la_now = labels_4D[:, :, y:y + new_h, x:x + new_w]
+                pr_now = probs_4D[:, :, y:y + new_h, x:x + new_w]
+                la_ns.append(la_now)
+                pr_ns.append(pr_now)
+
+        if is_combine:
+            # for calculating RMI
+            pair_ns = la_ns + pr_ns
+            p_vectors = torch.stack(pair_ns, dim=2)
+            return p_vectors
+        else:
+            # for other purpose
+            la_vectors = torch.stack(la_ns, dim=2)
+            pr_vectors = torch.stack(pr_ns, dim=2)
+            return la_vectors, pr_vectors
+
+    @staticmethod
+    def log_det_by_cholesky(matrix):
+        """
+        Args:
+            matrix: matrix must be a positive define matrix.
+                    shape [N, C, D, D].
+        Ref:
+            https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/linalg/linalg_impl.py
+        """
+        # This uses the property that the log det(A) = 2 * sum(log(real(diag(C))))
+        # where C is the cholesky decomposition of A.
+        chol = torch.cholesky(matrix)
+        #return 2.0 * torch.sum(torch.log(torch.diagonal(chol, dim1=-2, dim2=-1) + 1e-6), dim=-1)
+        return 2.0 * torch.sum(torch.log(torch.diagonal(chol, dim1=-2, dim2=-1) + 1e-8), dim=-1)
+
+    def forward(self, logits_4D, labels_4D, do_rmi=True):
+        # explicitly disable fp16 mode because torch.cholesky and
+        # torch.inverse aren't supported by half
+        logits_4D.float()
+        labels_4D.float()
+        if self.train_fp16:                     # works with amp but needs to be enabled
+            pass
+            # with amp.disable_casts():
+            #     loss = self.forward_sigmoid(logits_4D, labels_4D, do_rmi=do_rmi)
+        else:
+            loss = self.forward_sigmoid(logits_4D, labels_4D, do_rmi=do_rmi)
+        return loss
+
+    def forward_sigmoid(self, logits_4D, labels_4D, do_rmi=False):
+        """
+        Using the sigmiod operation both.
+        Args:
+                logits_4D 	:	[N, C, H, W], dtype=float32
+                labels_4D 	:	[N, H, W], dtype=long
+                do_rmi          :       bool
+        """
+        # label mask -- [N, H, W, 1]
+        label_mask_3D = labels_4D < self.num_classes
+
+        # valid label
+        valid_onehot_labels_4D = \
+            F.one_hot(labels_4D.long() * label_mask_3D.long(),
+                      num_classes=self.num_classes).float()
+        label_mask_3D = label_mask_3D.float()
+        label_mask_flat = label_mask_3D.view([-1, ])
+        valid_onehot_labels_4D = valid_onehot_labels_4D * \
+            label_mask_3D.unsqueeze(dim=3)
+        valid_onehot_labels_4D.requires_grad_(False)
+
+        # PART I -- calculate the sigmoid binary cross entropy loss
+        valid_onehot_label_flat = \
+            valid_onehot_labels_4D.view([-1, self.num_classes]).requires_grad_(False)
+        logits_flat = logits_4D.permute(0, 2, 3, 1).contiguous().view([-1, self.num_classes])
+
+        # binary loss, multiplied by the not_ignore_mask
+        valid_pixels = torch.sum(label_mask_flat)
+        binary_loss = F.binary_cross_entropy_with_logits(logits_flat,
+                                                         target=valid_onehot_label_flat,
+                                                         weight=label_mask_flat.unsqueeze(dim=1),
+                                                         reduction='sum')
+        bce_loss = torch.div(binary_loss, valid_pixels + 1.0)
+        if not do_rmi:
+            return bce_loss
+
+        # PART II -- get rmi loss
+        # onehot_labels_4D -- [N, C, H, W]
+        probs_4D = logits_4D.sigmoid() * label_mask_3D.unsqueeze(dim=1) + _CLIP_MIN
+        valid_onehot_labels_4D = valid_onehot_labels_4D.permute(0, 3, 1, 2).requires_grad_(False)
+
+        # get region mutual information
+        rmi_loss = self.rmi_lower_bound(valid_onehot_labels_4D, probs_4D)
+
+        # add together
+        #logx.msg(f'lambda_way {self.lambda_way}')
+        #logx.msg(f'bce_loss {bce_loss} weight_lambda {self.weight_lambda} rmi_loss {rmi_loss}')
+        if self.lambda_way:
+            final_loss = self.weight_lambda * bce_loss + rmi_loss * (1 - self.weight_lambda)
+        else:
+            final_loss = bce_loss + rmi_loss * self.weight_lambda
+
+        return final_loss
+
+    def inverse(self, x):
+        return torch.inverse(x)
+
+    def rmi_lower_bound(self, labels_4D, probs_4D):
+        """
+        calculate the lower bound of the region mutual information.
+        Args:
+                labels_4D 	:	[N, C, H, W], dtype=float32
+                probs_4D 	:	[N, C, H, W], dtype=float32
+        """
+        assert labels_4D.size() == probs_4D.size()
+
+        p, s = self.rmi_pool_size, self.rmi_pool_stride
+        if self.rmi_pool_stride > 1:
+            if self.rmi_pool_way == 0:
+                labels_4D = F.max_pool2d(labels_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+                probs_4D = F.max_pool2d(probs_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+            elif self.rmi_pool_way == 1:
+                labels_4D = F.avg_pool2d(labels_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+                probs_4D = F.avg_pool2d(probs_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+            elif self.rmi_pool_way == 2:
+                # interpolation
+                shape = labels_4D.size()
+                new_h, new_w = shape[2] // s, shape[3] // s
+                labels_4D = F.interpolate(labels_4D, size=(new_h, new_w), mode='nearest')
+                probs_4D = F.interpolate(probs_4D, size=(new_h, new_w), mode='bilinear', align_corners=True)
+            else:
+                raise NotImplementedError("Pool way of RMI is not defined!")
+        # we do not need the gradient of label.
+        label_shape = labels_4D.size()
+        n, c = label_shape[0], label_shape[1]
+
+        # combine the high dimension points from label and probability map. new shape [N, C, radius * radius, H, W]
+        la_vectors, pr_vectors = self.map_get_pairs(labels_4D, probs_4D, radius=self.rmi_radius, is_combine=0)
+
+        if self.is_cuda:
+            la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor).requires_grad_(False)
+            pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor)
+        else:
+            la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.DoubleTensor).requires_grad_(False)
+            pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.DoubleTensor)
+
+        # small diagonal matrix, shape = [1, 1, radius * radius, radius * radius]
+        diag_matrix = torch.eye(self.half_d).unsqueeze(dim=0).unsqueeze(dim=0)
+
+        # the mean and covariance of these high dimension points
+        # Var(X) = E(X^2) - E(X) E(X), N * Var(X) = X^2 - X E(X)
+        la_vectors = la_vectors - la_vectors.mean(dim=3, keepdim=True)
+        la_cov = torch.matmul(la_vectors, la_vectors.transpose(2, 3))
+
+        pr_vectors = pr_vectors - pr_vectors.mean(dim=3, keepdim=True)
+        pr_cov = torch.matmul(pr_vectors, pr_vectors.transpose(2, 3))
+        # https://github.com/pytorch/pytorch/issues/7500
+        # waiting for batched torch.cholesky_inverse()
+        # pr_cov_inv = torch.inverse(pr_cov + diag_matrix.type_as(pr_cov) * _POS_ALPHA)
+        pr_cov_inv = self.inverse(pr_cov + diag_matrix.type_as(pr_cov) * _POS_ALPHA)
+        # if the dimension of the point is less than 9, you can use the below function
+        # to acceleration computational speed.
+        #pr_cov_inv = utils.batch_cholesky_inverse(pr_cov + diag_matrix.type_as(pr_cov) * _POS_ALPHA)
+
+        la_pr_cov = torch.matmul(la_vectors, pr_vectors.transpose(2, 3))
+        # the approxiamation of the variance, det(c A) = c^n det(A), A is in n x n shape;
+        # then log det(c A) = n log(c) + log det(A).
+        # appro_var = appro_var / n_points, we do not divide the appro_var by number of points here,
+        # and the purpose is to avoid underflow issue.
+        # If A = A^T, A^-1 = (A^-1)^T.
+        appro_var = la_cov - torch.matmul(la_pr_cov.matmul(pr_cov_inv), la_pr_cov.transpose(-2, -1))
+        #appro_var = la_cov - torch.chain_matmul(la_pr_cov, pr_cov_inv, la_pr_cov.transpose(-2, -1))
+        #appro_var = torch.div(appro_var, n_points.type_as(appro_var)) + diag_matrix.type_as(appro_var) * 1e-6
+
+        # The lower bound. If A is nonsingular, ln( det(A) ) = Tr( ln(A) ).
+        rmi_now = 0.5 * self.log_det_by_cholesky(appro_var + diag_matrix.type_as(appro_var) * _POS_ALPHA)
+        #rmi_now = 0.5 * torch.logdet(appro_var + diag_matrix.type_as(appro_var) * _POS_ALPHA)
+
+        # mean over N samples. sum over classes.
+        rmi_per_class = rmi_now.view([-1, self.num_classes]).mean(dim=0).float()
+        #is_half = False
+        #if is_half:
+        #	rmi_per_class = torch.div(rmi_per_class, float(self.half_d / 2.0))
+        #else:
+        rmi_per_class = torch.div(rmi_per_class, float(self.half_d))
+
+        rmi_loss = torch.sum(rmi_per_class) if _IS_SUM else torch.mean(rmi_per_class)
+        return rmi_loss
+
+
+# ====================== #
+# Source: https://github.com/yiskw713/boundary_loss_for_remote_sensing/
+# Boundary Loss for Remote Sensing Imagery Semantic Segmentation: https://arxiv.org/abs/1905.07852
+
+class BoundaryLoss(nn.Module):
+    """Boundary Loss proposed in:
+    Alexey Bokhovkin et al., Boundary Loss for Remote Sensing Imagery Semantic Segmentation
+    https://arxiv.org/abs/1905.07852
+    """
+
+    def __init__(self, theta0=3, theta=5, **_):
+        super().__init__()
+
+        self.theta0 = theta0
+        self.theta = theta
+
+    def forward(self, pred, gt):
+        """
+        Input:
+            - pred: the output from model (before softmax)
+                    shape (N, C, H, W)
+            - gt: ground truth map
+                    shape (N, H, w)
+        Return:
+            - boundary loss, averaged over mini-bathc
+        """
+
+        n, c, _, _ = pred.shape
+
+        # softmax so that predicted map can be distributed in [0, 1]
+        pred = torch.softmax(pred, dim=1)
+
+        # one-hot vector of ground truth (this needs to be rewritten to accommodate the batch dimension so doesn't work for now)
+        one_hot_gt = F.one_hot(gt.to(torch.int64), c)
+
+        # boundary map
+        gt_b = F.max_pool2d(1 - one_hot_gt, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
+        gt_b -= 1 - one_hot_gt
+
+        pred_b = F.max_pool2d(1 - pred, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
+        pred_b -= 1 - pred
+
+        # extended boundary map
+        gt_b_ext = F.max_pool2d(gt_b, kernel_size=self.theta, stride=1, padding=(self.theta - 1) // 2)
+
+        pred_b_ext = F.max_pool2d(pred_b, kernel_size=self.theta, stride=1, padding=(self.theta - 1) // 2)
+
+        # reshape
+        gt_b = gt_b.view(n, c, -1)
+        pred_b = pred_b.view(n, c, -1)
+        gt_b_ext = gt_b_ext.view(n, c, -1)
+        pred_b_ext = pred_b_ext.view(n, c, -1)
+
+        # Precision, Recall
+        P = torch.sum(pred_b * gt_b_ext, dim=2) / (torch.sum(pred_b, dim=2) + 1e-7)
+        R = torch.sum(pred_b_ext * gt_b, dim=2) / (torch.sum(gt_b, dim=2) + 1e-7)
+
+        # Boundary F1 Score
+        BF1 = 2 * P * R / (P + R + 1e-7)
+
+        # summing BF1 Score for each class and average over mini-batch
+        loss = torch.mean(1 - BF1)
+
+        return loss

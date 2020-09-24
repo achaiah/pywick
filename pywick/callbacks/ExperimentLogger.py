@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 
 from . import Callback
 
+__all__ = ['ExperimentLogger']
 
 class ExperimentLogger(Callback):
     """

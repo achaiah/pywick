@@ -5,6 +5,8 @@ import torch
 
 from . import Callback
 
+__all__ = ['SimpleModelCheckpoint']
+
 
 class SimpleModelCheckpoint(Callback):
     """
