@@ -54,7 +54,7 @@ def get_fc_names(model_name, model_type=ModelType.CLASSIFICATION):
         return [None]
 
 
-def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
+def get_model(model_type, model_name, num_classes, pretrained=True, force_reload=False, **kwargs):
     """
     :param model_type: (ModelType):
         type of model we're trying to obtain (classification or segmentation)
@@ -69,6 +69,10 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
         lower-case string can be used for vanilla and pretrained versions. Otherwise, it is IN ERROR to specify an Uppercase model name variant
         with pretrained=True but one can specify a lowercase model variant with pretrained=False
         (default: True)
+    :param force_reload: (bool):
+        Whether to force reloading the list of models from torch.hub. By default, a cache file is used if it is found locally and that can prevent
+        new or updated models from being found.
+
     :return: model
     """
 
@@ -79,7 +83,7 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
     print("INFO: Loading Model:   --   " + model_name + "  with number of classes: " + str(num_classes))
     
     if model_type == ModelType.CLASSIFICATION:
-        torch_hub_names = torch.hub.list(rwightman_repo)
+        torch_hub_names = torch.hub.list(rwightman_repo, force_reload=force_reload)
         if model_name in torch_hub_names:
             model = torch.hub.load(rwightman_repo, model_name, pretrained=pretrained, num_classes=num_classes)
         else:
@@ -216,7 +220,8 @@ def get_model(model_type, model_name, num_classes, pretrained=True, **kwargs):
 
     return net
 
-def get_supported_models(type):
+
+def get_supported_models(type: ModelType):
     '''
 
     :param type: (ModelType):
@@ -241,11 +246,12 @@ def get_supported_models(type):
             pt_excludes.append(modname.split('.')[-1])
         pt_names = [x for x in torch_models.__dict__.keys() if '__' not in x and x not in pt_excludes]  # includes directory and filenames
 
-        torch_hub_names = torch.hub.list(rwightman_repo)
+        torch_hub_names = torch.hub.list(rwightman_repo, force_reload=True)
 
         return pywick_names + pt_names + torch_hub_names
     else:
         return None
+
 
 def _get_untrained_model(model_name, num_classes):
     """
@@ -308,6 +314,7 @@ def _get_untrained_model(model_name, num_classes):
         return classification.Xception(num_classes=num_classes)
     else:
         raise ValueError('No vanilla model found for model name: {}'.format(model_name))
+
 
 # We solve the dimensionality mismatch between final layers in the constructed vs pretrained modules at the data level.
 def diff_states(dict_canonical, dict_subset):
