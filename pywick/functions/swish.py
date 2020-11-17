@@ -47,12 +47,11 @@ class Aria2(nn.Module):
 
     def __init__(self, a=1.5, b = 2.):
         super(Aria2, self).__init__()
-        self.a = a
-        self.b = b
+        self.alpha = a
+        self.beta = b
 
     def forward(self, x):
-        aria2 = 1 + ((F.exp(-x) ** self.b) ** (-self.a))
-        return x * aria2
+        return x * torch.sigmoid(self.beta*x) ** self.alpha
 
 
 # Source: https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/activations/activations.py (Apache 2.0)
