@@ -1087,8 +1087,8 @@ class OhemCrossEntropy2d(nn.Module):
         """
 
         n, c, h, w = predict.size()
-        input_label = target.detach().numpy().ravel().astype(np.int32)
-        x = np.rollaxis(predict.detach().numpy(), 1).reshape((c, -1))
+        input_label = target.detach().cpu().numpy().ravel().astype(np.int32)
+        x = np.rollaxis(predict.detach().cpu().numpy(), 1).reshape((c, -1))
         input_prob = np.exp(x - x.max(axis=0).reshape((1, -1)))
         input_prob /= input_prob.sum(axis=0).reshape((1, -1))
 
@@ -1741,8 +1741,8 @@ def haussdorf(preds: Tensor, target: Tensor) -> Tensor:
     B, C, _, _ = preds.shape
 
     res = torch.zeros((B, C), dtype=torch.float32, device=preds.device)
-    n_pred = preds.detach().numpy()
-    n_target = target.detach().numpy()
+    n_pred = preds.detach().cpu().numpy()
+    n_target = target.detach().cpu().numpy()
 
     for b in range(B):
         if C == 2:
@@ -2628,8 +2628,8 @@ class HausdorffDTLoss(nn.Module):
         # this is necessary for binary loss
         pred = torch.sigmoid(pred)
 
-        pred_dt = torch.from_numpy(self.distance_field(pred.detach().numpy())).float()
-        target_dt = torch.from_numpy(self.distance_field(target.detach().numpy())).float()
+        pred_dt = torch.from_numpy(self.distance_field(pred.detach().cpu().numpy())).float()
+        target_dt = torch.from_numpy(self.distance_field(target.detach().cpu().numpy())).float()
 
         pred_error = (pred - target) ** 2
         distance = pred_dt ** self.alpha + target_dt ** self.alpha
@@ -2639,13 +2639,13 @@ class HausdorffDTLoss(nn.Module):
 
         if debug:
             return (
-                loss.detach().numpy(),
+                loss.detach().cpu().numpy(),
                 (
-                    dt_field.detach().numpy()[0, 0],
-                    pred_error.detach().numpy()[0, 0],
-                    distance.detach().numpy()[0, 0],
-                    pred_dt.detach().numpy()[0, 0],
-                    target_dt.detach().numpy()[0, 0],
+                    dt_field.detach().cpu().numpy()[0, 0],
+                    pred_error.detach().cpu().numpy()[0, 0],
+                    distance.detach().cpu().numpy()[0, 0],
+                    pred_dt.detach().cpu().numpy()[0, 0],
+                    target_dt.detach().cpu().numpy()[0, 0],
                 ),
             )
 
@@ -2726,11 +2726,11 @@ class HausdorffERLoss(nn.Module):
         pred = torch.sigmoid(pred)
 
         if debug:
-            eroted, erosions = self.perform_erosion(pred.detach().numpy(), target.detach().numpy(), debug)
+            eroted, erosions = self.perform_erosion(pred.detach().cpu().numpy(), target.detach().cpu().numpy(), debug)
             return eroted.mean(), erosions
 
         else:
-            eroted = torch.from_numpy(self.perform_erosion(pred.detach().numpy(), target.detach().numpy(), debug)).float()
+            eroted = torch.from_numpy(self.perform_erosion(pred.detach().cpu().numpy(), target.detach().cpu().numpy(), debug)).float()
 
             loss = eroted.mean()
 
