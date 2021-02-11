@@ -2789,3 +2789,58 @@ class RecallLoss(nn.Module):
         recall_loss = 1 - torch.mean(recall)  # 1
 
         return recall_loss
+
+
+# ====================== #
+class SoftInvDiceLoss(torch.nn.Module):
+    """
+    Well-performing loss for binary segmentation
+    """
+    def __init__(self, **_):
+        super(SoftInvDiceLoss, self).__init__()
+
+    def forward(self, logits, targets):
+        smooth = 1.
+        logits = F.sigmoid(logits)
+        iflat = 1 - logits.view(-1)
+        tflat = 1 - targets.view(-1)
+        intersection = (iflat * tflat).sum()
+        return 1 - ((2. * intersection + smooth) / (iflat.sum() + tflat.sum() + smooth))
+
+
+# ======================= #
+# --- COMBINED LOSSES --- #
+class OhemBCEDicePenalizeBorderLoss(OhemCrossEntropy2d):
+    """
+    Combined OHEM (Online Hard Example Mining) process with BCE-Dice penalized loss
+    """
+    def __init__(self, thresh=0.6, min_kept=0, ignore_index=-100, kernel_size=21, **_):
+        super().__init__()
+        self.ignore_label = ignore_index
+        self.thresh = float(thresh)
+        self.min_kept = int(min_kept)
+        self.criterion = BCEDicePenalizeBorderLoss(kernel_size=kernel_size)
+
+
+class RMIBCEDicePenalizeBorderLoss(RMILossAlt):
+    """
+    Combined RMI and BCEDicePenalized Loss
+    """
+    def __init__(self, kernel_size=21, **kwargs):
+        super().__init__(**kwargs)
+        self.bce = BCEDicePenalizeBorderLoss(kernel_size=kernel_size)
+
+    def to(self, device):
+        super().to(device=device)
+        self.bce.to(device=device)
+
+    def forward(self, logits, target):
+        target = target.unsqueeze(1)
+
+        # Apply sigmoid to get probabilities. See final paragraph of section 4.
+        rmi_input = torch.sigmoid(logits) if self.with_logits else logits
+
+        # Calculate RMI loss
+        rmi = self.rmi_loss(input=rmi_input, target=target)
+        rmi = rmi.mean() * (1.0 - self.bce_weight)
+        return rmi + self.bce_weight * self.bce.forward(logits, target)
