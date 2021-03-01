@@ -19,6 +19,13 @@ Note:
     a vector of (normalized) probabilities with one value for each possible class.
 
 For example, BCEWithLogitsLoss is a BCE that accepts R((-inf, inf)) and automatically applies torch.sigmoid to convert it to ([0,1]) space.
+
+However, if you use one-hot encoding or similar methods where you need to convert a tensor to pytorch from another source (e.g. numpy), you will need to
+make sure to apply the correct type to the resulting tensor.  E.g. If y_hot is of type long and the BCE loss expects a Tensor of type float then you
+can try converting y_hot with y_hot = y_hot.type_as(output).
+
+To convert predictions into (0,1) range you will sometimes need to use either softmax or sigmoid.
+Softmax is used for multi-classification in the Logistic Regression model, whereas Sigmoid is used for binary classification in the Logistic Regression model
 """
 
 ##  Various loss calculation functions  ##
@@ -365,7 +372,6 @@ def dice_coeff_hard_np(y_true, y_pred):
     score = (2. * intersection + smooth) / (np.sum(y_true_f) + np.sum(y_pred_f) + smooth)
 
     return score
-
 
 # ==================================== #
 # Source: https://github.com/doodledood/carvana-image-masking-challenge/blob/master/losses.py
@@ -1062,52 +1068,27 @@ class ComboSemsegLossWeighted(nn.Module):
 
 
 # ====================== #
-# Source: https://github.com/PkuRainBow/OCNet/blob/master/utils/loss.py
+# Source: https://github.com/Tramac/awesome-semantic-segmentation-pytorch/blob/master/core/utils/loss.py
 # Description: http://www.erogol.com/online-hard-example-mining-pytorch/
 # Online Hard Example Loss
 class OhemCrossEntropy2d(nn.Module):
-    """
-    Online Hard Example Loss with Cross Entropy (used for classification)
-
-    OHEM description: http://www.erogol.com/online-hard-example-mining-pytorch/
-    """
-    def __init__(self, ignore_label=-1, thresh=0.7, min_kept=100000, use_weight=True, **kwargs):
-        super(OhemCrossEntropy2d, self).__init__()
-        self.ignore_label = ignore_label
+    def __init__(self, thresh=0.6, min_kept=0, ignore_index=-100, **_):
+        super().__init__()
+        self.ignore_label = ignore_index
         self.thresh = float(thresh)
         self.min_kept = int(min_kept)
-        if use_weight:
-            print("w/ class balance")
-            weight = torch.FloatTensor([0.8373, 0.918, 0.866, 1.0345, 1.0166, 0.9969, 0.9754,
-                1.0489, 0.8786, 1.0023, 0.9539, 0.9843, 1.1116, 0.9037, 1.0865, 1.0955,
-                1.0865, 1.1529, 1.0507])
-            self.criterion = torch.nn.CrossEntropyLoss(weight=weight, ignore_index=ignore_label)
-        else:
-            print("w/o class balance")
-            self.criterion = torch.nn.CrossEntropyLoss(ignore_index=ignore_label)
+        self.criterion = nn.BCEWithLogitsLoss()
 
-    def to(self, device):
-        super().to(device=device)
-        self.criterion.to(device=device)
-
-    def forward(self, predict, target, weight=None):
+    def forward(self, predict, target):
         """
-        Args:
-            predict:(n, c, h, w)
-            target:(n, h, w)
-            weight (Tensor, optional): a manual rescaling weight given to each class.
-                                       If given, has to be a Tensor of size "nclasses"
+            Args:
+                predict:(n, c, h, w)
+                target:(n, h, w)
         """
-        assert not target.requires_grad
-        assert predict.dim() == 4
-        assert target.dim() == 3
-        assert predict.size(0) == target.size(0), "{0} vs {1} ".format(predict.size(0), target.size(0))
-        assert predict.size(2) == target.size(1), "{0} vs {1} ".format(predict.size(2), target.size(1))
-        assert predict.size(3) == target.size(2), "{0} vs {1} ".format(predict.size(3), target.size(3))
 
         n, c, h, w = predict.size()
-        input_label = target.data.cpu().numpy().ravel().astype(np.int32)
-        x = np.rollaxis(predict.data.cpu().numpy(), 1).reshape((c, -1))
+        input_label = target.detach().cpu().numpy().ravel().astype(np.int32)
+        x = np.rollaxis(predict.detach().cpu().numpy(), 1).reshape((c, -1))
         input_prob = np.exp(x - x.max(axis=0).reshape((1, -1)))
         input_prob /= input_prob.sum(axis=0).reshape((1, -1))
 
@@ -1118,24 +1099,25 @@ class OhemCrossEntropy2d(nn.Module):
         if self.min_kept >= num_valid:
             print('Labels: {}'.format(num_valid))
         elif num_valid > 0:
-            prob = input_prob[:,valid_flag]
-            pred = prob[label, np.arange(len(label), dtype=np.int32)]
+            prob = input_prob[:, valid_flag]
+            pred = prob[label-1, np.arange(len(label), dtype=np.int32)]
             threshold = self.thresh
             if self.min_kept > 0:
                 index = pred.argsort()
-                threshold_index = index[ min(len(index), self.min_kept) - 1 ]
+                threshold_index = index[min(len(index), self.min_kept) - 1]
                 if pred[threshold_index] > self.thresh:
                     threshold = pred[threshold_index]
             kept_flag = pred <= threshold
             valid_inds = valid_inds[kept_flag]
+            #print('hard ratio: {} = {} / {} '.format(round(len(valid_inds)/num_valid, 4), len(valid_inds), num_valid))
 
         label = input_label[valid_inds].copy()
         input_label.fill(self.ignore_label)
         input_label[valid_inds] = label
-        valid_flag_new = input_label != self.ignore_label
-        # print(np.sum(valid_flag_new))
-        target = Variable(torch.from_numpy(input_label.reshape(target.size())).long().cuda())
+        #print(np.sum(input_label != self.ignore_label))
+        target = torch.from_numpy(input_label.reshape(target.size())).type_as(predict).to(target.device)
 
+        predict = predict.squeeze()          # in case we're dealing with B/W images instead of RGB
         return self.criterion(predict, target)
 
 
@@ -1593,7 +1575,7 @@ class LovaszSoftmax(nn.Module):
 
 
 # ===================== #
-# Inspired by: https://github.com/xuuuuuuchen/Active-Contour-Loss/blob/master/Active-Contour-Loss.py (MIT)
+# Source: https://github.com/xuuuuuuchen/Active-Contour-Loss/blob/master/Active-Contour-Loss.py (MIT)
 class ActiveContourLoss(nn.Module):
     """
         `Learning Active Contour Models for Medical Image Segmentation <http://openaccess.thecvf.com/content_CVPR_2019/papers/Chen_Learning_Active_Contour_Models_for_Medical_Image_Segmentation_CVPR_2019_paper.pdf>`_
@@ -1605,7 +1587,7 @@ class ActiveContourLoss(nn.Module):
             :param lambdaP:     (float, default=1.0) - Scales the combined region loss compared to the length loss (less or more prominent)
     """
 
-    def __init__(self, lambdaP=1., mu=1., **_):
+    def __init__(self, lambdaP=5., mu=1., **_):
         super(ActiveContourLoss, self).__init__()
         self.lambdaP = lambdaP
         self.mu = mu
@@ -1613,33 +1595,31 @@ class ActiveContourLoss(nn.Module):
     def forward(self, logits, target):
 
         """
-        lenth term
+        length term
         """
         target = target.unsqueeze(1)        # add extra dimension to the B/W masks
 
-        x = logits[:, :, 1:, :] - target[:, :, :-1, :]  # horizontal and vertical directions
-        y = logits[:, :, :, 1:] - target[:, :, :, :-1]
+        x = logits[:,:,1:,:] - logits[:,:,:-1,:]    # horizontal gradient (B, C, H-1, W)
+        y = logits[:,:,:,1:] - logits[:,:,:,:-1]    # vertical gradient   (B, C, H,   W-1)
 
-        delta_x = x[:,:,1:,:-2]**2
-        delta_y = y[:,:,:-2,1:]**2
+        delta_x = x[:,:,1:,:-2]**2  # (B, C, H-2, W-2)
+        delta_y = y[:,:,:-2,1:]**2  # (B, C, H-2, W-2)
         delta_u = torch.abs(delta_x + delta_y)
 
-        length = torch.mean(torch.sqrt(delta_u + 0.00000001))   # equ.(11) in the paper
+        epsilon = 1e-8 # where is a parameter to avoid square root is zero in practice.
+        length = torch.mean(torch.sqrt(delta_u + epsilon))   # eq.(11) in the paper, mean is used instead of sum.
 
         """
         region term
         """
 
-        C_1 = torch.ones_like(logits)
-        C_2 = torch.zeros_like(target)
+        C_in = torch.ones_like(logits)
+        C_out = torch.zeros_like(target)
 
-        region_in = torch.abs(torch.mean(target[:, 0, :, :] * ((logits[:, 0, :, :] - C_1) ** 2)))           # equ.(12) in the paper
-        region_out = torch.abs(torch.mean((1 - target[:, 0, :, :]) * ((logits[:, 0, :, :] - C_2) ** 2)))    # equ.(12) in the paper
+        region_in = torch.abs(torch.mean(logits[:,0,:,:] * ((target[:,0,:,:] - C_in)**2)))         # equ.(12) in the paper, mean is used instead of sum.
+        region_out = torch.abs(torch.mean((1-logits[:,0,:,:]) * ((target[:,0,:,:] - C_out)**2)))   # equ.(12) in the paper
 
-        lambdaP = 1     # lambda parameter could be various.
-        mu = 1          # mu parameter could be various.
-
-        return length + lambdaP * (mu * region_in + region_out)
+        return length + self.lambdaP * (self.mu * region_in + region_out)
 
 
 class ActiveContourLossAlt(nn.Module):
@@ -1761,8 +1741,8 @@ def haussdorf(preds: Tensor, target: Tensor) -> Tensor:
     B, C, _, _ = preds.shape
 
     res = torch.zeros((B, C), dtype=torch.float32, device=preds.device)
-    n_pred = preds.cpu().numpy()
-    n_target = target.cpu().numpy()
+    n_pred = preds.detach().cpu().numpy()
+    n_target = target.detach().cpu().numpy()
 
     for b in range(B):
         if C == 2:
@@ -2044,8 +2024,6 @@ class AsymLoss(nn.Module):
         return -asym
 
 
-
-
 # ===================== #
 # Source:  https://github.com/BloodAxe/pytorch-toolbelt
 # Used to enhance facial segmentation
@@ -2093,34 +2071,32 @@ class WingLoss(nn.modules.loss._Loss):
 
 
 # ===================== #
-# Source:  https://github.com/NVIDIA/semantic-segmentation
+# Source: https://github.com/JUNHAOYAN/FPN/tree/master/RMI
 # ..which is adapted from: https://github.com/ZJULearning/RMI (MIT License)
 # Segmentation loss (memory intensive)
-
-_CLIP_MIN = 1e-6        	# min clip value after softmax or sigmoid operations
-_POS_ALPHA = 5e-4		    # add this factor to ensure the AA^T is positive definite
-_IS_SUM = 1			        # sum the loss per channel
-
-
 class RMILoss(nn.Module):
     """
     region mutual information
     I(A, B) = H(A) + H(B) - H(A, B)
-    This version needs a lot of memory if do not downsample.
-    Note that this loss CAN be negative but that is expected.
+    This version need a lot of memory if do not dwonsample.
     """
+
     def __init__(self,
                  num_classes=1,
                  rmi_radius=3,
-                 rmi_pool_way=1,
-                 rmi_pool_size=4,
-                 rmi_pool_stride=4,
+                 rmi_pool_way=0,
+                 rmi_pool_size=3,
+                 rmi_pool_stride=3,
                  loss_weight_lambda=0.5,
                  lambda_way=1,
-                 ignore_index=255,
-                 train_fp16=False,
-                 is_cuda=True, **_):
+                 device="cuda:0", **_):
         super(RMILoss, self).__init__()
+
+        self._CLIP_MIN = 1e-6  # min clip value after softmax or sigmoid operations
+        self._CLIP_MAX = 1.0  # max clip value after softmax or sigmoid operations
+        self._POS_ALPHA = 5e-4		    # add this factor to ensure the AA^T is positive definite
+        self._IS_SUM = 1			        # sum the loss per channel
+
         self.num_classes = num_classes
         # radius choices
         assert rmi_radius in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -2140,9 +2116,169 @@ class RMILoss(nn.Module):
         self.d = 2 * self.half_d
         self.kernel_padding = self.rmi_pool_size // 2
         # ignore class
-        self.ignore_index = ignore_index
-        self.train_fp16 = train_fp16
-        self.is_cuda = is_cuda
+        self.ignore_index = 255
+        self.device = device
+
+    def forward(self, logits_4D, labels_4D):
+        loss = self.forward_sigmoid(logits_4D, labels_4D)
+        # loss = self.forward_softmax_sigmoid(logits_4D, labels_4D)
+        return loss
+
+    def forward_softmax_sigmoid(self, logits_4D, labels_4D):
+        """
+        Using both softmax and sigmoid operations.
+        Args:
+            logits_4D 	:	[N, C, H, W], dtype=float32
+            labels_4D 	:	[N, H, W], dtype=long
+        """
+        # PART I -- get the normal cross entropy loss
+        normal_loss = F.cross_entropy(input=logits_4D,
+                                      target=labels_4D.long(),
+                                      ignore_index=self.ignore_index,
+                                      reduction='mean')
+
+        # PART II -- get the lower bound of the region mutual information
+        # get the valid label and logits
+        # valid label, [N, C, H, W]
+        label_mask_3D = labels_4D < self.num_classes
+        valid_onehot_labels_4D = F.one_hot(labels_4D.long() * label_mask_3D.long(),
+                                           num_classes=self.num_classes).float()
+        label_mask_3D = label_mask_3D.float()
+        valid_onehot_labels_4D = valid_onehot_labels_4D * label_mask_3D.unsqueeze(dim=3)
+        valid_onehot_labels_4D = valid_onehot_labels_4D.permute(0, 3, 1, 2).requires_grad_(False)
+        # valid probs
+        probs_4D = F.sigmoid(logits_4D) * label_mask_3D.unsqueeze(dim=1)
+        probs_4D = probs_4D.clamp(min=self._CLIP_MIN, max=self._CLIP_MAX)
+
+        # get region mutual information
+        rmi_loss = self.rmi_lower_bound(valid_onehot_labels_4D, probs_4D)
+
+        # add together
+        final_loss = (self.weight_lambda * normal_loss + rmi_loss * (1 - self.weight_lambda) if self.lambda_way
+                      else normal_loss + rmi_loss * self.weight_lambda)
+
+        return final_loss
+
+    def forward_sigmoid(self, logits_4D, labels_4D):
+        """
+        Using the sigmiod operation both.
+        Args:
+            logits_4D 	:	[N, C, H, W], dtype=float32
+            labels_4D 	:	[N, H, W], dtype=long
+        """
+        # label mask -- [N, H, W, 1]
+        label_mask_3D = labels_4D < self.num_classes
+
+        # valid label
+        valid_onehot_labels_4D = F.one_hot(labels_4D.long() * label_mask_3D.long(),
+                                           num_classes=self.num_classes).float()
+        label_mask_3D = label_mask_3D.float()
+        label_mask_flat = label_mask_3D.view([-1, ])
+        valid_onehot_labels_4D = valid_onehot_labels_4D * label_mask_3D.unsqueeze(dim=3)
+        valid_onehot_labels_4D.requires_grad_(False)
+
+        # PART I -- calculate the sigmoid binary cross entropy loss
+        valid_onehot_label_flat = valid_onehot_labels_4D.view([-1, self.num_classes]).requires_grad_(False)
+        logits_flat = logits_4D.permute(0, 2, 3, 1).contiguous().view([-1, self.num_classes])
+
+        # binary loss, multiplied by the not_ignore_mask
+        valid_pixels = torch.sum(label_mask_flat)
+        binary_loss = F.binary_cross_entropy_with_logits(logits_flat,
+                                                         target=valid_onehot_label_flat,
+                                                         weight=label_mask_flat.unsqueeze(dim=1),
+                                                         reduction='sum')
+        bce_loss = torch.div(binary_loss, valid_pixels + 1.0)
+
+        # PART II -- get rmi loss
+        # onehot_labels_4D -- [N, C, H, W]
+        probs_4D = logits_4D.sigmoid() * label_mask_3D.unsqueeze(dim=1) + self._CLIP_MIN
+        valid_onehot_labels_4D = valid_onehot_labels_4D.permute(0, 3, 1, 2).requires_grad_(False)
+
+        # get region mutual information
+        rmi_loss = self.rmi_lower_bound(valid_onehot_labels_4D, probs_4D)
+
+        # add together
+        final_loss = (self.weight_lambda * bce_loss + rmi_loss * (1 - self.weight_lambda) if self.lambda_way
+                      else bce_loss + rmi_loss * self.weight_lambda)
+
+        return final_loss
+
+    def rmi_lower_bound(self, labels_4D, probs_4D):
+        """
+        calculate the lower bound of the region mutual information.
+        Args:
+            labels_4D 	:	[N, C, H, W], dtype=float32
+            probs_4D 	:	[N, C, H, W], dtype=float32
+        """
+        assert labels_4D.size() == probs_4D.size()
+
+        p, s = self.rmi_pool_size, self.rmi_pool_stride
+        if self.rmi_pool_stride > 1:
+            if self.rmi_pool_way == 0:
+                labels_4D = F.max_pool2d(labels_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+                probs_4D = F.max_pool2d(probs_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+            elif self.rmi_pool_way == 1:
+                labels_4D = F.avg_pool2d(labels_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+                probs_4D = F.avg_pool2d(probs_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
+            elif self.rmi_pool_way == 2:
+                # interpolation
+                shape = labels_4D.size()
+                new_h, new_w = shape[2] // s, shape[3] // s
+                labels_4D = F.interpolate(labels_4D, size=(new_h, new_w), mode='nearest')
+                probs_4D = F.interpolate(probs_4D, size=(new_h, new_w), mode='bilinear', align_corners=True)
+            else:
+                raise NotImplementedError("Pool way of RMI is not defined!")
+        # we do not need the gradient of label.
+        label_shape = labels_4D.size()
+        n, c = label_shape[0], label_shape[1]
+
+        # combine the high dimension points from label and probability map. new shape [N, C, radius * radius, H, W]
+        la_vectors, pr_vectors = self.map_get_pairs(labels_4D, probs_4D, radius=self.rmi_radius, is_combine=0)
+
+        la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.double).to(self.device).requires_grad_(False)
+        pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.double).to(self.device)
+
+        # small diagonal matrix, shape = [1, 1, radius * radius, radius * radius]
+        diag_matrix = torch.eye(self.half_d).unsqueeze(dim=0).unsqueeze(dim=0)
+
+        # the mean and covariance of these high dimension points
+        # Var(X) = E(X^2) - E(X) E(X), N * Var(X) = X^2 - X E(X)
+        la_vectors = la_vectors - la_vectors.mean(dim=3, keepdim=True)
+        la_cov = torch.matmul(la_vectors, la_vectors.transpose(2, 3))
+
+        pr_vectors = pr_vectors - pr_vectors.mean(dim=3, keepdim=True)
+        pr_cov = torch.matmul(pr_vectors, pr_vectors.transpose(2, 3))
+        # https://github.com/pytorch/pytorch/issues/7500
+        # waiting for batched torch.cholesky_inverse()
+        pr_cov_inv = torch.inverse(pr_cov + diag_matrix.type_as(pr_cov) * self._POS_ALPHA)
+        # if the dimension of the point is less than 9, you can use the below function
+        # to acceleration computational speed.
+        # pr_cov_inv = utils.batch_cholesky_inverse(pr_cov + diag_matrix.type_as(pr_cov) * _POS_ALPHA)
+
+        la_pr_cov = torch.matmul(la_vectors, pr_vectors.transpose(2, 3))
+        # the approxiamation of the variance, det(c A) = c^n det(A), A is in n x n shape;
+        # then log det(c A) = n log(c) + log det(A).
+        # appro_var = appro_var / n_points, we do not divide the appro_var by number of points here,
+        # and the purpose is to avoid underflow issue.
+        # If A = A^T, A^-1 = (A^-1)^T.
+        appro_var = la_cov - torch.matmul(la_pr_cov.matmul(pr_cov_inv), la_pr_cov.transpose(-2, -1))
+        # appro_var = la_cov - torch.chain_matmul(la_pr_cov, pr_cov_inv, la_pr_cov.transpose(-2, -1))
+        # appro_var = torch.div(appro_var, n_points.type_as(appro_var)) + diag_matrix.type_as(appro_var) * 1e-6
+
+        # The lower bound. If A is nonsingular, ln( det(A) ) = Tr( ln(A) ).
+        rmi_now = 0.5 * self.log_det_by_cholesky(appro_var + diag_matrix.type_as(appro_var) * self._POS_ALPHA)
+        # rmi_now = 0.5 * torch.logdet(appro_var + diag_matrix.type_as(appro_var) * _POS_ALPHA)
+
+        # mean over N samples. sum over classes.
+        rmi_per_class = rmi_now.view([-1, self.num_classes]).mean(dim=0).float()
+        # is_half = False
+        # if is_half:
+        #	rmi_per_class = torch.div(rmi_per_class, float(self.half_d / 2.0))
+        # else:
+        rmi_per_class = torch.div(rmi_per_class, float(self.half_d))
+
+        rmi_loss = torch.sum(rmi_per_class) if self._IS_SUM else torch.mean(rmi_per_class)
+        return rmi_loss
 
     @staticmethod
     def map_get_pairs(labels_4D, probs_4D, radius=3, is_combine=True):
@@ -2155,21 +2291,21 @@ class RMILoss(nn.Module):
             tensor with shape [N, C, radius * radius, H - (radius - 1), W - (radius - 1)]
         """
         # pad to ensure the following slice operation is valid
-        #pad_beg = int(radius // 2)
-        #pad_end = radius - pad_beg
+        # pad_beg = int(radius // 2)
+        # pad_end = radius - pad_beg
 
         # the original height and width
         label_shape = labels_4D.size()
         h, w = label_shape[2], label_shape[3]
         new_h, new_w = h - (radius - 1), w - (radius - 1)
         # https://pytorch.org/docs/stable/nn.html?highlight=f%20pad#torch.nn.functional.pad
-        #padding = (pad_beg, pad_end, pad_beg, pad_end)
-        #labels_4D, probs_4D = F.pad(labels_4D, padding), F.pad(probs_4D, padding)
+        # padding = (pad_beg, pad_end, pad_beg, pad_end)
+        # labels_4D, probs_4D = F.pad(labels_4D, padding), F.pad(probs_4D, padding)
 
         # get the neighbors
         la_ns = []
         pr_ns = []
-        #for x in range(0, radius, 1):
+        # for x in range(0, radius, 1):
         for y in range(0, radius, 1):
             for x in range(0, radius, 1):
                 la_now = labels_4D[:, :, y:y + new_h, x:x + new_w]
@@ -2200,160 +2336,171 @@ class RMILoss(nn.Module):
         # This uses the property that the log det(A) = 2 * sum(log(real(diag(C))))
         # where C is the cholesky decomposition of A.
         chol = torch.cholesky(matrix)
-        #return 2.0 * torch.sum(torch.log(torch.diagonal(chol, dim1=-2, dim2=-1) + 1e-6), dim=-1)
+        # return 2.0 * torch.sum(torch.log(torch.diagonal(chol, dim1=-2, dim2=-1) + 1e-6), dim=-1)
         return 2.0 * torch.sum(torch.log(torch.diagonal(chol, dim1=-2, dim2=-1) + 1e-8), dim=-1)
 
-    def forward(self, logits_4D, labels_4D, do_rmi=True):
-        # explicitly disable fp16 mode because torch.cholesky and
-        # torch.inverse aren't supported by half
-        logits_4D.float()
-        labels_4D.float()
-        if self.train_fp16:                     # works with amp but needs to be enabled
-            pass
-            # with amp.disable_casts():
-            #     loss = self.forward_sigmoid(logits_4D, labels_4D, do_rmi=do_rmi)
-        else:
-            loss = self.forward_sigmoid(logits_4D, labels_4D, do_rmi=do_rmi)
-        return loss
 
-    def forward_sigmoid(self, logits_4D, labels_4D, do_rmi=False):
+# ===================== #
+# Source:  https://github.com/RElbers/region-mutual-information-pytorch
+# Segmentation loss (memory intensive)
+class RMILossAlt(nn.Module):
+    """
+    PyTorch Module which calculates the Region Mutual Information loss (https://arxiv.org/abs/1910.12037).
+    """
+
+    def __init__(self,
+                 with_logits,
+                 radius=3,
+                 bce_weight=0.5,
+                 downsampling_method='max',
+                 stride=3,
+                 use_log_trace=True,
+                 use_double_precision=True,
+                 epsilon=0.0005, **_):
         """
-        Using the sigmiod operation both.
-        Args:
-                logits_4D 	:	[N, C, H, W], dtype=float32
-                labels_4D 	:	[N, H, W], dtype=long
-                do_rmi          :       bool
+        :param with_logits:
+            If True, apply the sigmoid function to the prediction before calculating loss.
+        :param radius:
+            RMI radius.
+        :param bce_weight:
+            Weight of the binary cross entropy. Must be between 0 and 1.
+        :param downsampling_method:
+            Downsampling method used before calculating RMI. Must be one of ['avg', 'max', 'region-extraction'].
+            If 'region-extraction', then downscaling is done during the region extraction phase. Meaning that the stride is the spacing between consecutive regions.
+        :param stride:
+            Stride used for downsampling.
+        :param use_log_trace:
+            Whether to calculate the log of the trace, instead of the log of the determinant. See equation (15).
+        :param use_double_precision:
+            Calculate the RMI using doubles in order to fix potential numerical issues.
+        :param epsilon:
+            Magnitude of the entries added to the diagonal of M in order to fix potential numerical issues.
         """
-        # label mask -- [N, H, W, 1]
-        label_mask_3D = labels_4D < self.num_classes
+        super().__init__()
 
-        # valid label
-        valid_onehot_labels_4D = \
-            F.one_hot(labels_4D.long() * label_mask_3D.long(),
-                      num_classes=self.num_classes).float()
-        label_mask_3D = label_mask_3D.float()
-        label_mask_flat = label_mask_3D.view([-1, ])
-        valid_onehot_labels_4D = valid_onehot_labels_4D * \
-            label_mask_3D.unsqueeze(dim=3)
-        valid_onehot_labels_4D.requires_grad_(False)
+        self.use_double_precision = use_double_precision
+        self.with_logits = with_logits
+        self.bce_weight = bce_weight
+        self.stride = stride
+        self.downsampling_method = downsampling_method
+        self.radius = radius
+        self.use_log_trace = use_log_trace
+        self.epsilon = epsilon
 
-        # PART I -- calculate the sigmoid binary cross entropy loss
-        valid_onehot_label_flat = \
-            valid_onehot_labels_4D.view([-1, self.num_classes]).requires_grad_(False)
-        logits_flat = logits_4D.permute(0, 2, 3, 1).contiguous().view([-1, self.num_classes])
-
-        # binary loss, multiplied by the not_ignore_mask
-        valid_pixels = torch.sum(label_mask_flat)
-        binary_loss = F.binary_cross_entropy_with_logits(logits_flat,
-                                                         target=valid_onehot_label_flat,
-                                                         weight=label_mask_flat.unsqueeze(dim=1),
-                                                         reduction='sum')
-        bce_loss = torch.div(binary_loss, valid_pixels + 1.0)
-        if not do_rmi:
-            return bce_loss
-
-        # PART II -- get rmi loss
-        # onehot_labels_4D -- [N, C, H, W]
-        probs_4D = logits_4D.sigmoid() * label_mask_3D.unsqueeze(dim=1) + _CLIP_MIN
-        valid_onehot_labels_4D = valid_onehot_labels_4D.permute(0, 3, 1, 2).requires_grad_(False)
-
-        # get region mutual information
-        rmi_loss = self.rmi_lower_bound(valid_onehot_labels_4D, probs_4D)
-
-        # add together
-        #logx.msg(f'lambda_way {self.lambda_way}')
-        #logx.msg(f'bce_loss {bce_loss} weight_lambda {self.weight_lambda} rmi_loss {rmi_loss}')
-        if self.lambda_way:
-            final_loss = self.weight_lambda * bce_loss + rmi_loss * (1 - self.weight_lambda)
-        else:
-            final_loss = bce_loss + rmi_loss * self.weight_lambda
-
-        return final_loss
-
-    def inverse(self, x):
-        return torch.inverse(x)
-
-    def rmi_lower_bound(self, labels_4D, probs_4D):
-        """
-        calculate the lower bound of the region mutual information.
-        Args:
-                labels_4D 	:	[N, C, H, W], dtype=float32
-                probs_4D 	:	[N, C, H, W], dtype=float32
-        """
-        assert labels_4D.size() == probs_4D.size()
-
-        p, s = self.rmi_pool_size, self.rmi_pool_stride
-        if self.rmi_pool_stride > 1:
-            if self.rmi_pool_way == 0:
-                labels_4D = F.max_pool2d(labels_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
-                probs_4D = F.max_pool2d(probs_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
-            elif self.rmi_pool_way == 1:
-                labels_4D = F.avg_pool2d(labels_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
-                probs_4D = F.avg_pool2d(probs_4D, kernel_size=p, stride=s, padding=self.kernel_padding)
-            elif self.rmi_pool_way == 2:
-                # interpolation
-                shape = labels_4D.size()
-                new_h, new_w = shape[2] // s, shape[3] // s
-                labels_4D = F.interpolate(labels_4D, size=(new_h, new_w), mode='nearest')
-                probs_4D = F.interpolate(probs_4D, size=(new_h, new_w), mode='bilinear', align_corners=True)
+    def forward(self, input, target):
+        target = target.unsqueeze(1)
+        # Calculate BCE if needed
+        if self.bce_weight != 0:
+            if self.with_logits:
+                bce = F.binary_cross_entropy_with_logits(input, target=target)
             else:
-                raise NotImplementedError("Pool way of RMI is not defined!")
-        # we do not need the gradient of label.
-        label_shape = labels_4D.size()
-        n, c = label_shape[0], label_shape[1]
-
-        # combine the high dimension points from label and probability map. new shape [N, C, radius * radius, H, W]
-        la_vectors, pr_vectors = self.map_get_pairs(labels_4D, probs_4D, radius=self.rmi_radius, is_combine=0)
-
-        if self.is_cuda:
-            la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor).requires_grad_(False)
-            pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.cuda.DoubleTensor)
+                bce = F.binary_cross_entropy(input, target=target)
+            bce = bce.mean() * self.bce_weight
         else:
-            la_vectors = la_vectors.view([n, c, self.half_d, -1]).type(torch.DoubleTensor).requires_grad_(False)
-            pr_vectors = pr_vectors.view([n, c, self.half_d, -1]).type(torch.DoubleTensor)
+            bce = 0.0
 
-        # small diagonal matrix, shape = [1, 1, radius * radius, radius * radius]
-        diag_matrix = torch.eye(self.half_d).unsqueeze(dim=0).unsqueeze(dim=0)
+        # Apply sigmoid to get probabilities. See final paragraph of section 4.
+        if self.with_logits:
+            input = torch.sigmoid(input)
 
-        # the mean and covariance of these high dimension points
-        # Var(X) = E(X^2) - E(X) E(X), N * Var(X) = X^2 - X E(X)
-        la_vectors = la_vectors - la_vectors.mean(dim=3, keepdim=True)
-        la_cov = torch.matmul(la_vectors, la_vectors.transpose(2, 3))
+        # Calculate RMI loss
+        rmi = self.rmi_loss(input=input, target=target)
+        rmi = rmi.mean() * (1.0 - self.bce_weight)
+        return rmi + bce
 
-        pr_vectors = pr_vectors - pr_vectors.mean(dim=3, keepdim=True)
-        pr_cov = torch.matmul(pr_vectors, pr_vectors.transpose(2, 3))
-        # https://github.com/pytorch/pytorch/issues/7500
-        # waiting for batched torch.cholesky_inverse()
-        # pr_cov_inv = torch.inverse(pr_cov + diag_matrix.type_as(pr_cov) * _POS_ALPHA)
-        pr_cov_inv = self.inverse(pr_cov + diag_matrix.type_as(pr_cov) * _POS_ALPHA)
-        # if the dimension of the point is less than 9, you can use the below function
-        # to acceleration computational speed.
-        #pr_cov_inv = utils.batch_cholesky_inverse(pr_cov + diag_matrix.type_as(pr_cov) * _POS_ALPHA)
+    def rmi_loss(self, input, target):
+        """
+        Calculates the RMI loss between the prediction and target.
+        :return:
+            RMI loss
+        """
 
-        la_pr_cov = torch.matmul(la_vectors, pr_vectors.transpose(2, 3))
-        # the approxiamation of the variance, det(c A) = c^n det(A), A is in n x n shape;
-        # then log det(c A) = n log(c) + log det(A).
-        # appro_var = appro_var / n_points, we do not divide the appro_var by number of points here,
-        # and the purpose is to avoid underflow issue.
-        # If A = A^T, A^-1 = (A^-1)^T.
-        appro_var = la_cov - torch.matmul(la_pr_cov.matmul(pr_cov_inv), la_pr_cov.transpose(-2, -1))
-        #appro_var = la_cov - torch.chain_matmul(la_pr_cov, pr_cov_inv, la_pr_cov.transpose(-2, -1))
-        #appro_var = torch.div(appro_var, n_points.type_as(appro_var)) + diag_matrix.type_as(appro_var) * 1e-6
+        assert input.shape == target.shape
+        vector_size = self.radius * self.radius
 
-        # The lower bound. If A is nonsingular, ln( det(A) ) = Tr( ln(A) ).
-        rmi_now = 0.5 * self.log_det_by_cholesky(appro_var + diag_matrix.type_as(appro_var) * _POS_ALPHA)
-        #rmi_now = 0.5 * torch.logdet(appro_var + diag_matrix.type_as(appro_var) * _POS_ALPHA)
+        # Get region vectors
+        y = self.extract_region_vector(target)
+        p = self.extract_region_vector(input)
 
-        # mean over N samples. sum over classes.
-        rmi_per_class = rmi_now.view([-1, self.num_classes]).mean(dim=0).float()
-        #is_half = False
-        #if is_half:
-        #	rmi_per_class = torch.div(rmi_per_class, float(self.half_d / 2.0))
-        #else:
-        rmi_per_class = torch.div(rmi_per_class, float(self.half_d))
+        # Convert to doubles for better precision
+        if self.use_double_precision:
+            y = y.double()
+            p = p.double()
 
-        rmi_loss = torch.sum(rmi_per_class) if _IS_SUM else torch.mean(rmi_per_class)
-        return rmi_loss
+        # Small diagonal matrix to fix numerical issues
+        eps = torch.eye(vector_size, dtype=y.dtype, device=y.device) * self.epsilon
+        eps = eps.unsqueeze(dim=0).unsqueeze(dim=0)
+
+        # Subtract mean
+        y = y - y.mean(dim=3, keepdim=True)
+        p = p - p.mean(dim=3, keepdim=True)
+
+        # Covariances
+        y_cov = y @ transpose(y)
+        p_cov = p @ transpose(p)
+        y_p_cov = y @ transpose(p)
+
+        # Approximated posterior covariance matrix of Y given P
+        m = y_cov - y_p_cov @ transpose(inverse(p_cov + eps)) @ transpose(y_p_cov)
+
+        # Lower bound of RMI
+        if self.use_log_trace:
+            rmi = 0.5 * log_trace(m + eps)
+        else:
+            rmi = 0.5 * log_det(m + eps)
+
+        # Normalize
+        rmi = rmi / float(vector_size)
+
+        # Sum over classes, mean over samples.
+        return rmi.sum(dim=1).mean(dim=0)
+
+    def extract_region_vector(self, x):
+        """
+        Downsamples and extracts square regions from x.
+        Returns the flattened vectors of length radius*radius.
+        """
+
+        x = self.downsample(x)
+        stride = self.stride if self.downsampling_method == 'region-extraction' else 1
+
+        x_regions = F.unfold(x, kernel_size=self.radius, stride=stride)
+        x_regions = x_regions.view((*x.shape[:2], self.radius ** 2, -1))
+        return x_regions
+
+    def downsample(self, x):
+        # Skip if stride is 1
+        if self.stride == 1:
+            return x
+
+        # Skip if we pool during region extraction.
+        if self.downsampling_method == 'region-extraction':
+            return x
+
+        padding = self.stride // 2
+        if self.downsampling_method == 'max':
+            return F.max_pool2d(x, kernel_size=self.stride, stride=self.stride, padding=padding)
+        if self.downsampling_method == 'avg':
+            return F.avg_pool2d(x, kernel_size=self.stride, stride=self.stride, padding=padding)
+        raise ValueError(self.downsampling_method)
+
+
+def transpose(x):
+    return x.transpose(-2, -1)
+
+
+def inverse(x):
+    return torch.inverse(x)
+
+
+def log_trace(x):
+    x = torch.cholesky(x)
+    diag = torch.diagonal(x, dim1=-2, dim2=-1)
+    return 2 * torch.sum(torch.log(diag + 1e-8), dim=-1)
+
+
+def log_det(x):
+    return torch.logdet(x)
 
 
 # ====================== #
@@ -2372,6 +2519,16 @@ class BoundaryLoss(nn.Module):
         self.theta0 = theta0
         self.theta = theta
 
+    def one_hot_batch(self, batch, num_classes=1):
+        batch1 = F.one_hot(batch.long())
+        batch1 = batch1[:,:,:,:1]     # only grab one dimension out of the two created
+        return batch1.permute(0, 3, 1, 2).float()
+
+    def one_hot_eye(self, labels, num_classes=1, requires_grad=True):
+        """Return One Hot Label"""
+        one_hot_label = torch.eye(num_classes, device=labels.device, requires_grad=requires_grad)[labels]
+        return one_hot_label.transpose(1, 3).transpose(2, 3)
+
     def forward(self, pred, gt):
         """
         Input:
@@ -2380,7 +2537,7 @@ class BoundaryLoss(nn.Module):
             - gt: ground truth map
                     shape (N, H, w)
         Return:
-            - boundary loss, averaged over mini-bathc
+            - boundary loss, averaged over mini-batch
         """
 
         n, c, _, _ = pred.shape
@@ -2389,7 +2546,8 @@ class BoundaryLoss(nn.Module):
         pred = torch.softmax(pred, dim=1)
 
         # one-hot vector of ground truth (this needs to be rewritten to accommodate the batch dimension so doesn't work for now)
-        one_hot_gt = F.one_hot(gt.to(torch.int64), c)
+        # one_hot_gt = self.one_hot_eye(gt.to(torch.int64), c)
+        one_hot_gt = self.one_hot_batch(gt)
 
         # boundary map
         gt_b = F.max_pool2d(1 - one_hot_gt, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
@@ -2420,3 +2578,269 @@ class BoundaryLoss(nn.Module):
         loss = torch.mean(1 - BF1)
 
         return loss
+
+# ====================== #
+"""
+Hausdorff loss implementation based on paper:
+https://arxiv.org/pdf/1904.10030.pdf
+copy pasted from - all credit goes to original authors:
+https://github.com/SilmarilBearer/HausdorffLoss
+"""
+from scipy.ndimage.morphology import distance_transform_edt as edt
+from scipy.ndimage import convolve
+import cv2
+
+class HausdorffDTLoss(nn.Module):
+    """Binary Hausdorff loss based on distance transform"""
+
+    def __init__(self, alpha=2.0, **kwargs):
+        super(HausdorffDTLoss, self).__init__()
+        self.alpha = alpha
+
+    @torch.no_grad()
+    def distance_field(self, img: np.ndarray) -> np.ndarray:
+        field = np.zeros_like(img)
+
+        for batch in range(len(img)):
+            fg_mask = img[batch] > 0.5
+
+            if fg_mask.any():
+                bg_mask = ~fg_mask
+
+                fg_dist = edt(fg_mask)
+                bg_dist = edt(bg_mask)
+
+                field[batch] = fg_dist + bg_dist
+
+        return field
+
+    def forward(self, pred: torch.Tensor, target: torch.Tensor, debug=False) -> torch.Tensor:
+        """
+        Uses one binary channel: 1 - fg, 0 - bg
+        pred: (b, 1, x, y, z) or (b, 1, x, y)
+        target: (b, 1, x, y, z) or (b, 1, x, y)
+        """
+        target = target.unsqueeze(1)
+
+        assert pred.dim() == 4 or pred.dim() == 5, "Only 2D and 3D supported"
+        assert (pred.dim() == target.dim()), "Prediction and target need to be of same dimension"
+
+        # this is necessary for binary loss
+        pred = torch.sigmoid(pred)
+
+        pred_dt = torch.from_numpy(self.distance_field(pred.detach().cpu().numpy())).float()
+        target_dt = torch.from_numpy(self.distance_field(target.detach().cpu().numpy())).float()
+
+        pred_error = (pred - target) ** 2
+        distance = pred_dt.to(pred.device) ** self.alpha + target_dt.to(pred.device) ** self.alpha
+
+        dt_field = pred_error * distance
+        loss = dt_field.mean()
+
+        if debug:
+            return (
+                loss.detach().cpu().numpy(),
+                (
+                    dt_field.detach().cpu().numpy()[0, 0],
+                    pred_error.detach().cpu().numpy()[0, 0],
+                    distance.detach().cpu().numpy()[0, 0],
+                    pred_dt.detach().cpu().numpy()[0, 0],
+                    target_dt.detach().cpu().numpy()[0, 0],
+                ),
+            )
+
+        else:
+            return loss
+
+
+class HausdorffERLoss(nn.Module):
+    """Binary Hausdorff loss based on morphological erosion"""
+
+    def __init__(self, alpha=2.0, erosions=10, **kwargs):
+        super(HausdorffERLoss, self).__init__()
+        self.alpha = alpha
+        self.erosions = erosions
+        self.prepare_kernels()
+
+    def prepare_kernels(self):
+        cross = np.array([cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))])
+        bound = np.array([[[0, 0, 0], [0, 1, 0], [0, 0, 0]]])
+
+        self.kernel2D = cross * 0.2
+        self.kernel3D = np.array([bound, cross, bound]) * (1 / 7)
+
+    @torch.no_grad()
+    def perform_erosion(self, pred: np.ndarray, target: np.ndarray, debug) -> np.ndarray:
+        bound = (pred - target) ** 2
+
+        if bound.ndim == 5:
+            kernel = self.kernel3D
+        elif bound.ndim == 4:
+            kernel = self.kernel2D
+        else:
+            raise ValueError(f"Dimension {bound.ndim} is nor supported.")
+
+        eroted = np.zeros_like(bound)
+        erosions = []
+
+        for batch in range(len(bound)):
+
+            # debug
+            erosions.append(np.copy(bound[batch][0]))
+
+            for k in range(self.erosions):
+
+                # compute convolution with kernel
+                dilation = convolve(bound[batch], kernel, mode="constant", cval=0.0)
+
+                # apply soft thresholding at 0.5 and normalize
+                erosion = dilation - 0.5
+                erosion[erosion < 0] = 0
+
+                if erosion.ptp() != 0:
+                    erosion = (erosion - erosion.min()) / erosion.ptp()
+
+                # save erosion and add to loss
+                bound[batch] = erosion
+                eroted[batch] += erosion * (k + 1) ** self.alpha
+
+                if debug:
+                    erosions.append(np.copy(erosion[0]))
+
+        # image visualization in debug mode
+        if debug:
+            return eroted, erosions
+        else:
+            return eroted
+
+    def forward(self, pred: torch.Tensor, target: torch.Tensor, debug=False) -> torch.Tensor:
+        """
+        Uses one binary channel: 1 - fg, 0 - bg
+        pred: (b, 1, x, y, z) or (b, 1, x, y)
+        target: (b, 1, x, y, z) or (b, 1, x, y)
+        """
+        target = target.unsqueeze(1)
+        assert pred.dim() == 4 or pred.dim() == 5, "Only 2D and 3D supported"
+        assert (pred.dim() == target.dim()), "Prediction and target need to be of same dimension"
+
+        pred = torch.sigmoid(pred)
+
+        if debug:
+            eroted, erosions = self.perform_erosion(pred.detach().cpu().numpy(), target.detach().cpu().numpy(), debug)
+            return eroted.mean(), erosions
+
+        else:
+            eroted = torch.from_numpy(self.perform_erosion(pred.detach().cpu().numpy(), target.detach().cpu().numpy(), debug)).float()
+
+            loss = eroted.mean()
+
+            return loss
+
+
+# ====================== #
+"""
+Recall Loss
+copy pasted from - all credit goes to original authors:
+https://github.com/shuaizzZ/Recall-Loss-PyTorch/blob/master/recall_loss.py
+"""
+class RecallLoss(nn.Module):
+    """ An unofficial implementation of
+        <Recall Loss for Imbalanced Image Classification and Semantic Segmentation>
+        Created by: Zhang Shuai
+        Email: shuaizzz666@gmail.com
+        recall = TP / (TP + FN)
+    Args:
+        weight: An array of shape [C,]
+        predict: A float32 tensor of shape [N, C, *], for Semantic segmentation task is [N, C, H, W]
+        target: A int64 tensor of shape [N, *], for Semantic segmentation task is [N, H, W]
+    Return:
+        diceloss
+    """
+    def __init__(self, weight=None):
+        super(RecallLoss, self).__init__()
+        if weight is not None:
+            weight = torch.Tensor(weight)
+            self.weight = weight / torch.sum(weight) # Normalized weight
+        self.smooth = 1e-5
+
+    def forward(self, input, target):
+        N, C = input.size()[:2]
+        _, predict = torch.max(input, 1)# # (N, C, *) ==> (N, 1, *)
+
+        predict = predict.view(N, 1, -1) # (N, 1, *)
+        target = target.view(N, 1, -1) # (N, 1, *)
+        last_size = target.size(-1)
+
+        ## convert predict & target (N, 1, *) into one hot vector (N, C, *)
+        predict_onehot = torch.zeros((N, C, last_size)).cuda() # (N, 1, *) ==> (N, C, *)
+        predict_onehot.scatter_(1, predict, 1) # (N, C, *)
+        target_onehot = torch.zeros((N, C, last_size)).cuda() # (N, 1, *) ==> (N, C, *)
+        target_onehot.scatter_(1, target, 1) # (N, C, *)
+
+        true_positive = torch.sum(predict_onehot * target_onehot, dim=2)  # (N, C)
+        total_target = torch.sum(target_onehot, dim=2)  # (N, C)
+        ## Recall = TP / (TP + FN)
+        recall = (true_positive + self.smooth) / (total_target + self.smooth)  # (N, C)
+
+        if hasattr(self, 'weight'):
+            if self.weight.type() != input.type():
+                self.weight = self.weight.type_as(input)
+                recall = recall * self.weight * C  # (N, C)
+        recall_loss = 1 - torch.mean(recall)  # 1
+
+        return recall_loss
+
+
+# ====================== #
+class SoftInvDiceLoss(torch.nn.Module):
+    """
+    Well-performing loss for binary segmentation
+    """
+    def __init__(self, **_):
+        super(SoftInvDiceLoss, self).__init__()
+
+    def forward(self, logits, targets):
+        smooth = 1.
+        logits = F.sigmoid(logits)
+        iflat = 1 - logits.view(-1)
+        tflat = 1 - targets.view(-1)
+        intersection = (iflat * tflat).sum()
+        return 1 - ((2. * intersection + smooth) / (iflat.sum() + tflat.sum() + smooth))
+
+
+# ======================= #
+# --- COMBINED LOSSES --- #
+class OhemBCEDicePenalizeBorderLoss(OhemCrossEntropy2d):
+    """
+    Combined OHEM (Online Hard Example Mining) process with BCE-Dice penalized loss
+    """
+    def __init__(self, thresh=0.6, min_kept=0, ignore_index=-100, kernel_size=21, **_):
+        super().__init__()
+        self.ignore_label = ignore_index
+        self.thresh = float(thresh)
+        self.min_kept = int(min_kept)
+        self.criterion = BCEDicePenalizeBorderLoss(kernel_size=kernel_size)
+
+
+class RMIBCEDicePenalizeBorderLoss(RMILossAlt):
+    """
+    Combined RMI and BCEDicePenalized Loss
+    """
+    def __init__(self, kernel_size=21, **kwargs):
+        super().__init__(**kwargs)
+        self.bce = BCEDicePenalizeBorderLoss(kernel_size=kernel_size)
+
+    def to(self, device):
+        super().to(device=device)
+        self.bce.to(device=device)
+
+    def forward(self, logits, target):
+        target = target.unsqueeze(1)
+
+        # Apply sigmoid to get probabilities. See final paragraph of section 4.
+        rmi_input = torch.sigmoid(logits) if self.with_logits else logits
+
+        # Calculate RMI loss
+        rmi = self.rmi_loss(input=rmi_input, target=target)
+        rmi = rmi.mean() * (1.0 - self.bce_weight)
+        return rmi + self.bce_weight * self.bce.forward(logits, target)

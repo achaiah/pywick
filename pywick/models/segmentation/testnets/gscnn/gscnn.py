@@ -196,7 +196,7 @@ class GSCNN(nn.Module):
                   (1024, 2048, 4096)]
     '''
 
-    def __init__(self, num_classes, trunk=None, is_cuda=False, **_):
+    def __init__(self, num_classes, trunk=None, is_cuda=True, **_):
         
         super(GSCNN, self).__init__()
         # self.criterion = criterion
