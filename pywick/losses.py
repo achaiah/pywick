@@ -1826,9 +1826,44 @@ def get_tp_fp_fn(net_output, gt, axes=None, mask=None, square=False):
 
     return tp, fp, fn
 
+# ===================== #
+# Boundary Loss
+# Source:  https://github.com/JunMa11/SegLoss/blob/71b14900e91ea9405d9705c95b451fc819f24c70/test/loss_functions/boundary_loss.py#L102
+
+def compute_sdf(img_gt, out_shape):
+    """
+    compute the signed distance map of binary mask
+    input: segmentation, shape = (batch_size, x, y, z)
+    output: the Signed Distance Map (SDM)
+    sdf(x) = 0; x in segmentation boundary
+             -inf|x-y|; x in segmentation
+             +inf|x-y|; x out of segmentation
+    """
+
+    from scipy.ndimage import distance_transform_edt
+    from skimage import segmentation as skimage_seg
+
+    img_gt = img_gt.astype(np.uint8)
+
+    gt_sdf = np.zeros(out_shape)
+
+    for b in range(out_shape[0]): # batch size
+        for c in range(1, out_shape[1]): # channel
+            posmask = img_gt[b][c].astype(np.bool)
+            if posmask.any():
+                negmask = ~posmask
+                posdis = distance_transform_edt(posmask)
+                negdis = distance_transform_edt(negmask)
+                boundary = skimage_seg.find_boundaries(posmask, mode='inner').astype(np.uint8)
+                sdf = negdis - posdis
+                sdf[boundary==1] = 0
+                gt_sdf[b][c] = sdf
+
+    return gt_sdf
+
 
 class BDLoss(nn.Module):
-    def __init__(self, **kwargs):
+    def __init__(self):
         """
         compute boudary loss
         only compute the loss of foreground
@@ -1837,26 +1872,35 @@ class BDLoss(nn.Module):
         super(BDLoss, self).__init__()
         # self.do_bg = do_bg
 
-    def forward(self, logits, target, bound):
+    def forward(self, net_output, gt):
         """
-        Takes 2D or 3D logits.
-
-        logits: (batch_size, class, x,y,(z))
-        target: ground truth, shape: (batch_size, 1, x,y,(z))
-        bound: precomputed distance map, shape (batch_size, class, x,y,(z))
-
-        Torch Eigensum description: https://stackoverflow.com/questions/55894693/understanding-pytorch-einsum
+        net_output: (batch_size, class, x,y,z)
+        target: ground truth, shape: (batch_size, 1, x,y,z)
+        bound: precomputed distance map, shape (batch_size, class, x,y,z)
         """
-        compute_directive = "bcxy,bcxy->bcxy"
-        if len(logits) == 5:
-            compute_directive = "bcxyz,bcxyz->bcxyz"
+        net_output = softmax_helper(net_output)
+        with torch.no_grad():
+            if len(net_output.shape) != len(gt.shape):
+                gt = gt.view((gt.shape[0], 1, *gt.shape[1:]))
 
-        net_output = softmax_helper(logits)
-        # print('net_output shape: ', net_output.shape)
-        pc = net_output[:, 1:, ...].type(torch.float32)
-        dc = bound[:,1:, ...].type(torch.float32)
+            if all([i == j for i, j in zip(net_output.shape, gt.shape)]):
+                # if this is the case then gt is probably already a one hot encoding
+                y_onehot = gt
+            else:
+                gt = gt.long()
+                y_onehot = torch.zeros(net_output.shape)
+                if net_output.device.type == "cuda":
+                    y_onehot = y_onehot.cuda(net_output.device.index)
+                y_onehot.scatter_(1, gt, 1)
+            gt_sdf = compute_sdf(y_onehot.cpu().numpy(), net_output.shape)
 
-        multipled = torch.einsum(compute_directive, pc, dc)
+        phi = torch.from_numpy(gt_sdf)
+        if phi.device != net_output.device:
+            phi = phi.to(net_output.device).type(torch.float32)
+        # pred = net_output[:, 1:, ...].type(torch.float32)
+        # phi = phi[:,1:, ...].type(torch.float32)
+
+        multipled = torch.einsum("bcxyz,bcxyz->bcxyz", net_output[:, 1:, ...], phi[:, 1:, ...])
         bd_loss = multipled.mean()
 
         return bd_loss
