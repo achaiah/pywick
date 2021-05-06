@@ -39,6 +39,10 @@ have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
 work in progress though so apologies for anything that's broken.
 
 ## What's New (highlights)
+- **May 6, 2021**
+  - Many SoTA classification and segmentation models added: Swin-Transformer variants, NFNets variants (L0, L1), Halo nets, Lambda nets, ECA variants + others
+  - Many new loss functions added: RecallLoss, SoftInvDiceLoss, OhemBCEDicePenalizeBorderLoss, RMIBCEDicePenalizeBorderLoss + others
+  - Bug fixes
 - **Jun. 15, 2020**
   - 200+ models added from [rwightman's](https://github.com/rwightman/pytorch-image-models) repo via `torch.hub`! See docs for all the variants!
   - Some minor bug fixes
