@@ -4,6 +4,8 @@ numpy
 pandas
 pillow
 pyyaml
+scipy
+scikit-image
 six
 torch >= 1.4.0
 torchvision
