@@ -1,3 +1,5 @@
+from typing import Callable
+
 from . import classification
 from .segmentation import *
 from . import segmentation
@@ -54,7 +56,13 @@ def get_fc_names(model_name, model_type=ModelType.CLASSIFICATION):
         return [None]
 
 
-def get_model(model_type, model_name, num_classes, pretrained=True, force_reload=False, **kwargs):
+def get_model(model_type: ModelType,
+              model_name: str,
+              num_classes: int,
+              pretrained: bool = True,
+              force_reload: bool = False,
+              custom_load_fn: Callable = None,
+              **kwargs):
     """
     :param model_type: (ModelType):
         type of model we're trying to obtain (classification or segmentation)
@@ -72,13 +80,15 @@ def get_model(model_type, model_name, num_classes, pretrained=True, force_reload
     :param force_reload: (bool):
         Whether to force reloading the list of models from torch.hub. By default, a cache file is used if it is found locally and that can prevent
         new or updated models from being found.
+    :param custom_load_fn: (Callable):
+        A custom callable function to use for loading models (typically used to load cutting-edge or custom models that are not in the publicly available list)
 
     :return: model
     """
 
-    if model_name not in get_supported_models(model_type) and not model_name.startswith('TEST'):
-        raise ValueError('The supplied model name: {} was not found in the list of acceptable model names.'
-                         ' Use get_supported_models() to obtain a list of supported models.'.format(model_name))
+    if model_name not in get_supported_models(model_type) and not model_name.startswith('TEST') and custom_load_fn is None:
+        raise ValueError(f'The supplied model name: {model_name} was not found in the list of acceptable model names.'
+                         ' Use get_supported_models() to obtain a list of supported models or supply a custom_load_fn')
 
     print("INFO: Loading Model:   --   " + model_name + "  with number of classes: " + str(num_classes))
     
@@ -86,6 +96,8 @@ def get_model(model_type, model_name, num_classes, pretrained=True, force_reload
         torch_hub_names = torch.hub.list(rwightman_repo, force_reload=force_reload)
         if model_name in torch_hub_names:
             model = torch.hub.load(rwightman_repo, model_name, pretrained=pretrained, num_classes=num_classes)
+        elif custom_load_fn is not None:
+            model = custom_load_fn(model_name, pretrained, num_classes, **kwargs)
         else:
             # 1. Load model (pretrained or vanilla)
             import ssl
