@@ -2548,30 +2548,22 @@ def log_det(x):
 
 
 # ====================== #
-# Source: https://github.com/yiskw713/boundary_loss_for_remote_sensing/
-# Boundary Loss for Remote Sensing Imagery Semantic Segmentation: https://arxiv.org/abs/1905.07852
-
+# Source: https://github.com/NRCan/geo-deep-learning/blob/develop/losses/boundary_loss.py
 class BoundaryLoss(nn.Module):
     """Boundary Loss proposed in:
     Alexey Bokhovkin et al., Boundary Loss for Remote Sensing Imagery Semantic Segmentation
     https://arxiv.org/abs/1905.07852
     """
 
-    def __init__(self, theta0=3, theta=5, **_):
+    # in previous implementations theta0=3, theta=5
+    def __init__(self, theta0=19, theta=19, ignore_index=None, weight=None, is_binary: bool = False, **_):
         super().__init__()
 
         self.theta0 = theta0
         self.theta = theta
-
-    def one_hot_batch(self, batch, num_classes=1):
-        batch1 = F.one_hot(batch.long())
-        batch1 = batch1[:,:,:,:1]     # only grab one dimension out of the two created
-        return batch1.permute(0, 3, 1, 2).float()
-
-    def one_hot_eye(self, labels, num_classes=1, requires_grad=True):
-        """Return One Hot Label"""
-        one_hot_label = torch.eye(num_classes, device=labels.device, requires_grad=requires_grad)[labels]
-        return one_hot_label.transpose(1, 3).transpose(2, 3)
+        self.ignore_index = ignore_index
+        self.weight = weight
+        self.is_binary = is_binary
 
     def forward(self, pred, gt):
         """
@@ -2589,9 +2581,14 @@ class BoundaryLoss(nn.Module):
         # softmax so that predicted map can be distributed in [0, 1]
         pred = torch.softmax(pred, dim=1)
 
-        # one-hot vector of ground truth (this needs to be rewritten to accommodate the batch dimension so doesn't work for now)
-        # one_hot_gt = self.one_hot_eye(gt.to(torch.int64), c)
-        one_hot_gt = self.one_hot_batch(gt)
+        # one-hot vector of ground truth
+        # print(gt.shape)
+        # zo = F.one_hot(gt, c)
+        # print(zo.shape)
+        if self.is_binary:
+            one_hot_gt = gt
+        else:
+            one_hot_gt = F.one_hot(gt.long()).permute(0, 3, 1, 2).squeeze(dim=-1).contiguous().float()
 
         # boundary map
         gt_b = F.max_pool2d(1 - one_hot_gt, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
@@ -2612,16 +2609,19 @@ class BoundaryLoss(nn.Module):
         pred_b_ext = pred_b_ext.view(n, c, -1)
 
         # Precision, Recall
-        P = torch.sum(pred_b * gt_b_ext, dim=2) / (torch.sum(pred_b, dim=2) + 1e-7)
-        R = torch.sum(pred_b_ext * gt_b, dim=2) / (torch.sum(gt_b, dim=2) + 1e-7)
+        eps = 1e-7
+        P = (torch.sum(pred_b * gt_b_ext, dim=2) + eps) / (torch.sum(pred_b, dim=2) + eps)
+        R = (torch.sum(pred_b_ext * gt_b, dim=2) + eps) / (torch.sum(gt_b, dim=2) + eps)
 
         # Boundary F1 Score
-        BF1 = 2 * P * R / (P + R + 1e-7)
+
+        BF1 = (2 * P * R + eps) / (P + R + eps)
 
         # summing BF1 Score for each class and average over mini-batch
         loss = torch.mean(1 - BF1)
 
         return loss
+
 
 # ====================== #
 """

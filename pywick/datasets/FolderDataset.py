@@ -151,11 +151,6 @@ class FolderDataset(UsefulDataset):
 
             # load samples into memory
             input_sample = self.default_loader(input_sample)
-            if self.class_mode == 'image' and self.target_index_map is not None:   # if we're dealing with image masks, we need to change the underlying pixels
-                target_sample = np.array(target_sample)  # convert to np
-                for k, v in self.target_index_map.items():
-                    target_sample[target_sample == k] = v  # replace pixels with class values
-                target_sample = Image.fromarray(target_sample.astype(np.float32))  # convert back to image
 
             # apply transforms
             if self.apply_co_transform_first and self.co_transform is not None:
@@ -166,6 +161,12 @@ class FolderDataset(UsefulDataset):
                 target_sample = self.target_transform(target_sample)
             if not self.apply_co_transform_first and self.co_transform is not None:
                 input_sample, target_sample = self.co_transform(input_sample, target_sample)
+
+            if self.class_mode == 'image' and self.target_index_map is not None:   # if we're dealing with image masks, we need to change the underlying pixels
+                target_sample = np.array(target_sample)  # convert to np
+                for k, v in self.target_index_map.items():
+                    target_sample[target_sample == k] = v  # replace pixels with class values
+                target_sample = Image.fromarray(target_sample.astype(np.float32))  # convert back to image
 
             return input_sample, target_sample
         except Exception as e:
