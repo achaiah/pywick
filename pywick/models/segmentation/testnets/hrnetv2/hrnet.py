@@ -4,9 +4,8 @@
 # Written by RainbowSecret (yhyuan@pku.edu.cn)
 # ------------------------------------------------------------------------------
 
-import os
-import logging
 import numpy as np
+import logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,7 +14,6 @@ from torchvision.models.utils import load_state_dict_from_url
 logger = logging.getLogger('hrnet_backbone')
 
 __all__ = ['hrnet18', 'hrnet32', 'hrnet48']
-
 
 model_urls = {
     'hrnet18_imagenet': 'https://opr0mq.dm.files.1drv.com/y4mIoWpP2n-LUohHHANpC0jrOixm1FZgO2OsUtP2DwIozH5RsoYVyv_De5wDgR6XuQmirMV3C0AljLeB-zQXevfLlnQpcNeJlT9Q8LwNYDwh3TsECkMTWXCUn3vDGJWpCxQcQWKONr5VQWO1hLEKPeJbbSZ6tgbWwJHgHF7592HY7ilmGe39o5BhHz7P9QqMYLBts6V7QGoaKrr0PL3wvvR4w',
@@ -91,7 +89,6 @@ class BasicBlock(nn.Module):
 
 
 class Bottleneck(nn.Module):
-
     expansion = 4
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
@@ -231,7 +228,7 @@ class HighResolutionModule(nn.Module):
                     fuse_layer.append(None)
                 else:
                     conv3x3s = []
-                    for k in range(i-j):
+                    for k in range(i - j):
                         if k == i - j - 1:
                             num_outchannels_conv3x3 = num_inchannels[i]
                             conv3x3s.append(nn.Sequential(
@@ -276,7 +273,7 @@ class HighResolutionModule(nn.Module):
                         size=[height_output, width_output],
                         mode='bilinear',
                         align_corners=True
-                        )
+                    )
                 else:
                     y = y + self.fuse_layers[i][j](x[j])
             x_fuse.append(self.relu(y))
@@ -316,7 +313,7 @@ class HighResolutionNet(nn.Module):
         block = blocks_dict[self.stage1_cfg['BLOCK']]
         num_blocks = self.stage1_cfg['NUM_BLOCKS'][0]
         self.layer1 = self._make_layer(block, 64, num_channels, num_blocks)
-        stage1_out_channel = block.expansion*num_channels
+        stage1_out_channel = block.expansion * num_channels
 
         # stage 2
         self.stage2_cfg = cfg['STAGE2']
@@ -370,7 +367,6 @@ class HighResolutionNet(nn.Module):
                 padding=0)
         )
 
-
     def _make_transition_layer(
             self, num_channels_pre_layer, num_channels_cur_layer):
         num_branches_cur = len(num_channels_cur_layer)
@@ -393,10 +389,10 @@ class HighResolutionNet(nn.Module):
                     transition_layers.append(None)
             else:
                 conv3x3s = []
-                for j in range(i+1-num_branches_pre):
+                for j in range(i + 1 - num_branches_pre):
                     inchannels = num_channels_pre_layer[-1]
                     outchannels = num_channels_cur_layer[i] \
-                        if j == i-num_branches_pre else inchannels
+                        if j == i - num_branches_pre else inchannels
                     conv3x3s.append(nn.Sequential(
                         nn.Conv2d(
                             inchannels, outchannels, 3, 2, 1, bias=False),
@@ -454,7 +450,6 @@ class HighResolutionNet(nn.Module):
 
         return nn.Sequential(*modules), num_inchannels
 
-
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
@@ -508,7 +503,10 @@ class HighResolutionNet(nn.Module):
 
 
 def _hrnet(arch, pretrained, progress, **kwargs):
-    from .hrnet_config import MODEL_CONFIGS
+    try:
+        from hrnet_config import MODEL_CONFIGS
+    except ImportError:
+        pass
     model = HighResolutionNet(MODEL_CONFIGS[arch], **kwargs)
     if pretrained:
         model_url = model_urls[arch]
@@ -521,19 +519,16 @@ def _hrnet(arch, pretrained, progress, **kwargs):
 def hrnet18(pretrained=True, progress=True, **kwargs):
     r"""HRNet-18 model
     """
-    return _hrnet('hrnet18', pretrained, progress,
-                   **kwargs)
+    return _hrnet('hrnet18', pretrained, progress, **kwargs)
 
 
 def hrnet32(pretrained=True, progress=True, **kwargs):
     r"""HRNet-32 model
     """
-    return _hrnet('hrnet32', pretrained, progress,
-                   **kwargs)
+    return _hrnet('hrnet32', pretrained, progress, **kwargs)
 
 
 def hrnet48(pretrained=True, progress=True, **kwargs):
     r"""HRNet-48 model
     """
-    return _hrnet('hrnet48', pretrained, progress,
-                   **kwargs)
+    return _hrnet('hrnet48', pretrained, progress, **kwargs)

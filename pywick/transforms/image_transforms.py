@@ -9,9 +9,89 @@ is between 0 and 1, and are torch tensors (NOT numpy or PIL)
 import random
 
 import torch as th
+from torchvision.transforms.functional import to_tensor
+import numpy as np
 
 from ..utils import th_random_choice
 
+
+class DeNormalize(object):
+    """
+    Denormalizes a tensor using provided mean, std
+    """
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, tensor):
+        for t, m, s in zip(tensor, self.mean, self.std):
+            t.mul_(s).add_(m)
+        return tensor
+
+
+class MaskToSqueezedTensor(object):
+    """
+    Removes empty dimensions from the mask and converts to a torch.float32 tensor.
+    Typically used with B/W masks to remove the "channel" dimension
+
+    :return tensor
+    """
+    def __init__(self):
+        self.to_tensor = MaskToFloatTensor()
+
+    def __call__(self, img):
+        # Note, we cannot call the normal torchvision to_tensor method here because it automatically divides by 255 which is NOT what we want.
+        return self.to_tensor(img).squeeze()
+
+
+class MaskPixelsToMap(object):
+    """
+    Replaces the pixel values in range [0-255] with class values from supplied value_map.
+
+    :return     : numpy.ndarray with dtype=np.uint8
+    """
+    def __init__(self, value_map: dict = None):
+        """
+        :param value_map: Value map to encode
+        """
+        self.value_map = value_map
+
+    def __call__(self, mask):
+        """
+        :param mask: PIL or OpenCV image with pixel values in [0-255] range
+        :return:
+        """
+        mask = np.array(mask)  # convert to np
+        for k, v in self.value_map.items():
+            mask[mask == k] = v  # replace pixels with class values
+
+        return mask.astype(np.uint8)    # make sure it's in UINT8 format
+
+
+class MaskToTensor(object):
+    """
+    Converts a PIL, numpy or CV image to a torch.long representation
+    """
+    def __call__(self, img):
+        return th.from_numpy(np.array(img, dtype=np.int32)).long()
+
+
+class MaskToFloatTensor(object):
+    """
+    Converts a PIL, numpy or CV image to a torch.float32 representation
+    """
+    def __init__(self, divisor: float = None):
+        """
+        :param divisor: Optional divisor for the conversion. Can be specified to convert supplied images from [0-255] range to [0.0-1.0]
+        """
+        self.divisor = divisor
+
+    def __call__(self, img):
+        if self.divisor is None:
+            return th.from_numpy(np.array(img, dtype=np.float32))
+        else:
+            return th.from_numpy(np.array(img, dtype=np.float32) / self.divisor)
+    
 
 def _blend(img1, img2, alpha):
     """
@@ -53,6 +133,7 @@ class Grayscale(object):
             _input_gs = _input_dst.repeat(self.channels,1,1)
             outputs.append(_input_gs)
         return outputs if idx >= 1 else outputs[0]
+
 
 class RandomGrayscale(object):
 
