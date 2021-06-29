@@ -1079,7 +1079,7 @@ class OhemCrossEntropy2d(nn.Module):
         self.min_kept = int(min_kept)
         self.criterion = nn.BCEWithLogitsLoss()
 
-    def forward(self, predict, target):
+    def forward(self, predict, target, **_):
         """
             Args:
                 predict:(n, c, h, w)
@@ -1278,7 +1278,7 @@ class OHEMSegmentationLosses(OhemCrossEntropy2d):
 # OHEM CrossEntropy Loss
 
 class OhemCELoss(nn.Module):
-    def __init__(self, configer):
+    def __init__(self, configer, is_binary=False):
         super(OhemCELoss, self).__init__()
         self.configer = configer
         weight = self.configer.get('loss.params.ohem_ce_loss.weight', default=None)
@@ -1286,7 +1286,8 @@ class OhemCELoss(nn.Module):
         self.reduction = self.configer.get('loss.params.ohem_ce_loss.reduction', default='mean')
         self.ignore_index = self.configer.get('loss.params.ohem_ce_loss.ignore_index', default=-100)
         self.thresh = self.configer.get('loss.params.ohem_ce_loss.thresh', default=0.7)
-        self.min_kept = max(1, self.configer.get('loss.params.ohem_ce_loss.minkeep', default=1))
+        self.min_kept = max(1, self.configer.get('loss.params.ohem_ce_loss.minkeep', default=5))
+        self.is_binary = is_binary
 
     def forward(self, predict, target):
         """
@@ -1298,7 +1299,10 @@ class OhemCELoss(nn.Module):
         """
         batch_kept = self.min_kept * target.size(0)
         target = self._scale_target(target, (predict.size(2), predict.size(3)))
-        prob_out = F.softmax(predict, dim=1)
+        if self.is_binary:
+            prob_out = F.sigmoid(predict)
+        else:
+            prob_out = F.softmax(predict, dim=1)
         tmp_target = target.clone()
         tmp_target[tmp_target == self.ignore_index] = 0
         prob = prob_out.gather(1, tmp_target.unsqueeze(1))
@@ -1500,7 +1504,7 @@ class FocalBinaryTverskyLoss(MultiTverskyLoss):
                 add focal index -> loss=(1-T_index)**(1/gamma)
         """
 
-    def __init__(self, alpha=0.5, beta=0.7, gamma=1.0, reduction='mean', **kwargs):
+    def __init__(self, alpha=0.5, beta=0.7, gamma=1.0, reduction='mean', **_):
         """
         :param alpha (Tensor, float, optional): controls the penalty for false positives.
         :param beta (Tensor, float, optional): controls the penalty for false negative.
@@ -1529,7 +1533,7 @@ def lovasz_grad(gt_sorted):
 
 
 class LovaszSoftmax(nn.Module):
-    def __init__(self, reduction='mean', **kwargs):
+    def __init__(self, reduction='mean', **_):
         super(LovaszSoftmax, self).__init__()
         self.reduction = reduction
 
@@ -1587,12 +1591,17 @@ class ActiveContourLoss(nn.Module):
             :param lambdaP:     (float, default=1.0) - Scales the combined region loss compared to the length loss (less or more prominent)
     """
 
-    def __init__(self, lambdaP=5., mu=1., **_):
+    def __init__(self, lambdaP=5., mu=1., is_binary: bool = False, **_):
         super(ActiveContourLoss, self).__init__()
         self.lambdaP = lambdaP
         self.mu = mu
+        self.is_binary = is_binary
 
     def forward(self, logits, target):
+        if self.is_binary:
+            logits = F.sigmoid(logits)
+        else:
+            logits = F.softmax(logits, dim=1)
 
         """
         length term
@@ -1634,19 +1643,24 @@ class ActiveContourLossAlt(nn.Module):
             :param apply_log: (bool, default=True) - Whether to transform the log into log space (due to the
     """
 
-    def __init__(self, len_w=1., reg_w=1., apply_log=True, **kwargs):
+    def __init__(self, len_w=1., reg_w=1., apply_log=True, is_binary: bool = False, **_):
         super(ActiveContourLossAlt, self).__init__()
         self.len_w = len_w
         self.reg_w = reg_w
         self.epsilon = 1e-8  # a parameter to avoid square root = zero issues
         self.apply_log = apply_log
+        self.is_binary = is_binary
 
-    def forward(self, logits, target):
-        image_size = logits.size(3)
+    def forward(self, logits, target, **_):
+        if self.is_binary:
+            logits = F.sigmoid(logits)
+        else:
+            logits = F.softmax(logits, dim=1)
+
         target = target.unsqueeze(1)
 
         # must convert raw logits to predicted probabilities for each pixel along channel
-        probs = F.softmax(logits, dim=0)
+        probs = F.softmax(logits, dim=1)
 
         """
         length term:
@@ -1863,44 +1877,48 @@ def compute_sdf(img_gt, out_shape):
 
 
 class BDLoss(nn.Module):
-    def __init__(self):
+    def __init__(self, is_binary: bool = False, **_):
         """
-        compute boudary loss
+        compute boundary loss
         only compute the loss of foreground
         ref: https://github.com/LIVIAETS/surface-loss/blob/108bd9892adca476e6cdf424124bc6268707498e/losses.py#L74
         """
+        self.is_binary = is_binary
         super(BDLoss, self).__init__()
         # self.do_bg = do_bg
 
-    def forward(self, net_output, gt):
+    def forward(self, logits, targets, **_):
         """
         net_output: (batch_size, class, x,y,z)
         target: ground truth, shape: (batch_size, 1, x,y,z)
         bound: precomputed distance map, shape (batch_size, class, x,y,z)
         """
-        net_output = softmax_helper(net_output)
+        if self.is_binary:
+            logits = F.sigmoid(logits)
+        else:
+            logits = F.softmax(logits, dim=1)
         with torch.no_grad():
-            if len(net_output.shape) != len(gt.shape):
-                gt = gt.view((gt.shape[0], 1, *gt.shape[1:]))
+            if len(logits.shape) != len(targets.shape):
+                targets = targets.view((targets.shape[0], 1, *targets.shape[1:]))
 
-            if all([i == j for i, j in zip(net_output.shape, gt.shape)]):
+            if all([i == j for i, j in zip(logits.shape, targets.shape)]):
                 # if this is the case then gt is probably already a one hot encoding
-                y_onehot = gt
+                y_onehot = targets
             else:
-                gt = gt.long()
-                y_onehot = torch.zeros(net_output.shape)
-                if net_output.device.type == "cuda":
-                    y_onehot = y_onehot.cuda(net_output.device.index)
-                y_onehot.scatter_(1, gt, 1)
-            gt_sdf = compute_sdf(y_onehot.cpu().numpy(), net_output.shape)
+                targets = targets.long()
+                y_onehot = torch.zeros(logits.shape)
+                if logits.device.type == "cuda":
+                    y_onehot = y_onehot.cuda(logits.device.index)
+                y_onehot.scatter_(1, targets, 1)
+            gt_sdf = compute_sdf(y_onehot.cpu().numpy(), logits.shape)
 
         phi = torch.from_numpy(gt_sdf)
-        if phi.device != net_output.device:
-            phi = phi.to(net_output.device).type(torch.float32)
+        if phi.device != logits.device:
+            phi = phi.to(logits.device).type(torch.float32)
         # pred = net_output[:, 1:, ...].type(torch.float32)
         # phi = phi[:,1:, ...].type(torch.float32)
 
-        multipled = torch.einsum("bcxyz,bcxyz->bcxyz", net_output[:, 1:, ...], phi[:, 1:, ...])
+        multipled = torch.einsum("bcxyz,bcxyz->bcxyz", logits[:, 1:, ...], phi[:, 1:, ...])
         bd_loss = multipled.mean()
 
         return bd_loss
@@ -2043,8 +2061,8 @@ class AsymLoss(nn.Module):
         self.smooth = smooth
         self.beta = 1.5
 
-    def forward(self, x, y, loss_mask=None):
-        shp_x = x.shape
+    def forward(self, logits, targets, loss_mask=None):
+        shp_x = logits.shape
 
         if self.batch_dice:
             axes = [0] + list(range(2, len(shp_x)))
@@ -2052,9 +2070,9 @@ class AsymLoss(nn.Module):
             axes = list(range(2, len(shp_x)))
 
         if self.apply_nonlin is not None:
-            x = self.apply_nonlin(x)
+            logits = self.apply_nonlin(logits)
 
-        tp, fp, fn = get_tp_fp_fn(x, y, axes, loss_mask, self.square)# shape: (batch size, class num)
+        tp, fp, fn = get_tp_fp_fn(logits, targets, axes, loss_mask, self.square)# shape: (batch size, class num)
         weight = (self.beta**2)/(1+self.beta**2)
         asym = (tp + self.smooth) / (tp + weight*fn + (1-weight)*fp + self.smooth)
 
@@ -2163,35 +2181,37 @@ class RMILoss(nn.Module):
         self.ignore_index = 255
         self.device = device
 
-    def forward(self, logits_4D, labels_4D):
-        loss = self.forward_sigmoid(logits_4D, labels_4D)
-        # loss = self.forward_softmax_sigmoid(logits_4D, labels_4D)
+    def forward(self, logits, targets):
+        if self.num_classes == 1:
+            loss = self.forward_sigmoid(logits, targets)
+        else:
+            loss = self.forward_softmax_sigmoid(logits, targets)
         return loss
 
-    def forward_softmax_sigmoid(self, logits_4D, labels_4D):
+    def forward_softmax_sigmoid(self, inputs, targets):
         """
         Using both softmax and sigmoid operations.
         Args:
-            logits_4D 	:	[N, C, H, W], dtype=float32
-            labels_4D 	:	[N, H, W], dtype=long
+            inputs 	:	[N, C, H, W], dtype=float32
+            targets 	:	[N, H, W], dtype=long
         """
         # PART I -- get the normal cross entropy loss
-        normal_loss = F.cross_entropy(input=logits_4D,
-                                      target=labels_4D.long(),
+        normal_loss = F.cross_entropy(input=inputs,
+                                      target=targets.long(),
                                       ignore_index=self.ignore_index,
                                       reduction='mean')
 
         # PART II -- get the lower bound of the region mutual information
         # get the valid label and logits
         # valid label, [N, C, H, W]
-        label_mask_3D = labels_4D < self.num_classes
-        valid_onehot_labels_4D = F.one_hot(labels_4D.long() * label_mask_3D.long(),
+        label_mask_3D = targets < self.num_classes
+        valid_onehot_labels_4D = F.one_hot(targets.long() * label_mask_3D.long(),
                                            num_classes=self.num_classes).float()
         label_mask_3D = label_mask_3D.float()
         valid_onehot_labels_4D = valid_onehot_labels_4D * label_mask_3D.unsqueeze(dim=3)
         valid_onehot_labels_4D = valid_onehot_labels_4D.permute(0, 3, 1, 2).requires_grad_(False)
         # valid probs
-        probs_4D = F.sigmoid(logits_4D) * label_mask_3D.unsqueeze(dim=1)
+        probs_4D = F.sigmoid(inputs) * label_mask_3D.unsqueeze(dim=1)
         probs_4D = probs_4D.clamp(min=self._CLIP_MIN, max=self._CLIP_MAX)
 
         # get region mutual information
@@ -2565,7 +2585,7 @@ class BoundaryLoss(nn.Module):
         self.weight = weight
         self.is_binary = is_binary
 
-    def forward(self, pred, gt):
+    def forward(self, logits, targets, **_):
         """
         Input:
             - pred: the output from model (before softmax)
@@ -2576,26 +2596,29 @@ class BoundaryLoss(nn.Module):
             - boundary loss, averaged over mini-batch
         """
 
-        n, c, _, _ = pred.shape
+        n, c, _, _ = logits.shape
 
-        # softmax so that predicted map can be distributed in [0, 1]
-        pred = torch.softmax(pred, dim=1)
+        # sigmoid / softmax so that predicted map can be distributed in [0, 1]
+        if self.is_binary:
+            logits = torch.sigmoid(logits)
+        else:
+            logits = torch.softmax(logits, dim=1)
 
         # one-hot vector of ground truth
         # print(gt.shape)
         # zo = F.one_hot(gt, c)
         # print(zo.shape)
         if self.is_binary:
-            one_hot_gt = gt
+            one_hot_gt = targets
         else:
-            one_hot_gt = F.one_hot(gt.long()).permute(0, 3, 1, 2).squeeze(dim=-1).contiguous().float()
+            one_hot_gt = F.one_hot(targets.long()).permute(0, 3, 1, 2).squeeze(dim=-1).contiguous().float()
 
         # boundary map
         gt_b = F.max_pool2d(1 - one_hot_gt, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
         gt_b -= 1 - one_hot_gt
 
-        pred_b = F.max_pool2d(1 - pred, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
-        pred_b -= 1 - pred
+        pred_b = F.max_pool2d(1 - logits, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
+        pred_b -= 1 - logits
 
         # extended boundary map
         gt_b_ext = F.max_pool2d(gt_b, kernel_size=self.theta, stride=1, padding=(self.theta - 1) // 2)
@@ -2634,10 +2657,11 @@ from scipy.ndimage.morphology import distance_transform_edt as edt
 from scipy.ndimage import convolve
 import cv2
 
+
 class HausdorffDTLoss(nn.Module):
     """Binary Hausdorff loss based on distance transform"""
 
-    def __init__(self, alpha=2.0, **kwargs):
+    def __init__(self, alpha=2.0, **_):
         super(HausdorffDTLoss, self).__init__()
         self.alpha = alpha
 
@@ -2658,25 +2682,25 @@ class HausdorffDTLoss(nn.Module):
 
         return field
 
-    def forward(self, pred: torch.Tensor, target: torch.Tensor, debug=False) -> torch.Tensor:
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor, debug=False, **_) -> torch.Tensor:
         """
         Uses one binary channel: 1 - fg, 0 - bg
         pred: (b, 1, x, y, z) or (b, 1, x, y)
         target: (b, 1, x, y, z) or (b, 1, x, y)
         """
-        target = target.unsqueeze(1)
+        targets = targets.unsqueeze(1)
 
-        assert pred.dim() == 4 or pred.dim() == 5, "Only 2D and 3D supported"
-        assert (pred.dim() == target.dim()), "Prediction and target need to be of same dimension"
+        assert logits.dim() == 4 or logits.dim() == 5, "Only 2D and 3D supported"
+        assert (logits.dim() == targets.dim()), "Prediction and target need to be of same dimension"
 
         # this is necessary for binary loss
-        pred = torch.sigmoid(pred)
+        logits = torch.sigmoid(logits)
 
-        pred_dt = torch.from_numpy(self.distance_field(pred.detach().cpu().numpy())).float()
-        target_dt = torch.from_numpy(self.distance_field(target.detach().cpu().numpy())).float()
+        pred_dt = torch.from_numpy(self.distance_field(logits.detach().cpu().numpy())).float()
+        target_dt = torch.from_numpy(self.distance_field(targets.detach().cpu().numpy())).float()
 
-        pred_error = (pred - target) ** 2
-        distance = pred_dt.to(pred.device) ** self.alpha + target_dt.to(pred.device) ** self.alpha
+        pred_error = (logits - targets) ** 2
+        distance = pred_dt.to(logits.device) ** self.alpha + target_dt.to(logits.device) ** self.alpha
 
         dt_field = pred_error * distance
         loss = dt_field.mean()
@@ -2843,7 +2867,7 @@ class SoftInvDiceLoss(torch.nn.Module):
     def __init__(self, **_):
         super(SoftInvDiceLoss, self).__init__()
 
-    def forward(self, logits, targets):
+    def forward(self, logits, targets, **_):
         smooth = 1.
         logits = F.sigmoid(logits)
         iflat = 1 - logits.view(-1)
