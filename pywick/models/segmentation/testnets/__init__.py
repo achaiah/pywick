@@ -1,4 +1,5 @@
 from .autofocusNN import *
+from .axial_deeplab import *
 from .dabnet import *
 from .deeplabv3 import DeepLabV3 as TEST_DLV3
 from .deeplabv2 import DeepLabV2 as TEST_DLV2
