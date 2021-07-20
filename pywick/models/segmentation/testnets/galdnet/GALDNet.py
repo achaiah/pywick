@@ -294,7 +294,7 @@ class GALDNet(nn.Module):
         x = self.head(x)
 
         if not self.training or not self.aux:
-            return [F.interpolate(x, size, mode='bilinear', align_corners=True)]
+            return F.interpolate(x, size, mode='bilinear', align_corners=True)
         else:
             return [F.interpolate(x_dsn, size, mode='bilinear', align_corners=True), F.interpolate(x, size, mode='bilinear', align_corners=True)]
 
