@@ -31,7 +31,7 @@ class EncNet(SegBaseModel):
 
         x = list(self.head(*features))
         x[0] = F.interpolate(x[0], size, mode='bilinear', align_corners=True)
-        if self.aux:
+        if self.aux and self.training:
             auxout = self.auxlayer(features[2])
             auxout = F.interpolate(auxout, size, mode='bilinear', align_corners=True)
             x.append(auxout)

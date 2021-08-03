@@ -646,7 +646,7 @@ class LinkCeption(nn.Module):
                  num_channels=3,
                  is_deconv=False,
                  decoder_kernel_size=4,
-                 **kwargs
+                 **_
                  ):
         super().__init__()
 

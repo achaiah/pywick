@@ -47,7 +47,7 @@ class DANet(SegBaseModel):
         x0 = F.interpolate(x[0], size, mode='bilinear', align_corners=True)
         outputs.append(x0)
 
-        if self.aux:
+        if self.aux and self.training:
             x1 = F.interpolate(x[1], size, mode='bilinear', align_corners=True)
             x2 = F.interpolate(x[2], size, mode='bilinear', align_corners=True)
             outputs.append(x1)

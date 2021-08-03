@@ -50,7 +50,7 @@ class OCNet(SegBaseModel):
         x = F.interpolate(x, size, mode='bilinear', align_corners=True)
         outputs.append(x)
 
-        if self.aux:
+        if self.aux and self.training:
             auxout = self.auxlayer(c3)
             auxout = F.interpolate(auxout, size, mode='bilinear', align_corners=True)
             outputs.append(auxout)
