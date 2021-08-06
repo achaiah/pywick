@@ -381,10 +381,10 @@ class BCELoss2d(nn.Module):
         super(BCELoss2d, self).__init__()
         self.bce_loss = nn.BCELoss(weight, size_average)
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         probs = torch.sigmoid(logits)
         probs_flat = probs.view(-1)
-        targets_flat = targets.view(-1)
+        targets_flat = labels.view(-1)
         return self.bce_loss(probs_flat, targets_flat)
 
 
@@ -393,12 +393,11 @@ class SoftDiceLoss(nn.Module):
         super(SoftDiceLoss, self).__init__()
         self.smooth = smooth
 
-    def forward(self, logits, targets, **_):
-        #print('logits: {}, targets: {}'.format(logits.size(), targets.size()))
-        num = targets.size(0)
+    def forward(self, logits, labels, **_):
+        num = labels.size(0)
         probs = torch.sigmoid(logits)
         m1 = probs.view(num, -1)
-        m2 = targets.view(num, -1)
+        m2 = labels.view(num, -1)
         intersection = (m1 * m2)
 
         # smooth = 1.
@@ -420,12 +419,12 @@ class FocalLoss(nn.Module):
         self.l = l
         self.eps = eps
 
-    def forward(self, logits, targets, **_):
-        targets = targets.view(-1)
+    def forward(self, logits, labels, **_):
+        labels = labels.view(-1)
         probs = torch.sigmoid(logits).view(-1)
 
-        losses = -(targets * torch.pow((1. - probs), self.l) * torch.log(probs + self.eps) + \
-                   (1. - targets) * torch.pow(probs, self.l) * torch.log(1. - probs + self.eps))
+        losses = -(labels * torch.pow((1. - probs), self.l) * torch.log(probs + self.eps) + \
+                   (1. - labels) * torch.pow(probs, self.l) * torch.log(1. - probs + self.eps))
         loss = torch.mean(losses)
 
         return loss
@@ -436,12 +435,12 @@ class ThresholdedL1Loss(nn.Module):
         super(ThresholdedL1Loss, self).__init__()
         self.threshold = threshold
 
-    def forward(self, logits, targets, **_):
-        targets = targets.view(-1)
+    def forward(self, logits, labels, **_):
+        labels = labels.view(-1)
         probs = torch.sigmoid(logits).view(-1)
         probs = (probs > self.threshold).float()
 
-        losses = torch.abs(targets - probs)
+        losses = torch.abs(labels - probs)
         loss = torch.mean(losses)
 
         return loss
@@ -454,8 +453,8 @@ class BCEDiceTL1Loss(nn.Module):
         self.dice = SoftDiceLoss()
         self.tl1 = ThresholdedL1Loss(threshold=threshold)
 
-    def forward(self, logits, targets, **_):
-        return self.bce(logits, targets) + self.dice(logits, targets) + self.tl1(logits, targets)
+    def forward(self, logits, labels, **_):
+        return self.bce(logits, labels) + self.dice(logits, labels) + self.tl1(logits, labels)
 
 
 class BCEDiceFocalLoss(nn.Module):
@@ -473,9 +472,8 @@ class BCEDiceFocalLoss(nn.Module):
         self.focal = FocalLoss(l=focal_param)
         self.weights = weights
 
-    def forward(self, logits, targets, **_):
-        logits = logits.squeeze()
-        return self.weights[0] * self.bce(logits, targets) + self.weights[1] * self.dice(logits, targets) + self.weights[2] * self.focal(logits.unsqueeze(1), targets.unsqueeze(1))
+    def forward(self, logits, labels, **_):
+        return self.weights[0] * self.bce(logits, labels) + self.weights[1] * self.dice(logits, labels) + self.weights[2] * self.focal(logits.unsqueeze(1), labels.unsqueeze(1))
 
 
 class BCEDiceLoss(nn.Module):
@@ -484,8 +482,8 @@ class BCEDiceLoss(nn.Module):
         self.bce = BCELoss2d()
         self.dice = SoftDiceLoss()
 
-    def forward(self, logits, targets, **_):
-        return self.bce(logits, targets) + self.dice(logits, targets)
+    def forward(self, logits, labels, **_):
+        return self.bce(logits, labels) + self.dice(logits, labels)
 
 
 class WeightedBCELoss2d(nn.Module):
@@ -493,9 +491,9 @@ class WeightedBCELoss2d(nn.Module):
         super(WeightedBCELoss2d, self).__init__()
 
     def forward(self, logits, labels, weights, **_):
-        w = weights.view(-1)
-        z = logits.view(-1)
-        t = labels.view(-1)
+        w = weights.view(-1)            # (-1 operation flattens all the dimensions)
+        z = logits.view(-1)             # (-1 operation flattens all the dimensions)
+        t = labels.view(-1)             # (-1 operation flattens all the dimensions)
         loss = w*z.clamp(min=0) - w*z*t + w*torch.log(1 + torch.exp(-z.abs()))
         loss = loss.sum()/w.sum()
         return loss
@@ -592,7 +590,7 @@ class FocalLoss2(nn.Module):
             if self.smooth < 0 or self.smooth > 1.0:
                 raise ValueError('smooth value should be in [0,1]')
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
 
         # logit = F.softmax(input, dim=1)
 
@@ -601,7 +599,7 @@ class FocalLoss2(nn.Module):
             logits = logits.view(logits.size(0), logits.size(1), -1)
             logits = logits.permute(0, 2, 1).contiguous()
             logits = logits.view(-1, logits.size(-1))
-        targets = targets.view(-1, 1)
+        labels = labels.view(-1, 1)
 
         # N = input.size(0)
         # alpha = torch.ones(N, self.num_class)
@@ -610,9 +608,9 @@ class FocalLoss2(nn.Module):
         epsilon = 1e-10
         alpha = self.alpha.to(logits.device)
 
-        idx = targets.cpu().long()
+        idx = labels.cpu().long()
 
-        one_hot_key = torch.FloatTensor(targets.size(0), self.num_class).zero_()
+        one_hot_key = torch.FloatTensor(labels.size(0), self.num_class).zero_()
         one_hot_key = one_hot_key.scatter_(1, idx, 1)
         one_hot_key = one_hot_key.to(logits.device)
 
@@ -661,7 +659,7 @@ class FocalLoss3(nn.Module):
         self.class_num = class_num
         self.size_average = size_average
 
-    def forward(self, inputs, targets, **_):  # variables
+    def forward(self, inputs, labels, **_):  # variables
         P = F.softmax(inputs)
 
         if len(inputs.size()) == 3:
@@ -674,13 +672,13 @@ class FocalLoss3(nn.Module):
             torch_out = torch_out.cuda()
 
         class_mask = Variable(torch_out)
-        class_mask.scatter_(1, targets.long(), 1.)
+        class_mask.scatter_(1, labels.long(), 1.)
         class_mask = class_mask[:,:-1,:,:]
 
         if inputs.is_cuda and not self.alpha.is_cuda:
             self.alpha = self.alpha.cuda()
         # print('alpha',self.alpha.size())
-        alpha = self.alpha[targets.data.view(-1)].view_as(targets)
+        alpha = self.alpha[labels.data.view(-1)].view_as(labels)
         # print (alpha.size(),class_mask.size(),P.size())
         probs = (P * class_mask).sum(1)  # + 1e-6#.view(-1, 1)
         log_p = probs.log()
@@ -709,8 +707,8 @@ class BinaryFocalLoss(nn.Module):
         self.eps = eps
         self.alpha = alpha
 
-    def forward(self, inputs, targets, **_):
-        BCE_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
+    def forward(self, inputs, labels, **_):
+        BCE_loss = F.binary_cross_entropy_with_logits(inputs, labels, reduction='none')
         pt = torch.exp(-BCE_loss)  # prevents nans when probability 0
         F_loss = self.alpha * (1 - pt) ** self.gamma * BCE_loss
         return F_loss.mean()
@@ -725,10 +723,10 @@ class PoissonLoss(nn.Module):
         super().__init__()
         self.bias = bias
 
-    def forward(self, output, targets, **_):
+    def forward(self, output, labels, **_):
         # _assert_no_grad(target)
         with torch.no_grad:         # Pytorch 0.4.0 replacement (should be ok to use like this)
-            return (output - targets * torch.log(output + self.bias)).mean()
+            return (output - labels * torch.log(output + self.bias)).mean()
 
 
 class PoissonLoss3d(nn.Module):
@@ -936,18 +934,18 @@ class ComboBCEDiceLoss(nn.Module):
         self.running_bce_loss.zero_()
         self.running_dice_loss.zero_()
 
-    def forward(self, outputs, targets, **_):
+    def forward(self, outputs, labels, **_):
         # inputs and targets are assumed to be BxCxWxH (batch, color, width, height)
         outputs = outputs.squeeze()       # necessary in case we're dealing with binary segmentation (color dim of 1)
-        assert len(outputs.shape) == len(targets.shape)
+        assert len(outputs.shape) == len(labels.shape)
         # assert that B, W and H are the same
-        assert outputs.size(-0) == targets.size(-0)
-        assert outputs.size(-1) == targets.size(-1)
-        assert outputs.size(-2) == targets.size(-2)
+        assert outputs.size(-0) == labels.size(-0)
+        assert outputs.size(-1) == labels.size(-1)
+        assert outputs.size(-2) == labels.size(-2)
 
-        bce_loss = self.bce_logits_loss(outputs, targets)
+        bce_loss = self.bce_logits_loss(outputs, labels)
 
-        dice_target = (targets == 1).float()
+        dice_target = (labels == 1).float()
         dice_output = torch.sigmoid(outputs)
         intersection = (dice_output * dice_target).sum()
         union = dice_output.sum() + dice_target.sum() + self.eps
@@ -1013,30 +1011,30 @@ class ComboSemsegLossWeighted(nn.Module):
         self.running_bce_loss.zero_()
         self.running_dice_loss.zero_()
 
-    def forward(self, outputs, targets, weights, **_):
-        # inputs and targets are assumed to be BxCxWxH
-        assert len(outputs.shape) == len(targets.shape)
+    def forward(self, logits, labels, weights, **_):
+        # logits and labels are assumed to be BxCxWxH
+        assert len(logits.shape) == len(labels.shape)
         # assert that B, W and H are the same
-        assert outputs.size(0) == targets.size(0)
-        assert outputs.size(2) == targets.size(2)
-        assert outputs.size(3) == targets.size(3)
+        assert logits.size(0) == labels.size(0)
+        assert logits.size(2) == labels.size(2)
+        assert logits.size(3) == labels.size(3)
 
         # weights are assumed to be BxWxH
         # assert that B, W and H are the are the same for target and mask
-        assert outputs.size(0) == weights.size(0)
-        assert outputs.size(2) == weights.size(1)
-        assert outputs.size(3) == weights.size(2)
+        assert logits.size(0) == weights.size(0)
+        assert logits.size(2) == weights.size(1)
+        assert logits.size(3) == weights.size(2)
 
         if self.use_weight_mask:
-            bce_loss = F.binary_cross_entropy_with_logits(input=outputs,
-                                                          target=targets,
+            bce_loss = F.binary_cross_entropy_with_logits(input=logits,
+                                                          target=labels,
                                                           weight=weights)
         else:
-            bce_loss = self.nll_loss(input=outputs,
-                                     target=targets)
+            bce_loss = self.nll_loss(input=logits,
+                                     target=labels)
 
-        dice_target = (targets == 1).float()
-        dice_output = torch.sigmoid(outputs)
+        dice_target = (labels == 1).float()
+        dice_output = torch.sigmoid(logits)
         intersection = (dice_output * dice_target).sum()
         union = dice_output.sum() + dice_target.sum() + self.eps
         dice_loss = (-torch.log(2 * intersection / union))
@@ -1285,28 +1283,28 @@ class OhemCELoss(nn.Module):
         self.min_kept = max(1, self.configer.get('loss.params.ohem_ce_loss.minkeep', default=5))
         self.is_binary = is_binary
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         """
             Args:
                 logits:(n, c, h, w)
-                targets:(n, h, w)
+                labels:(n, h, w)
                 weight (Tensor, optional): a manual rescaling weight given to each class.
                                            If given, has to be a Tensor of size "nclasses"
         """
-        batch_kept = self.min_kept * targets.size(0)
-        targets = self._scale_target(targets, (logits.size(2), logits.size(3)))
+        batch_kept = self.min_kept * labels.size(0)
+        labels = self._scale_target(labels, (logits.size(2), logits.size(3)))
         if self.is_binary:
             prob_out = torch.sigmoid(logits)
         else:
             prob_out = F.softmax(logits, dim=1)
-        tmp_target = targets.clone()
+        tmp_target = labels.clone()
         tmp_target[tmp_target == self.ignore_index] = 0
         prob = prob_out.gather(1, tmp_target.unsqueeze(1))
-        mask = targets.contiguous().view(-1, ) != self.ignore_index
+        mask = labels.contiguous().view(-1, ) != self.ignore_index
         sort_prob, sort_indices = prob.contiguous().view(-1, )[mask].contiguous().sort()
         min_threshold = sort_prob[min(batch_kept, sort_prob.numel() - 1)] if sort_prob.numel() > 0 else 0.0
         threshold = max(min_threshold, self.thresh)
-        loss_matrix = F.cross_entropy(logits, targets,
+        loss_matrix = F.cross_entropy(logits, labels,
                                       weight=self.weight.to(logits.device) if self.weight is not None else None,
                                       ignore_index=self.ignore_index, reduction='none')
         loss_matrix = loss_matrix.contiguous().view(-1, )
@@ -1459,7 +1457,7 @@ class MultiTverskyLoss(nn.Module):
         self.reduction = reduction
         self.weights = weights
 
-    def forward(self, inputs, targets, **_):
+    def forward(self, inputs, labels, **_):
         num_class = inputs.size(1)
         weight_losses = 0.0
         if self.weights is not None:
@@ -1471,7 +1469,7 @@ class MultiTverskyLoss(nn.Module):
         for idx in range(num_class):
             input_idx = input_slices[idx]
             input_idx = torch.cat((1 - input_idx, input_idx), dim=1)
-            target_idx = (targets == idx) * 1
+            target_idx = (labels == idx) * 1
             loss_func = FocalBinaryTverskyFunc(self.alpha, self.beta, self.gamma, self.reduction)
             loss_idx = loss_func(input_idx, target_idx)
             weight_losses+=loss_idx * weights[idx]
@@ -1508,8 +1506,8 @@ class FocalBinaryTverskyLoss(MultiTverskyLoss):
         """
         super().__init__(alpha, beta, gamma, reduction)
 
-    def forward(self, inputs, targets, **_):
-        return super().forward(inputs, targets.unsqueeze(1))
+    def forward(self, inputs, labels, **_):
+        return super().forward(inputs, labels.unsqueeze(1))
 
 # ===================== #
 # Source: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/LovaszSoftmax/lovasz_loss.py
@@ -1883,7 +1881,7 @@ class BDLoss(nn.Module):
         super(BDLoss, self).__init__()
         # self.do_bg = do_bg
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         """
         net_output: (batch_size, class, x,y,z)
         target: ground truth, shape: (batch_size, 1, x,y,z)
@@ -1894,18 +1892,18 @@ class BDLoss(nn.Module):
         else:
             logits = F.softmax(logits, dim=1)
         with torch.no_grad():
-            if len(logits.shape) != len(targets.shape):
-                targets = targets.view((targets.shape[0], 1, *targets.shape[1:]))
+            if len(logits.shape) != len(labels.shape):
+                labels = labels.view((labels.shape[0], 1, *labels.shape[1:]))
 
-            if all([i == j for i, j in zip(logits.shape, targets.shape)]):
+            if all([i == j for i, j in zip(logits.shape, labels.shape)]):
                 # if this is the case then gt is probably already a one hot encoding
-                y_onehot = targets
+                y_onehot = labels
             else:
-                targets = targets.long()
+                labels = labels.long()
                 y_onehot = torch.zeros(logits.shape)
                 if logits.device.type == "cuda":
                     y_onehot = y_onehot.cuda(logits.device.index)
-                y_onehot.scatter_(1, targets, 1)
+                y_onehot.scatter_(1, labels, 1)
             gt_sdf = compute_sdf(y_onehot.cpu().numpy(), logits.shape)
 
         phi = torch.from_numpy(gt_sdf)
@@ -1945,16 +1943,16 @@ class TverskyLoss(nn.Module):
         self.beta = beta
         self.eps = eps
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         """
         Args:
             :param logits: a tensor of shape [B, C, H, W]. Corresponds to the raw output or logits of the model.
-            :param targets: a tensor of shape [B, H, W] or [B, 1, H, W].
+            :param labels: a tensor of shape [B, H, W] or [B, 1, H, W].
             :return: loss
         """
         num_classes = logits.shape[1]
         if num_classes == 1:
-            true_1_hot = torch.eye(num_classes + 1)[targets.squeeze(1).long()]
+            true_1_hot = torch.eye(num_classes + 1)[labels.squeeze(1).long()]
             true_1_hot = true_1_hot.permute(0, 3, 1, 2).float()
             true_1_hot_f = true_1_hot[:, 0:1, :, :]
             true_1_hot_s = true_1_hot[:, 1:2, :, :]
@@ -1963,7 +1961,7 @@ class TverskyLoss(nn.Module):
             neg_prob = 1 - pos_prob
             probas = torch.cat([pos_prob, neg_prob], dim=1)
         else:
-            true_1_hot = torch.eye(num_classes)[targets.squeeze(1)]
+            true_1_hot = torch.eye(num_classes)[labels.squeeze(1)]
             true_1_hot = true_1_hot.permute(0, 3, 1, 2).float()
             probas = F.softmax(logits, dim=1)
         true_1_hot = true_1_hot.type(logits.type())
@@ -2057,7 +2055,7 @@ class AsymLoss(nn.Module):
         self.smooth = smooth
         self.beta = 1.5
 
-    def forward(self, logits, targets, loss_mask=None, **_):
+    def forward(self, logits, labels, loss_mask=None, **_):
         shp_x = logits.shape
 
         if self.batch_dice:
@@ -2068,7 +2066,7 @@ class AsymLoss(nn.Module):
         if self.apply_nonlin is not None:
             logits = self.apply_nonlin(logits)
 
-        tp, fp, fn = get_tp_fp_fn(logits, targets, axes, loss_mask, self.square)# shape: (batch size, class num)
+        tp, fp, fn = get_tp_fp_fn(logits, labels, axes, loss_mask, self.square)# shape: (batch size, class num)
         weight = (self.beta**2)/(1+self.beta**2)
         asym = (tp + self.smooth) / (tp + weight*fn + (1-weight)*fp + self.smooth)
 
@@ -2177,11 +2175,11 @@ class RMILoss(nn.Module):
         self.ignore_index = 255
         self.device = device
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         if self.num_classes == 1:
-            loss = self.forward_sigmoid(logits, targets)
+            loss = self.forward_sigmoid(logits, labels)
         else:
-            loss = self.forward_softmax_sigmoid(logits, targets)
+            loss = self.forward_softmax_sigmoid(logits, labels)
         return loss
 
     def forward_softmax_sigmoid(self, inputs, targets):
@@ -2447,14 +2445,14 @@ class RMILossAlt(nn.Module):
         self.use_log_trace = use_log_trace
         self.epsilon = epsilon
 
-    def forward(self, logits, targets, **_):
-        targets = targets.unsqueeze(1)
+    def forward(self, logits, labels, **_):
+        labels = labels.unsqueeze(1)
         # Calculate BCE if needed
         if self.bce_weight != 0:
             if self.with_logits:
-                bce = F.binary_cross_entropy_with_logits(logits, target=targets)
+                bce = F.binary_cross_entropy_with_logits(logits, target=labels)
             else:
-                bce = F.binary_cross_entropy(logits, target=targets)
+                bce = F.binary_cross_entropy(logits, target=labels)
             bce = bce.mean() * self.bce_weight
         else:
             bce = 0.0
@@ -2464,7 +2462,7 @@ class RMILossAlt(nn.Module):
             logits = torch.sigmoid(logits)
 
         # Calculate RMI loss
-        rmi = self.rmi_loss(input=logits, target=targets)
+        rmi = self.rmi_loss(input=logits, target=labels)
         rmi = rmi.mean() * (1.0 - self.bce_weight)
         return rmi + bce
 
@@ -2581,12 +2579,12 @@ class BoundaryLoss(nn.Module):
         self.weight = weight
         self.is_binary = is_binary
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         """
         Input:
-            - pred: the output from model (before softmax)
+            - logits: the output from model (before softmax)
                     shape (N, C, H, W)
-            - gt: ground truth map
+            - labels: ground truth map
                     shape (N, H, w)
         Return:
             - boundary loss, averaged over mini-batch
@@ -2605,9 +2603,9 @@ class BoundaryLoss(nn.Module):
         # zo = F.one_hot(gt, c)
         # print(zo.shape)
         if self.is_binary:
-            one_hot_gt = targets
+            one_hot_gt = labels
         else:
-            one_hot_gt = F.one_hot(targets.long()).permute(0, 3, 1, 2).squeeze(dim=-1).contiguous().float()
+            one_hot_gt = F.one_hot(labels.long()).permute(0, 3, 1, 2).squeeze(dim=-1).contiguous().float()
 
         # boundary map
         gt_b = F.max_pool2d(1 - one_hot_gt, kernel_size=self.theta0, stride=1, padding=(self.theta0 - 1) // 2)
@@ -2678,24 +2676,24 @@ class HausdorffDTLoss(nn.Module):
 
         return field
 
-    def forward(self, logits: torch.Tensor, targets: torch.Tensor, debug=False, **_) -> torch.Tensor:
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, debug=False, **_) -> torch.Tensor:
         """
         Uses one binary channel: 1 - fg, 0 - bg
         pred: (b, 1, x, y, z) or (b, 1, x, y)
         target: (b, 1, x, y, z) or (b, 1, x, y)
         """
-        targets = targets.unsqueeze(1)
+        labels = labels.unsqueeze(1)
 
         assert logits.dim() == 4 or logits.dim() == 5, "Only 2D and 3D supported"
-        assert (logits.dim() == targets.dim()), "Prediction and target need to be of same dimension"
+        assert (logits.dim() == labels.dim()), "Prediction and target need to be of same dimension"
 
         # this is necessary for binary loss
         logits = torch.sigmoid(logits)
 
         pred_dt = torch.from_numpy(self.distance_field(logits.detach().cpu().numpy())).float()
-        target_dt = torch.from_numpy(self.distance_field(targets.detach().cpu().numpy())).float()
+        target_dt = torch.from_numpy(self.distance_field(labels.detach().cpu().numpy())).float()
 
-        pred_error = (logits - targets) ** 2
+        pred_error = (logits - labels) ** 2
         distance = pred_dt.to(logits.device) ** self.alpha + target_dt.to(logits.device) ** self.alpha
 
         dt_field = pred_error * distance
@@ -2827,19 +2825,19 @@ class RecallLoss(nn.Module):
             self.weight = weight / torch.sum(weight) # Normalized weight
         self.smooth = 1e-5
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         N, C = logits.size()[:2]
         _, predict = torch.max(logits, 1)# # (N, C, *) ==> (N, 1, *)
 
         predict = predict.view(N, 1, -1) # (N, 1, *)
-        targets = targets.view(N, 1, -1) # (N, 1, *)
-        last_size = targets.size(-1)
+        labels = labels.view(N, 1, -1) # (N, 1, *)
+        last_size = labels.size(-1)
 
         ## convert predict & target (N, 1, *) into one hot vector (N, C, *)
         predict_onehot = torch.zeros((N, C, last_size)).cuda() # (N, 1, *) ==> (N, C, *)
         predict_onehot.scatter_(1, predict, 1) # (N, C, *)
         target_onehot = torch.zeros((N, C, last_size)).cuda() # (N, 1, *) ==> (N, C, *)
-        target_onehot.scatter_(1, targets, 1) # (N, C, *)
+        target_onehot.scatter_(1, labels, 1) # (N, C, *)
 
         true_positive = torch.sum(predict_onehot * target_onehot, dim=2)  # (N, C)
         total_target = torch.sum(target_onehot, dim=2)  # (N, C)
@@ -2863,11 +2861,11 @@ class SoftInvDiceLoss(torch.nn.Module):
     def __init__(self, **_):
         super(SoftInvDiceLoss, self).__init__()
 
-    def forward(self, logits, targets, **_):
+    def forward(self, logits, labels, **_):
         smooth = 1.
         logits = torch.sigmoid(logits)
         iflat = 1 - logits.view(-1)
-        tflat = 1 - targets.view(-1)
+        tflat = 1 - labels.view(-1)
         intersection = (iflat * tflat).sum()
         return 1 - ((2. * intersection + smooth) / (iflat.sum() + tflat.sum() + smooth))
 

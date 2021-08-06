@@ -5,9 +5,9 @@ simply extend the pywick.callbacks.Callback class and overwrite functions that y
 
 """
 from .Callback import *
-from .CyclicLRScheduler import *
 from .CallbackContainer import *
 from .CSVLogger import *
+from .CyclicLRScheduler import *
 from .EarlyStopping import *
 from .ExperimentLogger import *
 from .History import *
