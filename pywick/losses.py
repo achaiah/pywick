@@ -465,11 +465,11 @@ class BCEDiceFocalLoss(nn.Module):
         :param size_average: (bool, optional) By default, the losses are averaged over each loss element in the batch.
         :param weights: (list(), default = [1,1,1]) Optional weighing (0.0-1.0) of the losses in order of [bce, dice, focal]
     '''
-    def __init__(self, focal_param, weights=[1.0,1.0,1.0], **_):
+    def __init__(self, focal_param, weights=[1.0,1.0,1.0], **kwargs):
         super(BCEDiceFocalLoss, self).__init__()
-        self.bce = nn.BCEWithLogitsLoss(weight=None, size_average=None, reduce=None, reduction='mean', pos_weight=None)
-        self.dice = SoftDiceLoss()
-        self.focal = FocalLoss(l=focal_param)
+        self.bce = BCEWithLogitsViewLoss(weight=None, size_average=True, **kwargs)
+        self.dice = SoftDiceLoss(**kwargs)
+        self.focal = FocalLoss(l=focal_param, **kwargs)
         self.weights = weights
 
     def forward(self, logits, labels, **_):
@@ -1066,22 +1066,28 @@ class ComboSemsegLossWeighted(nn.Module):
 # Description: http://www.erogol.com/online-hard-example-mining-pytorch/
 # Online Hard Example Loss
 class OhemCrossEntropy2d(nn.Module):
-    def __init__(self, thresh=0.6, min_kept=0, ignore_index=-100, **_):
+    def __init__(self, thresh=0.6, min_kept=0, ignore_index=-100, is_binary=True, **kwargs):
         super().__init__()
         self.ignore_label = ignore_index
+        self.is_binary = is_binary
         self.thresh = float(thresh)
         self.min_kept = int(min_kept)
-        self.criterion = nn.BCEWithLogitsLoss()
+        self.criterion = BCEWithLogitsViewLoss(**kwargs)
 
-    def forward(self, predict, target, **_):
+    def forward(self, logits, labels, **_):
         """
             Args:
                 predict:(n, c, h, w)
-                target:(n, h, w)
+                labels:(n, h, w)
         """
 
+        if self.is_binary:
+            predict = torch.sigmoid(logits)
+        else:
+            predict = F.softmax(logits, dim=1)
+
         n, c, h, w = predict.size()
-        input_label = target.detach().cpu().numpy().ravel().astype(np.int32)
+        input_label = labels.detach().cpu().numpy().ravel().astype(np.int32)
         x = np.rollaxis(predict.detach().cpu().numpy(), 1).reshape((c, -1))
         input_prob = np.exp(x - x.max(axis=0).reshape((1, -1)))
         input_prob /= input_prob.sum(axis=0).reshape((1, -1))
@@ -1109,10 +1115,10 @@ class OhemCrossEntropy2d(nn.Module):
         input_label.fill(self.ignore_label)
         input_label[valid_inds] = label
         #print(np.sum(input_label != self.ignore_label))
-        target = torch.from_numpy(input_label.reshape(target.size())).type_as(predict).to(target.device)
+        labels = torch.from_numpy(input_label.reshape(labels.size())).type_as(predict).to(labels.device)
 
         predict = predict.squeeze()          # in case we're dealing with B/W images instead of RGB
-        return self.criterion(predict, target)
+        return self.criterion(predict, labels)
 
 
 # ====================== #
@@ -1216,13 +1222,13 @@ class OHEMSegmentationLosses(OhemCrossEntropy2d):
     2D Cross Entropy Loss with Auxiliary Loss
 
     """
-    def __init__(self, se_loss=False, se_weight=0.2, nclass=-1,
+    def __init__(self, se_loss=False, se_weight=0.2, num_classes=1,
                  aux=False, aux_weight=0.4, weight=None,
                  ignore_index=-1):
         super(OHEMSegmentationLosses, self).__init__(ignore_index)
         self.se_loss = se_loss
         self.aux = aux
-        self.nclass = nclass
+        self.num_classes = num_classes
         self.se_weight = se_weight
         self.aux_weight = aux_weight
         self.bceloss = nn.BCELoss(weight)
@@ -1241,13 +1247,13 @@ class OHEMSegmentationLosses(OhemCrossEntropy2d):
             return loss1 + self.aux_weight * loss2
         elif not self.aux:
             pred, se_pred, target = tuple(inputs)
-            se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred)
+            se_target = self._get_batch_label_vector(target, nclass=self.num_classes).type_as(pred)
             loss1 = super(OHEMSegmentationLosses, self).forward(pred, target)
             loss2 = self.bceloss(torch.sigmoid(se_pred), se_target)
             return loss1 + self.se_weight * loss2
         else:
             pred1, se_pred, pred2, target = tuple(inputs)
-            se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred1)
+            se_target = self._get_batch_label_vector(target, nclass=self.num_classes).type_as(pred1)
             loss1 = super(OHEMSegmentationLosses, self).forward(pred1, target)
             loss2 = super(OHEMSegmentationLosses, self).forward(pred2, target)
             loss3 = self.bceloss(torch.sigmoid(se_pred), se_target)
@@ -1591,17 +1597,21 @@ class ActiveContourLoss(nn.Module):
         self.mu = mu
         self.is_binary = is_binary
 
-    def forward(self, logits, target, **_):
+    def forward(self, logits, labels, **_):
         if self.is_binary:
             logits = torch.sigmoid(logits)
         else:
             logits = F.softmax(logits, dim=1)
 
+        if labels.shape != logits.shape:
+            if logits.shape > labels.shape:
+                labels.unsqueeze(dim=1)
+            else:
+                raise Exception(f'Non-matching shapes for logits ({logits.shape}) and labels ({labels.shape})')
+
         """
         length term
         """
-        target = target.unsqueeze(1)        # add extra dimension to the B/W masks
-
         x = logits[:,:,1:,:] - logits[:,:,:-1,:]    # horizontal gradient (B, C, H-1, W)
         y = logits[:,:,:,1:] - logits[:,:,:,:-1]    # vertical gradient   (B, C, H,   W-1)
 
@@ -1617,10 +1627,10 @@ class ActiveContourLoss(nn.Module):
         """
 
         C_in = torch.ones_like(logits)
-        C_out = torch.zeros_like(target)
+        C_out = torch.zeros_like(labels)
 
-        region_in = torch.abs(torch.mean(logits[:,0,:,:] * ((target[:,0,:,:] - C_in)**2)))         # equ.(12) in the paper, mean is used instead of sum.
-        region_out = torch.abs(torch.mean((1-logits[:,0,:,:]) * ((target[:,0,:,:] - C_out)**2)))   # equ.(12) in the paper
+        region_in = torch.abs(torch.mean(logits[:,0,:,:] * ((labels[:, 0, :, :] - C_in) ** 2)))         # equ.(12) in the paper, mean is used instead of sum.
+        region_out = torch.abs(torch.mean((1-logits[:,0,:,:]) * ((labels[:, 0, :, :] - C_out) ** 2)))   # equ.(12) in the paper
 
         return length + self.lambdaP * (self.mu * region_in + region_out)
 
@@ -1645,16 +1655,18 @@ class ActiveContourLossAlt(nn.Module):
         self.apply_log = apply_log
         self.is_binary = is_binary
 
-    def forward(self, logits, target, **_):
-        if self.is_binary:
-            logits = torch.sigmoid(logits)
-        else:
-            logits = F.softmax(logits, dim=1)
-
-        target = target.unsqueeze(1)
-
+    def forward(self, logits, labels, **_):
         # must convert raw logits to predicted probabilities for each pixel along channel
-        probs = F.softmax(logits, dim=1)
+        if self.is_binary:
+            probs = torch.sigmoid(logits)
+        else:
+            probs = F.softmax(logits, dim=1)
+
+        if labels.shape != logits.shape:
+            if logits.shape > labels.shape:
+                labels.unsqueeze(dim=1)
+            else:
+                raise Exception(f'Non-matching shapes for logits ({logits.shape}) and labels ({labels.shape})')
 
         """
         length term:
@@ -1666,8 +1678,8 @@ class ActiveContourLossAlt(nn.Module):
         x = probs[:, :, 1:, :] - probs[:, :, :-1, :]      # differences in horizontal direction
         y = probs[:, :, :, 1:] - probs[:, :, :, :-1]      # differences in vertical direction
 
-        target_x = target[:, :, 1:, :] - target[:, :, :-1, :]
-        target_y = target[:, :, :, 1:] - target[:, :, :, :-1]
+        target_x = labels[:, :, 1:, :] - labels[:, :, :-1, :]
+        target_y = labels[:, :, :, 1:] - labels[:, :, :, :-1]
 
         # find difference between values of probs and targets
         delta_x = (target_x - x).abs()          # do we need to subtract absolute values or relative?
@@ -1697,11 +1709,11 @@ class ActiveContourLossAlt(nn.Module):
         # C_2 = torch.zeros((image_size, image_size), device=target.device)
 
         # the sum of all pixel values that are not equal 0 outside of the ground truth mask
-        error_in = probs[:, 0, :, :] * ((target[:, 0, :, :] - 1) ** 2)  # invert the ground truth mask and multiply by probs
+        error_in = probs[:, 0, :, :] * ((labels[:, 0, :, :] - 1) ** 2)  # invert the ground truth mask and multiply by probs
 
         # the sum of all pixel values that are not equal 1 inside of the ground truth mask
-        probs_diff = (probs[:, 0, :, :] - target[:, 0, :, :]).abs()     # subtract mask from probs giving us the errors
-        error_out = (probs_diff * target[:, 0, :, :])                   # multiply mask by error, giving us the error terms inside the mask.
+        probs_diff = (probs[:, 0, :, :] - labels[:, 0, :, :]).abs()     # subtract mask from probs giving us the errors
+        error_out = (probs_diff * labels[:, 0, :, :])                   # multiply mask by error, giving us the error terms inside the mask.
 
         if self.apply_log:
             loss = torch.log(length_loss) + torch.log(error_in.sum() + error_out.sum())
@@ -2858,16 +2870,21 @@ class SoftInvDiceLoss(torch.nn.Module):
     """
     Well-performing loss for binary segmentation
     """
-    def __init__(self, **_):
+    def __init__(self, smooth=1., is_binary=True, **_):
         super(SoftInvDiceLoss, self).__init__()
+        self.smooth = smooth
+        self.is_binary = is_binary
 
     def forward(self, logits, labels, **_):
-        smooth = 1.
-        logits = torch.sigmoid(logits)
+        # sigmoid / softmax so that predicted map can be distributed in [0, 1]
+        if self.is_binary:
+            logits = torch.sigmoid(logits)
+        else:
+            logits = torch.softmax(logits, dim=1)
         iflat = 1 - logits.view(-1)
         tflat = 1 - labels.view(-1)
         intersection = (iflat * tflat).sum()
-        return 1 - ((2. * intersection + smooth) / (iflat.sum() + tflat.sum() + smooth))
+        return 1 - ((2. * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth))
 
 
 # ======================= #
@@ -2888,21 +2905,25 @@ class RMIBCEDicePenalizeBorderLoss(RMILossAlt):
     """
     Combined RMI and BCEDicePenalized Loss
     """
-    def __init__(self, kernel_size=21, **kwargs):
+    def __init__(self, kernel_size=21, rmi_weight=1.0, bce_weight=1.0, **kwargs):
         super().__init__(**kwargs)
         self.bce = BCEDicePenalizeBorderLoss(kernel_size=kernel_size)
+        self.bce_weight = bce_weight
+        self.rmi_weight = rmi_weight
 
     def to(self, device):
         super().to(device=device)
         self.bce.to(device=device)
 
-    def forward(self, logits, target, **_):
-        target = target.unsqueeze(1)
-
-        # Apply sigmoid to get probabilities. See final paragraph of section 4.
-        rmi_input = torch.sigmoid(logits) if self.with_logits else logits
+    def forward(self, logits, labels, **_):
+        if labels.shape != logits.shape:
+            if logits.shape > labels.shape:
+                labels.unsqueeze(dim=1)
+            else:
+                raise Exception(f'Non-matching shapes for logits ({logits.shape}) and labels ({labels.shape})')
 
         # Calculate RMI loss
-        rmi = self.rmi_loss(input=rmi_input, target=target)
-        rmi = rmi.mean() * (1.0 - self.bce_weight)
-        return rmi + self.bce_weight * self.bce.forward(logits, target)
+        rmi = self.rmi_loss(input=torch.sigmoid(logits), target=labels)
+        bce = self.bce(logits, labels)
+        # rmi = rmi.mean() * (1.0 - self.bce_weight)
+        return self.rmi_weight * rmi + self.bce_weight * bce
