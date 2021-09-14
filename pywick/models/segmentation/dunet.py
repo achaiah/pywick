@@ -41,7 +41,7 @@ class DUNet(SegBaseModel):
         x = self.dupsample(x)
         outputs.append(x)
 
-        if self.aux:
+        if self.aux and self.training:
             auxout = self.auxlayer(c3)
             auxout = self.aux_dupsample(auxout)
             outputs.append(auxout)

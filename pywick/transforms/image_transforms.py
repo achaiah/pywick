@@ -52,13 +52,13 @@ class MaskPixelsToMap(object):
     """
     def __init__(self, value_map: dict = None):
         """
-        :param value_map: Value map to encode
+        :param value_map: Value map to encode. Typically classes are a set of continuous integers starting at 0 (e.g. {55:0, 100:1, 255:2})
         """
         self.value_map = value_map
 
     def __call__(self, mask):
         """
-        :param mask: PIL or OpenCV image with pixel values in [0-255] range
+        :param mask: PIL or OpenCV mask with pixel values in [0-255] range
         :return:
         """
         mask = np.array(mask)  # convert to np

@@ -43,7 +43,7 @@ class TKCNet(BaseNet):
         out = upsample(x, imsize, **self._up_kwargs)
         out1 = [out]
 
-        if self.aux:
+        if self.aux and self.training:
             return tuple(out1)
         else:
             return out1[0]

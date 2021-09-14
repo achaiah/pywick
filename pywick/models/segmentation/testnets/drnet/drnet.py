@@ -120,7 +120,7 @@ class DRNet(nn.Module):
     def forward(self, x):
         end_points = self.encode(x)
         end_points = [end_points['feat1'], end_points['feat2'], end_points['feat3'], end_points['feat4'], end_points['feat5']]
-        x = self.decode(*end_points).sigmoid()
+        x = self.decode(*end_points)
         return x
 
 
@@ -132,6 +132,7 @@ class DRCLoss(nn.Module):
         self.cfg_c = cfg_c
 
     def forward(self, pred, labels):
+        pred = pred.sigmoid()
         total_loss = self.weight1.pow(-2) * cross_entropy_per_image(pred, labels) + \
                  self.weight2.pow(-2) * self.cfg_c * dice_loss_per_image(pred, labels) + \
                  (1 + self.weight1 * self.weight2).log()

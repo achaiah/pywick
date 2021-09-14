@@ -13,6 +13,7 @@ import torch
 
 __all__ = ['OnceCycleLRScheduler']
 
+
 class OneCycleLR(torch.optim.lr_scheduler.StepLR):
     r"""Sets the learning rate of each parameter group according to the
     1cycle learning rate policy. The 1cycle policy anneals the learning

@@ -39,7 +39,7 @@ class BiSeNet(nn.Module):
         x = F.interpolate(x, size, mode='bilinear', align_corners=True)
         outputs.append(x)
 
-        if self.aux:
+        if self.aux and self.training:
             auxout1 = self.auxlayer1(context_out[0])
             auxout1 = F.interpolate(auxout1, size, mode='bilinear', align_corners=True)
             outputs.append(auxout1)

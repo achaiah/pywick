@@ -1,4 +1,4 @@
-__version__ = '0.5.3'
+__version__ = '0.6.0'
 __author__ = 'Achaiah'
 __description__ = 'High-level batteries-included neural network training library for Pytorch'
 
@@ -7,11 +7,12 @@ from pywick import (
     conditions,
     constraints,
     datasets,
+    dictmodels,
     functions,
     gridsearch,
     losses,
-    metrics,
     meters,
+    metrics,
     misc,
     models,
     modules,

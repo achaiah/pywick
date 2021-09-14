@@ -12,3 +12,6 @@ models and model-variations. If you're interested in the bleeding edge, that's w
 """
 
 from . import model_locations
+from .classification import *
+from .segmentation import *
+from .model_utils import *

@@ -31,12 +31,13 @@ class FCN32s(nn.Module):
         out = F.interpolate(out, size, mode='bilinear', align_corners=True)
         outputs.append(out)
 
-        if self.aux:
+        if self.aux and self.training:
             auxout = self.auxlayer(pool5)
             auxout = F.interpolate(auxout, size, mode='bilinear', align_corners=True)
             outputs.append(auxout)
-
-        return tuple(outputs)
+            return tuple(outputs)
+        else:
+            return outputs[0]
 
 
 class FCN16s(nn.Module):
@@ -71,12 +72,14 @@ class FCN16s(nn.Module):
         out = F.interpolate(fuse_pool4, x.size()[2:], mode='bilinear', align_corners=True)
         outputs.append(out)
 
-        if self.aux:
+        if self.aux and self.training:
             auxout = self.auxlayer(pool5)
             auxout = F.interpolate(auxout, x.size()[2:], mode='bilinear', align_corners=True)
             outputs.append(auxout)
+            return tuple(outputs)
+        else:
+            return outputs[0]
 
-        return tuple(outputs)
 
 
 class FCN8s(nn.Module):
@@ -119,12 +122,13 @@ class FCN8s(nn.Module):
         out = F.interpolate(fuse_pool3, x.size()[2:], mode='bilinear', align_corners=True)
         outputs.append(out)
 
-        if self.aux:
+        if self.aux and self.training:
             auxout = self.auxlayer(pool5)
             auxout = F.interpolate(auxout, x.size()[2:], mode='bilinear', align_corners=True)
             outputs.append(auxout)
-
-        return tuple(outputs)
+            return tuple(outputs)
+        else:
+            return outputs[0]
 
 
 class _FCNHead(nn.Module):

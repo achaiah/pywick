@@ -49,7 +49,7 @@ class DenseASPP(nn.Module):
         x = F.interpolate(x, size, mode='bilinear', align_corners=True)
         outputs.append(x)
 
-        if self.aux:
+        if self.aux and self.training:
             auxout = self.auxlayer(features)
             auxout = F.interpolate(auxout, size, mode='bilinear', align_corners=True)
             outputs.append(auxout)

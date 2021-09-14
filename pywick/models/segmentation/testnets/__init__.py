@@ -1,4 +1,5 @@
 from .autofocusNN import *
+from .axial_deeplab import *
 from .dabnet import *
 from .deeplabv3 import DeepLabV3 as TEST_DLV3
 from .deeplabv2 import DeepLabV2 as TEST_DLV2
@@ -13,7 +14,7 @@ from .gscnn import GSCNN
 from .lg_kernel_exfuse import GCNFuse
 from .psanet import *
 from .psp_saeed import PSPNet as TEST_PSPNet2
-from .tkcnet.tkcnet import TKCNet_Resnet101
+from .tkcnet import TKCNet_Resnet101
 from .tiramisu_test import FCDenseNet57 as TEST_Tiramisu57
 from .Unet_nested import UNet_Nested_dilated as TEST_Unet_nested_dilated
 from .unet_plus_plus import NestNet as Unet_Plus_Plus

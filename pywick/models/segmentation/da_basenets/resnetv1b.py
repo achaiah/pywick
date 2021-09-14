@@ -9,8 +9,11 @@ model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
     'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
     'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
+    'resnet50_v1c': 'https://github.com/LikeLy-Journey/SegmenTron/releases/download/v0.1.0/resnet50-25c4b509.pth',
     'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
+    'resnet101_v1c': 'https://github.com/LikeLy-Journey/SegmenTron/releases/download/v0.1.0/resnet101-2a57e44d.pth',
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
+    'resnet152_v1c': 'https://github.com/LikeLy-Journey/SegmenTron/releases/download/v0.1.0/resnet152-0d43d698.pth'
 }
 
 
@@ -234,24 +237,24 @@ def resnet152_v1b(pretrained=False, **kwargs):
 def resnet50_v1s(pretrained=False, model_root='~/.torch/models', **kwargs):
     model = ResNetV1b(BottleneckV1b, [3, 4, 6, 3], deep_stem=True, **kwargs)
     if pretrained:
-        from .model_store import get_resnet_file
-        model.load_state_dict(torch.load(get_resnet_file('resnet50', root=model_root)), strict=False)
+        saved_dict = model_zoo.load_url(model_urls['resnet50_v1c'])
+        model.load_state_dict(saved_dict, strict=False)
     return model
 
 
 def resnet101_v1s(pretrained=False, root='~/.torch/models', **kwargs):
     model = ResNetV1b(BottleneckV1b, [3, 4, 23, 3], deep_stem=True, **kwargs)
     if pretrained:
-        from .model_store import get_resnet_file
-        model.load_state_dict(torch.load(get_resnet_file('resnet101', root=root)), strict=False)
+        saved_dict = model_zoo.load_url(model_urls['resnet101_v1c'])
+        model.load_state_dict(saved_dict, strict=False)
     return model
 
 
 def resnet152_v1s(pretrained=False, root='~/.torch/models', **kwargs):
     model = ResNetV1b(BottleneckV1b, [3, 8, 36, 3], deep_stem=True, **kwargs)
     if pretrained:
-        from .model_store import get_resnet_file
-        model.load_state_dict(torch.load(get_resnet_file('resnet152', root=root)), strict=False)
+        saved_dict = model_zoo.load_url(model_urls['resnet152_v1c'])
+        model.load_state_dict(saved_dict, strict=False)
     return model
 
 

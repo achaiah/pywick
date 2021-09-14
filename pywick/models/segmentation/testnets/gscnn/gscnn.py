@@ -196,12 +196,13 @@ class GSCNN(nn.Module):
                   (1024, 2048, 4096)]
     '''
 
-    def __init__(self, num_classes, trunk=None, is_cuda=True, **_):
+    def __init__(self, num_classes, trunk=None, is_cuda=True, aux=False, **_):
         
         super(GSCNN, self).__init__()
         # self.criterion = criterion
         self.num_classes = num_classes
         self.is_cuda = is_cuda
+        self.aux = aux
 
         wide_resnet = wider_resnet38_a2(classes=1, dilation=True)
 
@@ -276,12 +277,9 @@ class GSCNN(nn.Module):
         m6 = self.mod6(m5)
         m7 = self.mod7(m6) 
 
-        s3 = F.interpolate(self.dsn3(m3), x_size[2:],
-                            mode='bilinear', align_corners=True)
-        s4 = F.interpolate(self.dsn4(m4), x_size[2:],
-                            mode='bilinear', align_corners=True)
-        s7 = F.interpolate(self.dsn7(m7), x_size[2:],
-                            mode='bilinear', align_corners=True)
+        s3 = F.interpolate(self.dsn3(m3), x_size[2:], mode='bilinear', align_corners=True)
+        s4 = F.interpolate(self.dsn4(m4), x_size[2:], mode='bilinear', align_corners=True)
+        s7 = F.interpolate(self.dsn7(m7), x_size[2:], mode='bilinear', align_corners=True)
         
         m1f = F.interpolate(m1, x_size[2:], mode='bilinear', align_corners=True)
 
@@ -296,18 +294,15 @@ class GSCNN(nn.Module):
             canny = torch.from_numpy(canny).float()
 
         cs = self.res1(m1f)
-        cs = F.interpolate(cs, x_size[2:],
-                           mode='bilinear', align_corners=True)
+        cs = F.interpolate(cs, x_size[2:], mode='bilinear', align_corners=True)
         cs = self.d1(cs)
         cs = self.gate1(cs, s3)
         cs = self.res2(cs)
-        cs = F.interpolate(cs, x_size[2:],
-                           mode='bilinear', align_corners=True)
+        cs = F.interpolate(cs, x_size[2:], mode='bilinear', align_corners=True)
         cs = self.d2(cs)
         cs = self.gate2(cs, s4)
         cs = self.res3(cs)
-        cs = F.interpolate(cs, x_size[2:],
-                           mode='bilinear', align_corners=True)
+        cs = F.interpolate(cs, x_size[2:],  mode='bilinear', align_corners=True)
         cs = self.d3(cs)
         cs = self.gate3(cs, s7)
         cs = self.fuse(cs)
@@ -329,9 +324,8 @@ class GSCNN(nn.Module):
         dec1 = self.final_seg(dec0)  
         seg_out = self.interpolate(dec1, x_size[2:], mode='bilinear')            
        
-        # if self.training:
-        #     return self.criterion((seg_out, edge_out), gts)
-        # else:
-        #     return (seg_out, edge_out)
-        return seg_out
+        if self.training and self.aux:
+            return [seg_out, edge_out]
+        else:
+            return seg_out
 

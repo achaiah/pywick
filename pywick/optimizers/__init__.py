@@ -14,5 +14,6 @@ from .sgdw import SGDW
 from .swa import SWA
 from .radam import RAdam
 from .lookahead import Lookahead
+from .lookaheadsgd import LookaheadSGD
 from .ralamb import Ralamb
 from .rangerlars import RangerLars

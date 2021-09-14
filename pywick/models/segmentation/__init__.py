@@ -19,13 +19,14 @@ from .denseaspp import *
 from .drn_seg import *
 from .duc_hdc import *
 from .dunet import *
-from .emanet.emanet import EMANet, EmaNet152
+from .emanet import EMANet, EmaNet152
 from .enet import *
 from .fcn8s import *
 from .fcn16s import *
 from .fcn32s import *
 from .frrn1 import *
 from .fusionnet import *
+from .galdnet import *
 from .gcnnets import *
 from .lexpsp import *
 from .mnas_linknets import *
