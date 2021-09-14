@@ -40,10 +40,14 @@ def get_fc_names(model_name, model_type=ModelType.CLASSIFICATION):
         fc_names = ['last_linear']  # most common name of the last layer (to be replaced)
 
         if model_name in torch_models.__dict__:
-            if 'densenet' in model_name or 'squeezenet' in model_name or 'vgg' in model_name:    # apparently these are different...
+            if any(x in ['densenet', 'squeezenet', 'vgg', 'efficientnet'] for x in model_name):    # apparently these are different...
                 fc_names = ['classifier']
-            elif 'inception_v3' in model_name or 'inceptionv3' in model_name or 'Inception3' in model_name:
+            elif any(x in ['inception_v3', 'inceptionv3', 'Inception3'] for x in model_name):
                 fc_names = ['AuxLogits.fc', 'fc']
+            elif any(x in ['swin_', 'vit_', 'pit_'] for x in model_name):
+                fc_names = ['head', 'head_dist']
+            elif any(x in ['nfnet', 'gernet'] for x in model_name):
+                fc_names = ['head.fc']
             else:
                 fc_names = ['fc']  # the name of the last layer to be replaced in torchvision models
         ## NOTE NOTE NOTE
