@@ -3,8 +3,6 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/0819c4f43a70fcd40234b03ff02f87599cd8ace6/pretrainedmodels/models/fbresnet.py
 # Note this is the version with adaptive capabilities so it can accept differently-sized images
 
-
-from __future__ import print_function, division, absolute_import
 import torch.nn as nn
 import torch.nn.functional as F
 import math

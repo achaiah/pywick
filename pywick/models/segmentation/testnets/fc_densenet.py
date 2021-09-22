@@ -43,20 +43,20 @@ class FCDenseNet(Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
 
-        if type(down_dense_growth_rates) == int:
+        if type(down_dense_growth_rates) is int:
             down_dense_growth_rates = (down_dense_growth_rates,) * 5
         if down_dense_bottleneck_ratios is None or type(down_dense_bottleneck_ratios) == int:
             down_dense_bottleneck_ratios = (down_dense_bottleneck_ratios,) * 5
-        if type(down_dense_num_layers) == int:
+        if type(down_dense_num_layers) is int:
             down_dense_num_layers = (down_dense_num_layers,) * 5
-        if type(down_transition_compression_factors) == float:
+        if type(down_transition_compression_factors) is float:
             down_transition_compression_factors = (down_transition_compression_factors,) * 5
 
-        if type(up_dense_growth_rates) == int:
+        if type(up_dense_growth_rates) is int:
             up_dense_growth_rates = (up_dense_growth_rates,) * 5
         if up_dense_bottleneck_ratios is None or type(up_dense_bottleneck_ratios) == int:
             up_dense_bottleneck_ratios = (up_dense_bottleneck_ratios,) * 5
-        if type(up_dense_num_layers) == int:
+        if type(up_dense_num_layers) is int:
             up_dense_num_layers = (up_dense_num_layers,) * 5
         # endregion
 

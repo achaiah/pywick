@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Callable
 
 from . import classification
@@ -428,3 +429,20 @@ def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, igno
             print('INFO: => Attempting to load checkpoint data onto model. Device: {}    Strict: {}'.format(device, strict))
             model.load_state_dict(checkpoint['state_dict'], strict=strict)
     return checkpoint
+
+
+def load_model(model_type: ModelType, model_name: str, num_classes: int, pretrained: bool = True, **kwargs):
+    """
+    Certain timm models may exist but not be listed in torch.hub so uses a custom partial function to bypass the model check in pywick
+
+    :param model_type:
+    :param model_name:
+    :param num_classes:
+    :param pretrained:
+    :param kwargs:
+    :return:
+    """
+    custom_func = partial(torch.hub.load, github=rwightman_repo)
+    model = get_model(model_type=model_type, model_name=model_name, num_classes=num_classes, pretrained=pretrained, custom_load_fn=custom_func, **kwargs)
+
+    return model

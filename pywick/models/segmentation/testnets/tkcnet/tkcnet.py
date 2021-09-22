@@ -5,7 +5,6 @@
 # Email: wutianyi@ict.ac.cn
 # Copyright (c) 2018
 ###########################################################################
-from __future__ import division
 import torch
 import torch.nn as nn
 from torch.nn.functional import upsample
@@ -13,6 +12,7 @@ from .base import BaseNet
 
 
 __all__ = ['TKCNet', 'get_tkcnet', 'TKCNet_Resnet101']
+
 
 class TKCNet(BaseNet):
     """Tree-structured Kronecker Convolutional Networks for Semantic Segmentation, 

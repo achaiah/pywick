@@ -24,7 +24,6 @@ Francois Chollet
 #
 # The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
 
-from __future__ import print_function, division, absolute_import
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo

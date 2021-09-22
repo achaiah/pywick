@@ -19,5 +19,6 @@ from pywick import (
     optimizers,
     regularizers,
     samplers,
-    transforms
+    transforms,
+    utils
 )

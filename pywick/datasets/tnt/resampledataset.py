@@ -36,7 +36,7 @@ class ResampleDataset(Dataset):
         self.size = size
 
     def __len__(self):
-        return (self.size and self.size > 0) and self.size or len(self.dataset)
+        return self.size if (self.size and self.size > 0) else len(self.dataset)
 
     def __getitem__(self, idx):
         super(ResampleDataset, self).__getitem__(idx)

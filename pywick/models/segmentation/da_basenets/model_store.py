@@ -1,6 +1,4 @@
 """Model store which provides pretrained models."""
-from __future__ import print_function
-
 import os
 import zipfile
 

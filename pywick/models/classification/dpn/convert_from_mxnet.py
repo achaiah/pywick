@@ -111,11 +111,9 @@ parser.add_argument('--model', '-m', metavar='MODEL', default='dpn92',
 def main():
     args = parser.parse_args()
     if 'dpn' not in args.model:
-        print('Error: Can only convert DPN models.')
-        exit(1)
+        raise Exception('Error: Can only convert DPN models.')
     if not has_mxnet:
-        print('Error: Cannot import MXNet module. Please install.')
-        exit(1)
+        raise Exception('Error: Cannot import MXNet module. Please install.')
 
     model = create_model(args.model, num_classes=1000, pretrained=False)
 

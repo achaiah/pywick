@@ -87,10 +87,9 @@ class RandomAffine(object):
 
         if self.lazy:
             return tform_matrix
-        else:
-            outputs = Affine(tform_matrix,
-                             interp=self.interp)(*inputs)
-            return outputs
+
+        outputs = Affine(tform_matrix, interp=self.interp)(*inputs)
+        return outputs
 
 
 class Affine(object):
@@ -125,9 +124,7 @@ class Affine(object):
 
         outputs = []
         for idx, _input in enumerate(inputs):
-            input_tf = th_affine2d(_input,
-                                   self.tform_matrix,
-                                   mode=interp[idx])
+            input_tf = th_affine2d(_input, self.tform_matrix, mode=interp[idx])
             outputs.append(input_tf)
         return outputs if idx >= 1 else outputs[0]
 
@@ -216,10 +213,9 @@ class RandomRotate(object):
 
         if self.lazy:
             return Rotate(degree, lazy=True)(inputs[0])
-        else:
-            outputs = Rotate(degree,
-                             interp=self.interp)(*inputs)
-            return outputs
+
+        outputs = Rotate(degree, interp=self.interp)(*inputs)
+        return outputs
 
 
 class RandomChoiceRotate(object):
@@ -267,10 +263,9 @@ class RandomChoiceRotate(object):
 
         if self.lazy:
             return Rotate(degree, lazy=True)(inputs[0])
-        else:
-            outputs = Rotate(degree,
-                             interp=self.interp)(*inputs)
-            return outputs
+
+        outputs = Rotate(degree, interp=self.interp)(*inputs)
+        return outputs
 
 
 class Rotate(object):
@@ -313,15 +308,12 @@ class Rotate(object):
                                           [0, 0, 1]])
         if self.lazy:
             return rotation_matrix
-        else:
-            outputs = []
-            for idx, _input in enumerate(inputs):
-                input_tf = th_affine2d(_input,
-                                       rotation_matrix,
-                                       mode=interp[idx],
-                                       center=True)
-                outputs.append(input_tf)
-            return outputs if idx >= 1 else outputs[0]
+
+        outputs = []
+        for idx, _input in enumerate(inputs):
+            input_tf = th_affine2d(_input, rotation_matrix, mode=interp[idx], center=True)
+            outputs.append(input_tf)
+        return outputs if idx >= 1 else outputs[0]
 
 
 class RandomTranslate(object):
@@ -370,12 +362,10 @@ class RandomTranslate(object):
         random_width = random.uniform(-self.width_range, self.width_range)
 
         if self.lazy:
-            return Translate([random_height, random_width], 
-                             lazy=True)(inputs[0])
-        else:
-            outputs = Translate([random_height, random_width],
-                                 interp=self.interp)(*inputs)
-            return outputs
+            return Translate([random_height, random_width], lazy=True)(inputs[0])
+
+        outputs = Translate([random_height, random_width], interp=self.interp)(*inputs)
+        return outputs
 
 
 class RandomChoiceTranslate(object):
@@ -427,10 +417,9 @@ class RandomChoiceTranslate(object):
         if self.lazy:
             return Translate([random_height, random_width],
                              lazy=True)(inputs[0])
-        else:
-            outputs = Translate([random_height, random_width],
-                                interp=self.interp)(*inputs)
-            return outputs
+
+        outputs = Translate([random_height, random_width], interp=self.interp)(*inputs)
+        return outputs
 
 
 class Translate(object):
@@ -480,15 +469,12 @@ class Translate(object):
                                              [0, 0, 1]])
         if self.lazy:
             return translation_matrix
-        else:
-            outputs = []
-            for idx, _input in enumerate(inputs):
-                input_tf = th_affine2d(_input,
-                                       translation_matrix,
-                                       mode=interp[idx],
-                                       center=True)
-                outputs.append(input_tf)
-            return outputs if idx >= 1 else outputs[0]
+
+        outputs = []
+        for idx, _input in enumerate(inputs):
+            input_tf = th_affine2d(_input, translation_matrix, mode=interp[idx], center=True)
+            outputs.append(input_tf)
+        return outputs if idx >= 1 else outputs[0]
 
 
 class RandomShear(object):
@@ -521,12 +507,10 @@ class RandomShear(object):
     def __call__(self, *inputs):
         shear = random.uniform(-self.shear_range, self.shear_range)
         if self.lazy:
-            return Shear(shear, 
-                         lazy=True)(inputs[0])
-        else:
-            outputs = Shear(shear,
-                            interp=self.interp)(*inputs)
-            return outputs
+            return Shear(shear, lazy=True)(inputs[0])
+
+        outputs = Shear(shear, interp=self.interp)(*inputs)
+        return outputs
 
 
 class RandomChoiceShear(object):
@@ -574,10 +558,9 @@ class RandomChoiceShear(object):
         if self.lazy:
             return Shear(shear, 
                          lazy=True)(inputs[0])
-        else:
-            outputs = Shear(shear,
-                            interp=self.interp)(*inputs)
-            return outputs 
+
+        outputs = Shear(shear, interp=self.interp)(*inputs)
+        return outputs
 
 
 class Shear(object):
@@ -602,15 +585,12 @@ class Shear(object):
                                         [0, 0, 1]])
         if self.lazy:
             return shear_matrix
-        else:
-            outputs = []
-            for idx, _input in enumerate(inputs):
-                input_tf = th_affine2d(_input,
-                                       shear_matrix,
-                                       mode=interp[idx],
-                                       center=True)
-                outputs.append(input_tf)
-            return outputs if idx >= 1 else outputs[0]
+
+        outputs = []
+        for idx, _input in enumerate(inputs):
+            input_tf = th_affine2d(_input, shear_matrix, mode=interp[idx], center=True)
+            outputs.append(input_tf)
+        return outputs if idx >= 1 else outputs[0]
 
 
 class RandomSquareZoom(object):
@@ -649,10 +629,7 @@ class RandomSquareZoom(object):
         zy = zx
         if self.lazy:
             return Zoom([zx, zy], lazy=True)(inputs[0])
-        else:
-            outputs = Zoom([zx, zy],
-                           interp=self.interp)(*inputs)
-        return outputs
+        return Zoom([zx, zy], interp=self.interp)(*inputs)
 
 class RandomZoom(object):
 
@@ -694,10 +671,8 @@ class RandomZoom(object):
 
         if self.lazy:
             return Zoom([zx, zy], lazy=True)(inputs[0])
-        else:
-            outputs = Zoom([zx, zy], 
-                           interp=self.interp)(*inputs)
-            return outputs
+
+        return Zoom([zx, zy],  interp=self.interp)(*inputs)
 
 
 class RandomChoiceZoom(object):
@@ -746,10 +721,8 @@ class RandomChoiceZoom(object):
 
         if self.lazy:
             return Zoom([zx, zy], lazy=True)(inputs[0])
-        else:
-            outputs = Zoom([zx, zy], 
-                           interp=self.interp)(*inputs)
-            return outputs
+
+        return Zoom([zx, zy], interp=self.interp)(*inputs)
 
 
 class Zoom(object):
@@ -795,14 +768,11 @@ class Zoom(object):
 
         if self.lazy:
             return zoom_matrix
-        else:
-            outputs = []
-            for idx, _input in enumerate(inputs):
-                input_tf = th_affine2d(_input,
-                                       zoom_matrix,
-                                       mode=interp[idx],
-                                       center=True)
-                outputs.append(input_tf)
-            return outputs if idx >= 1 else outputs[0]
+
+        outputs = []
+        for idx, _input in enumerate(inputs):
+            input_tf = th_affine2d(_input, zoom_matrix, mode=interp[idx], center=True)
+            outputs.append(input_tf)
+        return outputs if idx >= 1 else outputs[0]
 
 

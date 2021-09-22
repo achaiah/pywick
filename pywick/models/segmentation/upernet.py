@@ -163,7 +163,8 @@ class PSPModule(nn.Module):
             nn.Dropout2d(0.1)
         )
 
-    def _make_stages(self, in_channels, out_channels, bin_sz):
+    @staticmethod
+    def _make_stages(in_channels, out_channels, bin_sz):
         prior = nn.AdaptiveAvgPool2d(output_size=bin_sz)
         conv = nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)
         bn = nn.BatchNorm2d(out_channels)
@@ -173,10 +174,10 @@ class PSPModule(nn.Module):
     def forward(self, features):
         h, w = features.size()[2], features.size()[3]
         pyramids = [features]
-        pyramids.extend([F.interpolate(stage(features), size=(h, w), mode='bilinear',
-                                        align_corners=True) for stage in self.stages])
+        pyramids.extend([F.interpolate(stage(features), size=(h, w), mode='bilinear', align_corners=True) for stage in self.stages])
         output = self.bottleneck(torch.cat(pyramids, dim=1))
         return output
+
 
 class ResNet(nn.Module):
     def __init__(self, in_channels=3, output_stride=16, backbone='resnet101', pretrained=True):

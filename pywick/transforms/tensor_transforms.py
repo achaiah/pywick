@@ -93,8 +93,7 @@ class ToNumpyType(object):
     def __call__(self, input):
         if isinstance(input, list):     # handle a simple list
             return np.array(input, dtype=self.type)
-        else:                           # handle ndarray (that is of a different type than desired)
-            return input.astype(self.type)
+        return input.astype(self.type)
 
 
 class ChannelsLast(object):
@@ -334,31 +333,30 @@ class Slice2D(object):
 
     def __call__(self, x, y=None):
         while True:
-            keep_slice  = random.randint(0,x.size(self.axis)-1)
+            keep_slice = random.randint(0, x.size(self.axis) - 1)
             if self.axis == 0:
-                slice_x = x[keep_slice,:,:]
+                slice_x = x[keep_slice, :, :]
                 if y is not None:
-                    slice_y = y[keep_slice,:,:]
+                    slice_y = y[keep_slice, :, :]
             elif self.axis == 1:
-                slice_x = x[:,keep_slice,:]
+                slice_x = x[:, keep_slice, :]
                 if y is not None:
-                    slice_y = y[:,keep_slice,:]
+                    slice_y = y[:, keep_slice, :]
             elif self.axis == 2:
-                slice_x = x[:,:,keep_slice]
+                slice_x = x[:, :, keep_slice]
                 if y is not None:
-                    slice_y = y[:,:,keep_slice]
+                    slice_y = y[:, :, keep_slice]
 
             if not self.reject_zeros:
                 break
             else:
                 if y is not None and th.sum(slice_y) > 0:
-                        break
-                elif th.sum(slice_x) > 0:
-                        break
+                    break
+                if th.sum(slice_x) > 0:
+                    break
         if y is not None:
             return slice_x, slice_y
-        else:
-            return slice_x
+        return slice_x
 
 
 class RandomCrop(object):
@@ -435,8 +433,7 @@ class SpecialCrop(object):
         if y is not None:
             y = y[:,indices[0][0]:indices[0][1],indices[1][0]:indices[1][1]]
             return x, y
-        else:
-            return x
+        return x
 
 
 class Pad(object):
@@ -462,8 +459,7 @@ class Pad(object):
             y = y.numpy()
             y = np.pad(y, pad_sizes, mode='constant')
             return th.from_numpy(x), th.from_numpy(y)
-        else:
-            return th.from_numpy(x)
+        return th.from_numpy(x)
 
 
 class PadNumpy(object):
@@ -487,8 +483,7 @@ class PadNumpy(object):
         if y is not None:
             y = np.pad(y, pad_sizes, mode='constant')
             return x, y
-        else:
-            return x
+        return x
 
 
 class RandomFlip(object):
@@ -536,8 +531,7 @@ class RandomFlip(object):
         if y is None:
             # must copy because torch doesnt current support neg strides
             return th.from_numpy(x.copy())
-        else:
-            return th.from_numpy(x.copy()),th.from_numpy(y.copy())
+        return th.from_numpy(x.copy()),th.from_numpy(y.copy())
 
 
 class RandomOrder(object):

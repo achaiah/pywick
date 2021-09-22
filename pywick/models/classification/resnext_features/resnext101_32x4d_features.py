@@ -1,6 +1,5 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/resnext_features/resnext101_32x4d_features.py
 
-from __future__ import print_function, division, absolute_import
 from functools import reduce
 import torch.nn as nn
 

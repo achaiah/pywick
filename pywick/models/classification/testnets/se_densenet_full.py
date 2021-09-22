@@ -253,8 +253,7 @@ def test_se_densenet(pretrained=False):
 
     if pretrained:
         model = se_densenet121(pretrained=pretrained)
-        net_state_dict = {key: value for key, value in model_zoo.load_url("https://download.pytorch.org/models/densenet121-a639ec97.pth").items()}
-        model.load_state_dict(net_state_dict, strict=False)
+        model.load_state_dict(model_zoo.load_url("https://download.pytorch.org/models/densenet121-a639ec97.pth"), strict=False)
 
     else:
         model = se_densenet121(pretrained=pretrained)

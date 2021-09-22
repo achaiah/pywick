@@ -125,8 +125,8 @@ def convTri(input, r, cuda=False):
 def compute_normal(E, cuda=False):
     if torch.sum(torch.isnan(E)) != 0:
         print('nans found here')
-        import ipdb;
-        ipdb.set_trace()
+        # import ipdb;
+        # ipdb.set_trace()
     E_ = convTri(E, 4, cuda)
     Ox, Oy = numerical_gradients_2d(E_, cuda)
     Oxx, _ = numerical_gradients_2d(Ox, cuda)
@@ -138,8 +138,8 @@ def compute_normal(E, cuda=False):
 
     if torch.sum(torch.isnan(O)) != 0:
         print('nans found here')
-        import ipdb;
-        ipdb.set_trace()
+        # import ipdb;
+        # ipdb.set_trace()
 
     return O
 
@@ -147,8 +147,8 @@ def compute_normal(E, cuda=False):
 def compute_normal_2(E, cuda=False):
     if torch.sum(torch.isnan(E)) != 0:
         print('nans found here')
-        import ipdb;
-        ipdb.set_trace()
+        # import ipdb;
+        # ipdb.set_trace()
     E_ = convTri(E, 4, cuda)
     Ox, Oy = numerical_gradients_2d(E_, cuda)
     Oxx, _ = numerical_gradients_2d(Ox, cuda)
@@ -160,8 +160,8 @@ def compute_normal_2(E, cuda=False):
 
     if torch.sum(torch.isnan(O)) != 0:
         print('nans found here')
-        import ipdb;
-        ipdb.set_trace()
+        # import ipdb;
+        # ipdb.set_trace()
 
     return O, (Oyy, Oxx)
 

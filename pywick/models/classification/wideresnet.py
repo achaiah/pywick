@@ -4,7 +4,6 @@
 Implementation of WideResNet as described in: `Wide Residual Networks <https://arxiv.org/abs/1605.07146>`_.
 """
 
-from __future__ import print_function, division, absolute_import
 import re
 import os
 from os.path import expanduser

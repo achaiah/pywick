@@ -261,8 +261,7 @@ class DifNet(nn.Module):
             self.model_sed = ResNet(BasicBlock, [3, 2, 2, 2], num_classes)
             self.model_dif = ResNet(Bottleneck, [3, 4, 6, 3], num_classes, isseed=False)
         else:
-            print('unsupport layer number: {}'.format(layers))
-            exit()
+            raise Exception('unsupport layer number: {}'.format(layers))
         self.mask_layer = Mask(inplanes=num_classes)
 
     def get_alpha(self):

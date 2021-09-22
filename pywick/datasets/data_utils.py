@@ -40,8 +40,7 @@ def pil_loader(path, color_space=''):
         else:
             return Image.open(path)
     except OSError:
-        print("!!!  Could not read path: " + path)
-        exit(2)
+        raise Exception("!!!  Could not read path: " + path)
 
 
 def pil_loader_rgb(path):
@@ -269,6 +268,64 @@ def get_dataset_mean_std(data_set, img_size=256, output_div=255.0):
         position = position+1
 
     return total.mean(1) / output_div, total.std(1) / output_div        # return channel-wise mean for the entire dataset
+
+
+def adjust_dset_length(dataset, num_batches: int, num_devices: int, batch_size: int):
+    """
+    To properly distribute computation across devices (typically GPUs) we need to meet two criteria:
+        1. batch size on each device must be > 1
+        2. dataset must be evenly partitioned across devices in specified batches
+
+    :param dataset:         Dataset to trim
+    :param num_batches:     Number of batches that dset will be partitioned into
+    :param num_devices:     Number of devices dset will be distributed onto
+    :param batch_size:      Size of individual batch
+    :return:
+    """
+
+    # We need to trim the dataset if it cannot be split evenly among num_devices with batch_size batches.
+    # Formula is:
+    #               num_batches = DataLen / (num_devices * batch_size)
+    #               remainderLen = DataLen - (num_batches * num_devices * batch_size)
+    #               if remainderLen / num_devices < 2
+    #                   remove remainderLen items
+    #               else if (remainderLen / num_devices) % 2 != 0
+    #                   remove remainderLen - ((remainderLen // num_devices) * num_devices)
+    #                   remainderLen = DataLen - (num_batches * num_devices * batch_size)
+    #                   if remainderLen / num_devices < 2
+    #                       remove remainderLen items
+
+    remainder_len = len(dataset) - (num_batches * num_devices * batch_size)
+    if remainder_len * 1. / num_devices < 2:
+        num_remove = remainder_len
+        for _ in range(num_remove):
+            last_el = dataset.data.pop()
+            print(f"  ==> WARN: Data element removed: {last_el}.")
+        print(
+            f"  ==> WARN: Length of training set ({len(dataset)}) did not fit onto num Devices: {num_devices}. Removing {num_remove} data elements to avoid training issues with BatchNorm")
+        print(f"New dataset length is: {len(dataset)}")
+        print('| -------------- |')
+
+    elif (remainder_len / num_devices) % 2 != 0:
+        num_remove = remainder_len - ((remainder_len // num_devices) * num_devices)
+        for _ in range(num_remove):
+            last_el = dataset.data.pop()
+            print(f"  ==> WARN: Data element removed: {last_el}.")
+        print(
+            f"  ==> WARN: Length of training set ({len(dataset)}) did not fit onto num Devices: {num_devices}. Removing {num_remove} data elements to avoid training issues with BatchNorm")
+        print(f"New dataset length is: {len(dataset)}")
+
+        remainder_len = len(dataset) - (num_batches * num_devices * batch_size)
+        if remainder_len * 1. / num_devices < 2:
+            num_remove = remainder_len
+            for _ in range(num_remove):
+                last_el = dataset.data.pop()
+                print(f"  ==> WARN: Data element removed: {last_el}.")
+            print(
+                f"  ==> WARN: Length of training set ({len(dataset)}) did not fit onto GPUs with len: {num_devices}. Removing {num_remove} data elements to avoid training issues with BatchNorm")
+            print(f"New dataset length is: {len(dataset)}")
+
+        print('| -------------- |')
 
 
 if __name__ == "__main__":

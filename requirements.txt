@@ -1,4 +1,4 @@
-git+https://github.com/albumentations-team/albumentations.git@1.0.3   # commit: 929cbd84cd06b68ca352d6ab81dae27cfe97d6ad
+albumentations
 dill
 hickle
 inplace_abn
@@ -7,11 +7,17 @@ opencv-python-headless
 pandas
 pillow
 prodict
+pycm
 pyyaml
 scipy
+requests
 scikit-image
+setuptools
 six
+tabulate
+tini
 torch >= 1.6.0
 torchvision
 tqdm
 yacs
+wheel

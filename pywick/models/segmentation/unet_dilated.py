@@ -117,7 +117,7 @@ class UNetDilated(nn.Module):
     """
     Unet utilizing dilation
     """
-    def __init__(self, num_classes, **kwargs):
+    def __init__(self, num_classes, **_):
         super(UNetDilated, self).__init__()
         self.Conv0 = self._transition(3, 8)  # 1918
         self.down1 = self._down_block(8, 16, 16)  # 959
@@ -143,7 +143,7 @@ class UNetDilated(nn.Module):
         self.conv3 = nn.Conv2d(32 * 2, 32, 3, stride=1, padding=1)
         self.bn3 = nn.BatchNorm2d(32)
 
-        self.up4 = self._up_block(32, 16, 16) #, output_padding=(1, 0))  # 959
+        self.up4 = self._up_block(32, 16, 16)       # ,output_padding=(1, 0))  # 959
         self.db4 = self._dense_block(16, 8)
         self.conv4 = nn.Conv2d(16 * 2, 16, 3, stride=1, padding=1)
         self.bn4 = nn.BatchNorm2d(16)
@@ -189,23 +189,26 @@ class UNetDilated(nn.Module):
         # return self.clss(self.conv5(up5))
         return self.conv5(up5)
 
-
-    def _transition(self, in_channels, out_channels):
+    @staticmethod
+    def _transition(in_channels, out_channels):
         layers = []
         layers.append(Conv_transition([1, 3, 5], in_channels, out_channels))
         return nn.Sequential(*layers)
 
-    def _down_block(self, in_channels, inner_channels, out_channels):
+    @staticmethod
+    def _down_block(in_channels, inner_channels, out_channels):
         layers = []
         layers.append(Fire_Down(3, in_channels, inner_channels, out_channels))
         return nn.Sequential(*layers)
 
-    def _up_block(self, in_channels, inner_channels, out_channels, output_padding=(1, 1)):
+    @staticmethod
+    def _up_block(in_channels, inner_channels, out_channels, output_padding=(1, 1)):
         layers = []
         layers.append(Fire_Up(3, in_channels, inner_channels, out_channels, output_padding))
         return nn.Sequential(*layers)
 
-    def _dense_block(self, in_channels, growth_rate):
+    @staticmethod
+    def _dense_block(in_channels, growth_rate):
         layers = []
         layers.append(Dense_layer(in_channels, growth_rate))
         return nn.Sequential(*layers)

@@ -1,10 +1,11 @@
 """
-Utility functions for th.Tensors
+Utility functions
 """
 
 import pickle
 import random
-import numpy as np
+from .optimizers import *
+from .callbacks import *
 
 import torch as th
 
@@ -421,5 +422,15 @@ def load_transform(file):
     return transform
     
 
+from pywick.callbacks import *
 
-    
+
+def class_factory(classname: str, params_dict: dict = {}):
+    """
+    Instantiate a class with given parameters
+    :param classname:       Name of class
+    :param params_dict:     Dict of parameters
+    :return:
+    """
+    cls = globals()[classname]
+    return cls(**params_dict)

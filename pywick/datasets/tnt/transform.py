@@ -21,13 +21,13 @@ def tablemergekeys():
         if isinstance(tbl, dict):
             for idx, elem in tbl.items():
                 for key, value in elem.items():
-                    if not key in mergetbl:
+                    if key not in mergetbl:
                         mergetbl[key] = {}
                     mergetbl[key][idx] = value
         elif isinstance(tbl, list):
             for elem in tbl:
                 for key, value in elem.items():
-                    if not key in mergetbl:
+                    if key not in mergetbl:
                         mergetbl[key] = []
                     mergetbl[key].append(value)
         return mergetbl

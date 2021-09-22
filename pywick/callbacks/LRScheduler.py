@@ -22,7 +22,7 @@ class LRScheduler(Callback):
         if isinstance(schedule, dict):
             schedule = self.schedule_from_dict
             self.schedule_dict = schedule
-            if any([k < 1.0 for k in schedule.keys()]):
+            if any(k < 1.0 for k in schedule.keys()):
                 self.fractional_bounds = False
             else:
                 self.fractional_bounds = True
