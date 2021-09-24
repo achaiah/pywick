@@ -79,7 +79,8 @@ class Bottleneck(nn.Module):
         self.dilation = dilation
         self.stride = stride
 
-    def _sum_each(self, x, y):
+    @staticmethod
+    def _sum_each(x, y):
         assert(len(x) == len(y))
         z = []
         for i in range(len(x)):

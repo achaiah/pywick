@@ -273,7 +273,8 @@ class HighResolutionModule(nn.Module):
         self.fuse_layers = self._make_fuse_layers()
         self.relu = nn.ReLU(inplace=relu_inplace)
 
-    def _check_branches(self, num_branches, blocks, num_blocks,
+    @staticmethod
+    def _check_branches(num_branches, blocks, num_blocks,
                         num_inchannels, num_channels):
         if num_branches != len(num_blocks):
             error_msg = 'NUM_BRANCHES({}) <> NUM_BLOCKS({})'.format(
@@ -490,8 +491,9 @@ class HighResolutionNet(nn.Module):
                       kernel_size=1, stride=1, padding=0, bias=True)
         )
 
+    @staticmethod
     def _make_transition_layer(
-            self, num_channels_pre_layer, num_channels_cur_layer):
+            num_channels_pre_layer, num_channels_cur_layer):
         num_branches_cur = len(num_channels_cur_layer)
         num_branches_pre = len(num_channels_pre_layer)
 
@@ -526,7 +528,8 @@ class HighResolutionNet(nn.Module):
 
         return nn.ModuleList(transition_layers)
 
-    def _make_layer(self, block, inplanes, planes, blocks, stride=1):
+    @staticmethod
+    def _make_layer(block, inplanes, planes, blocks, stride=1):
         downsample = None
         if stride != 1 or inplanes != planes * block.expansion:
             downsample = nn.Sequential(
@@ -543,7 +546,8 @@ class HighResolutionNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _make_stage(self, layer_config, num_inchannels,
+    @staticmethod
+    def _make_stage(layer_config, num_inchannels,
                     multi_scale_output=True):
         num_modules = layer_config['NUM_MODULES']
         num_branches = layer_config['NUM_BRANCHES']

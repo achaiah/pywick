@@ -61,7 +61,8 @@ class _LearnedBilinearDeconvModule(nn.Module):
         out = self.deconv(x)
         return out
 
-    def make_bilinear_weights(self, size, num_channels):
+    @staticmethod
+    def make_bilinear_weights(size, num_channels):
         factor = (size + 1) // 2
         if size % 2 == 1:
             center = factor - 1

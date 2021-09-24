@@ -266,7 +266,8 @@ class EMAU(nn.Module):
 
         return x, mu
 
-    def _l2norm(self, inp, dim):
+    @staticmethod
+    def _l2norm(inp, dim):
         '''Normlize the inp tensor with l2-norm.
 
         Returns a tensor where each sub-tensor of input along the given dim is

@@ -129,7 +129,8 @@ class ImbalancedDatasetSampler(Sampler):
         weights = [1.0 / label_to_count[self._get_label(dataset, idx)] for idx in self.indices]
         self.weights = torch.DoubleTensor(weights)
 
-    def _get_label(self, dataset, idx):
+    @staticmethod
+    def _get_label(dataset, idx):
         dataset_type = type(dataset)
         if dataset_type is torchvision.datasets.MNIST:
             return dataset.train_labels[idx].item()

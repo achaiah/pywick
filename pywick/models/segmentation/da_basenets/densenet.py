@@ -121,7 +121,8 @@ class DilatedDenseNet(DenseNet):
             self.features.denseblock4.apply(partial(self._conv_dilate, dilate=2))
             del self.features.transition3.pool
 
-    def _conv_dilate(self, m, dilate):
+    @staticmethod
+    def _conv_dilate(m, dilate):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
             if m.kernel_size == (3, 3):

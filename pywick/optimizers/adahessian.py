@@ -73,7 +73,8 @@ class Adahessian(Optimizer):
         )
         super(Adahessian, self).__init__(params, defaults)
 
-    def get_trace(self, params: Params, grads: Grads) -> List[torch.Tensor]:
+    @staticmethod
+    def get_trace(params: Params, grads: Grads) -> List[torch.Tensor]:
         """Get an estimate of Hessian Trace.
         This is done by computing the Hessian vector product with a random
         vector v at the current gradient point, to estimate Hessian trace by

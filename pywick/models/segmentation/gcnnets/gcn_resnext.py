@@ -63,7 +63,8 @@ class _DeconvModule(nn.Module):
         out = self.deconv(x)
         return out
 
-    def make_bilinear_weights(self, size, num_channels):
+    @staticmethod
+    def make_bilinear_weights(size, num_channels):
         factor = (size + 1) // 2
         if size % 2 == 1:
             center = factor - 1
@@ -223,7 +224,8 @@ class GCN_Resnext(nn.Module):
 
         return out
 
-    def initialize_weights(self, *models):
+    @staticmethod
+    def initialize_weights(*models):
         for model in models:
             for module in model.modules():
                 if isinstance(module, (nn.Conv2d, nn.Linear)):
