@@ -7,7 +7,7 @@ Implementation of WideResNet as described in: `Wide Residual Networks <https://a
 import re
 import os
 from os.path import expanduser
-import hickle as hkl
+# import hickle as hkl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -76,20 +76,21 @@ class WideResNet(nn.Module):
 
 
 def wideresnet50(pooling):
+    pass
     """Pretrained WideResnet50 model"""
-    dir_models = os.path.join(expanduser("~"), '.torch/wideresnet')
-    path_hkl = os.path.join(dir_models, 'wideresnet50.hkl')
-    if os.path.isfile(path_hkl):
-        params = hkl.load(path_hkl)
-        # convert numpy arrays to torch Variables
-        for k,v in sorted(params.items()):
-            print(k, v.shape)
-            params[k] = Variable(torch.from_numpy(v), requires_grad=True)
-    else:
-        os.system('mkdir -p ' + dir_models)
-        os.system('wget {} -O {}'.format(model_urls['wideresnet50'], path_hkl))
-    f = define_model(params)
-    model = WideResNet(pooling, f, params)
-    return model
+    # dir_models = os.path.join(expanduser("~"), '.torch/wideresnet')
+    # path_hkl = os.path.join(dir_models, 'wideresnet50.hkl')
+    # if os.path.isfile(path_hkl):
+    #     params = hkl.load(path_hkl)
+    #     # convert numpy arrays to torch Variables
+    #     for k,v in sorted(params.items()):
+    #         print(k, v.shape)
+    #         params[k] = Variable(torch.from_numpy(v), requires_grad=True)
+    # else:
+    #     os.system('mkdir -p ' + dir_models)
+    #     os.system('wget {} -O {}'.format(model_urls['wideresnet50'], path_hkl))
+    # f = define_model(params)
+    # model = WideResNet(pooling, f, params)
+    # return model
 
 
