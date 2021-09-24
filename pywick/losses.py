@@ -502,25 +502,6 @@ class WeightedBCELoss2d(nn.Module):
         return loss
 
 
-class WeightedSoftDiceLoss(nn.Module):
-    def __init__(self, **_):
-        super(WeightedSoftDiceLoss, self).__init__()
-
-    @staticmethod
-    def forward(logits, labels, weights, **_):
-        probs = torch.sigmoid(logits)
-        num   = labels.size(0)
-        w     = (weights).view(num,-1)
-        w2    = w*w
-        m1    = (probs).view(num, -1)
-        m2    = (labels).view(num, -1)
-        intersection = (m1 * m2)
-        smooth = 1.
-        score = 2. * ((w2*intersection).sum(1)+smooth) / ((w2*m1).sum(1) + (w2*m2).sum(1)+smooth)
-        score = 1 - score.sum()/num
-        return score
-
-
 class BCEDicePenalizeBorderLoss(nn.Module):
     def __init__(self, kernel_size=55, **_):
         super(BCEDicePenalizeBorderLoss, self).__init__()
