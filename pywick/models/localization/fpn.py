@@ -72,7 +72,8 @@ class FPN(nn.Module):
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
-    def _upsample_add(self, x, y):
+    @staticmethod
+    def _upsample_add(x, y):
         '''Upsample and add two feature maps.
 
         Args:

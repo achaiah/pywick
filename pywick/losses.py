@@ -55,7 +55,8 @@ class StableBCELoss(nn.Module):
     def __init__(self, **_):
         super(StableBCELoss, self).__init__()
 
-    def forward(self, input, target, **_):
+    @staticmethod
+    def forward(input, target, **_):
         neg_abs = - input.abs()
         loss = input.clamp(min=0) - input * target + (1 + neg_abs.exp()).log()
         return loss.mean()
@@ -341,7 +342,8 @@ class WeightedSoftDiceLoss(torch.nn.Module):
     def __init__(self, **_):
         super(WeightedSoftDiceLoss, self).__init__()
 
-    def forward(self, logits, labels, weights, **_):
+    @staticmethod
+    def forward(logits, labels, weights, **_):
         probs = torch.sigmoid(logits)
         num   = labels.size(0)
         w     = weights.view(num,-1)
@@ -490,7 +492,8 @@ class WeightedBCELoss2d(nn.Module):
     def __init__(self, **_):
         super(WeightedBCELoss2d, self).__init__()
 
-    def forward(self, logits, labels, weights, **_):
+    @staticmethod
+    def forward(logits, labels, weights, **_):
         w = weights.view(-1)            # (-1 operation flattens all the dimensions)
         z = logits.view(-1)             # (-1 operation flattens all the dimensions)
         t = labels.view(-1)             # (-1 operation flattens all the dimensions)
@@ -503,7 +506,8 @@ class WeightedSoftDiceLoss(nn.Module):
     def __init__(self, **_):
         super(WeightedSoftDiceLoss, self).__init__()
 
-    def forward(self, logits, labels, weights, **_):
+    @staticmethod
+    def forward(logits, labels, weights, **_):
         probs = torch.sigmoid(logits)
         num   = labels.size(0)
         w     = (weights).view(num,-1)
@@ -746,7 +750,8 @@ class L1Loss3d(nn.Module):
         super().__init__()
         self.bias = bias
 
-    def forward(self, output, target, **_):
+    @staticmethod
+    def forward(output, target, **_):
         # _assert_no_grad(target)
         with torch.no_grad:  # Pytorch 0.4.0 replacement (should be ok to use like this)
             lag = target.size(1) - output.size(1)
@@ -757,7 +762,8 @@ class MSE3D(nn.Module):
     def __init__(self, **_):
         super().__init__()
 
-    def forward(self, output, target, **_):
+    @staticmethod
+    def forward(output, target, **_):
         # _assert_no_grad(target)
         with torch.no_grad:  # Pytorch 0.4.0 replacement (should be ok to use like this)
             lag = target.size(1) - output.size(1)
@@ -1537,7 +1543,8 @@ class LovaszSoftmax(nn.Module):
         super(LovaszSoftmax, self).__init__()
         self.reduction = reduction
 
-    def prob_flatten(self, input, target):
+    @staticmethod
+    def prob_flatten(input, target):
         assert input.dim() in [4, 5]
         num_class = input.size(1)
         if input.dim() == 4:
@@ -2672,7 +2679,8 @@ class HausdorffDTLoss(nn.Module):
         self.alpha = alpha
 
     @torch.no_grad()
-    def distance_field(self, img: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def distance_field(img: np.ndarray) -> np.ndarray:
         field = np.zeros_like(img)
 
         for batch in range(len(img)):

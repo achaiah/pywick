@@ -46,7 +46,8 @@ class SwishJit(nn.Module):
         super(SwishJit, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return SwishJitAutoFn.apply(x)
 
 
@@ -84,7 +85,8 @@ class MishJit(nn.Module):
         super(MishJit, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return MishJitAutoFn.apply(x)
 
 

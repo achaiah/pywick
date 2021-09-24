@@ -205,7 +205,8 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _make_pred_layer(self, block, dilation_series, padding_series, num_classes, inplane):
+    @staticmethod
+    def _make_pred_layer(block, dilation_series, padding_series, num_classes, inplane):
         return block(dilation_series, padding_series, num_classes, inplane)
 
     def forward(self, x):

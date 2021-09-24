@@ -108,5 +108,6 @@ class FusionNet(nn.Module):
         output = self.final(dec4)
         return self.activation(output)
 
-    def _do_downsample(self, x, kernel_size=2, stride=2):
+    @staticmethod
+    def _do_downsample(x, kernel_size=2, stride=2):
         return F.max_pool2d(x, kernel_size=kernel_size, stride=stride)

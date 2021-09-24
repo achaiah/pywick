@@ -155,10 +155,12 @@ class CyclicLRScheduler(Callback):
 
             self.trainer.history.lrs = computed_lr
 
-    def _triangular_scale_fn(self, x):
+    @staticmethod
+    def _triangular_scale_fn(x):
         return 1.
 
-    def _triangular2_scale_fn(self, x):
+    @staticmethod
+    def _triangular2_scale_fn(x):
         return 1 / (2. ** (x - 1))
 
     def _exp_range_scale_fn(self, x):

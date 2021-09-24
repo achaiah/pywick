@@ -36,7 +36,8 @@ class SwishAuto(nn.Module):
         super(SwishAuto, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return SwishAutoFn.apply(x)
 
 
@@ -69,6 +70,7 @@ class MishAuto(nn.Module):
         super(MishAuto, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return MishAutoFn.apply(x)
 

@@ -128,10 +128,12 @@ class CyclicLR(object):
         for param_group, lr in zip(self.optimizer.param_groups, self.get_lr()):
             param_group['lr'] = lr
 
-    def _triangular_scale_fn(self, x):
+    @staticmethod
+    def _triangular_scale_fn(x):
         return 1.
 
-    def _triangular2_scale_fn(self, x):
+    @staticmethod
+    def _triangular2_scale_fn(x):
         return 1 / (2. ** (x - 1))
 
     def _exp_range_scale_fn(self, x):

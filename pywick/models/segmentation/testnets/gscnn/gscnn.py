@@ -71,7 +71,8 @@ class MyIdentity(nn.Module):
         self.axis = axis
         self.offset = offset
 
-    def forward(self, x, ref):
+    @staticmethod
+    def forward(x, ref):
         """
 
         :param x: input layer

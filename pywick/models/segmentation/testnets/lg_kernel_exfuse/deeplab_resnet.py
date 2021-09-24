@@ -78,7 +78,8 @@ class ResnetDilated(nn.Module):
         self.layer3 = orig_resnet.layer3
         self.layer4 = orig_resnet.layer4
 
-    def _nostride_dilate(self, m, dilate):
+    @staticmethod
+    def _nostride_dilate(m, dilate):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
             # the convolution with stride
@@ -386,7 +387,8 @@ def conv3x3_bn_relu(in_planes, out_planes, stride=1):
 # this is used to build the different models, both encoder and decoder
 class ModelBuilder():
     # custom weights initialization
-    def weights_init(self, m):
+    @staticmethod
+    def weights_init(m):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
             nn.init.kaiming_normal(m.weight.data)
@@ -396,7 +398,8 @@ class ModelBuilder():
         elif classname.find('Linear') != -1:
             m.weight.data.normal_(0.0, 0.0001)
 
-    def build_encoder(self, arch='resnet50_dilated8', fc_dim=512, weights='', **kwargs):
+    @staticmethod
+    def build_encoder(arch='resnet50_dilated8', fc_dim=512, weights='', **kwargs):
         pretrained = True if len(weights) == 0 else False
         if arch == 'resnet34':
             raise NotImplementedError

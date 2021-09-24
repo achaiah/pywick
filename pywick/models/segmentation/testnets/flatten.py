@@ -2,5 +2,6 @@ from torch.nn import Module
 
 
 class Flatten(Module):
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return x.view(x.size(0), -1)

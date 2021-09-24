@@ -131,7 +131,8 @@ class LovaszBinaryLoss(torch.nn.modules.Module):
     def __init__(self):
         super(LovaszBinaryLoss, self).__init__()
 
-    def forward(self, input, target):
+    @staticmethod
+    def forward(input, target):
         return lovasz_hinge(input, target)
 
 
@@ -139,7 +140,8 @@ class StableBCELoss(torch.nn.modules.Module):
     def __init__(self):
         super(StableBCELoss, self).__init__()
 
-    def forward(self, input, target):
+    @staticmethod
+    def forward(input, target):
         neg_abs = - input.abs()
         loss = input.clamp(min=0) - input * target + (1 + neg_abs.exp()).log()
         return loss.mean()

@@ -127,5 +127,6 @@ class ResnetGCN(nn.Module):
 
 
 
-    def _do_upsample(self, num_classes=1, kernel_size=2, stride=2):
+    @staticmethod
+    def _do_upsample(num_classes=1, kernel_size=2, stride=2):
         return nn.ConvTranspose2d(num_classes, num_classes, kernel_size=kernel_size, stride=stride)
