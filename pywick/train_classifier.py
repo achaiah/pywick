@@ -147,7 +147,9 @@ def main(config: ExpConfig):
         if config.save_callback.name == 'ModelCheckpoint':
             config.save_callback.params['run_id'] = config.exp_id
             config.save_callback.params['addl_k_v'] = {'num_classes': len(dsets['train'].class_to_idx),
-                                                       'mean_std': config.mean_std}
+                                                       'mean_std': config.mean_std,
+                                                       'model_name': config.model_spec,
+                                                       'optimizer': config.optimizer.get('name')}
             config.save_callback.params['epoch_log_keys'] = ['val_top_1:acc_metric', 'val_top_5:acc_metric']
 
         checkpt_callback = class_factory(classname=config.save_callback.name, params_dict=config.save_callback.get('params').to_dict())

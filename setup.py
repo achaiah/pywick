@@ -18,8 +18,7 @@ setup(name='pywick',
       install_requires=[
             'albumentations',
             'dill',
-            'hickle',
-            'inplace_abn',
+            'h5py'
             'numpy',
             'opencv-python-headless',
             'pandas',

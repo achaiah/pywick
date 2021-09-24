@@ -1,7 +1,8 @@
 albumentations
 dill
-hickle
-inplace_abn
+#hickle
+h5py
+# inplace_abn
 numpy
 opencv-python-headless
 pandas
@@ -12,12 +13,8 @@ pyyaml
 scipy
 requests
 scikit-image
-setuptools
 six
 tabulate
 tini
-torch >= 1.6.0
-torchvision
 tqdm
 yacs
-wheel
