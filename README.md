@@ -48,7 +48,7 @@ So you're saying you like **configuration files**? You're saying you like **exam
   - Many new loss functions added: RecallLoss, SoftInvDiceLoss, OhemBCEDicePenalizeBorderLoss, RMIBCEDicePenalizeBorderLoss + others
   - Bug fixes
 - **Jun. 15, 2020**
-  - 200+ models added from [rwightman's](https://github.com/rwightman/pytorch-image-models) repo via `torch.hub`! See docs for all the variants!
+  - 700+ models added from [rwightman's](https://github.com/rwightman/pytorch-image-models) repo via `torch.hub`! See docs for all the variants!
   - Some minor bug fixes
 - **Jan. 20, 2020**
   - New release: 0.5.6 (minor fix from 0.5.5 for pypi)

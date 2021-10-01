@@ -4,6 +4,8 @@ By convention, model names starting with lowercase are pretrained on imagenet wh
 models with your own number of classes use the ``models.model_utils.get_model(...)`` function and specify the name of the model
 exactly like the pretrained model method name (e.g. if the method name reads ``pywick.models.classification.dpn.dualpath.dpn68`` then use
 `dpn68` as the model name for ``models.model_utils.get_model(...)``.
+
+Note: Since Pywick v0.6.5 we include 200+ models from `rwightman's repo <https://github.com/rwightman/pytorch-image-models>`_ which can be used by simply specifying the appropriate model name (all lowercase) in the yaml configuration file!
 """
 
 from .dpn.dualpath import *                                 # dpnXX = pretrained on imagenet, DPN = not pretrained

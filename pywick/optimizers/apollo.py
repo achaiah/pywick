@@ -6,6 +6,9 @@ from torch.optim.optimizer import Optimizer
 from .madgrad import OptFloat, OptLossClosure, Params
 
 
+__all__ = 'Apollo'
+
+
 class Apollo(Optimizer):
     r"""Implements Apollo Optimizer Algorithm.
 

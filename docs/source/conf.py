@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = u'pywick'
-copyright = u'2019, Achaiah'
+copyright = u'2021, Achaiah'
 author = u'Achaiah'
 
 '''
@@ -40,7 +40,7 @@ release = __version__
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.5.3'
+release = '0.6.5'
 
 
 # -- General configuration ---------------------------------------------------

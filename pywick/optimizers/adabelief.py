@@ -7,7 +7,7 @@ from torch.optim.optimizer import Optimizer
 
 from .madgrad import Betas2, OptFloat, OptLossClosure, Params
 
-__all__ = ('AdaBelief',)
+__all__ = 'AdaBelief'
 
 
 class AdaBelief(Optimizer):

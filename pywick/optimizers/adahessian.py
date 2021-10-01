@@ -10,7 +10,7 @@ from .madgrad import Betas2, OptFloat, OptLossClosure, Params
 
 Grads = Params
 
-__all__ = ('Adahessian',)
+__all__ = 'Adahessian'
 
 
 class Adahessian(Optimizer):

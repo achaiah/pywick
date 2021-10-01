@@ -41,7 +41,7 @@ train:
       max_lr: 0.05
       pct_start: 0.2
   train_val_ratio: 0.9            # split ratio between training and validation data (if using a single dataset)
-  use_apex: False                 # whether to use APEX optimization
+  use_apex: False                 # whether to use APEX optimization (not yet implemented)
   use_gpu: True                   # whether to use the GPU for training
   val_root:                       # where to find validation data (if separate). Note that typically validation data is simply split off from training data based on split_ratio
   workers: 6                      # number of workers to read training data from disk and feed it to the GPU

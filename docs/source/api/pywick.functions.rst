@@ -14,7 +14,15 @@ CyclicLR
     :undoc-members:
     :show-inheritance:
 
-Aria + Swish
+Mish
+--------------------------------
+
+.. automodule:: pywick.functions.mish
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Swish + Aria
 -----------------------------
 
 .. automodule:: pywick.functions.swish
