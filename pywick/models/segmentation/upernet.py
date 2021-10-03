@@ -95,7 +95,7 @@ def summary(model, input_shape, batch_size=-1, intputshow=True):
         else:
             total_output += np.prod(summary[layer]["output_shape"])
         if "trainable" in summary[layer]:
-            if summary[layer]["trainable"] == True:
+            if summary[layer]["trainable"] is True:
                 trainable_params += summary[layer]["nb_params"]
 
         model_info += line_new + '\n'

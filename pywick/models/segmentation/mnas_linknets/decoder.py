@@ -84,7 +84,7 @@ class DecoderBlockLinkNet(nn.Module):
         self.relu1 = nonlinearity(inplace=True)
 
         # B, C/4, H, W -> B, C/4, H, W
-        if is_deconv == True:
+        if is_deconv is True:
             self.deconv2 = nn.ConvTranspose2d(in_channels // 4,
                                               in_channels // 4,
                                               3,
@@ -146,7 +146,7 @@ class DecoderBlockLinkNetV2(nn.Module):
         self.relu1 = nonlinearity(inplace=True)
 
         # B, C/4, H, W -> B, C/4, H, W
-        if is_deconv == True:
+        if is_deconv is True:
             self.deconv2 = nn.ConvTranspose2d(in_channels // 4,
                                               in_channels // 4,
                                               kernel_size,
@@ -216,7 +216,7 @@ class DecoderBlockLinkNetInceptionV2(nn.Module):
         self.relu1 = nonlinearity(inplace=True)
 
         # B, out_channels, H, W -> B, out_channels, H, W
-        if is_deconv == True:
+        if is_deconv is True:
             self.deconv2 = nn.ConvTranspose2d(out_channels,
                                               out_channels,
                                               kernel_size,

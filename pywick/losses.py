@@ -917,7 +917,7 @@ class ComboBCEDiceLoss(nn.Module):
         self.bce_weight = bce_weight
         self.dice_weight = dice_weight
 
-        if self.use_running_mean == True:
+        if self.use_running_mean is True:
             self.register_buffer('running_bce_loss', torch.zeros(1))
             self.register_buffer('running_dice_loss', torch.zeros(1))
             self.reset_parameters()
@@ -947,7 +947,7 @@ class ComboBCEDiceLoss(nn.Module):
         union = dice_output.sum() + dice_target.sum() + self.eps
         dice_loss = (-torch.log(2 * intersection / union))
 
-        if self.use_running_mean == False:
+        if self.use_running_mean is False:
             bmw = self.bce_weight
             dmw = self.dice_weight
             # loss += torch.clamp(1 - torch.log(2 * intersection / union),0,100)  * self.dice_weight
@@ -994,7 +994,7 @@ class ComboSemsegLossWeighted(nn.Module):
         self.bce_weight = bce_weight
         self.dice_weight = dice_weight
 
-        if self.use_running_mean == True:
+        if self.use_running_mean is True:
             self.register_buffer('running_bce_loss', torch.zeros(1))
             self.register_buffer('running_dice_loss', torch.zeros(1))
             self.reset_parameters()
@@ -1035,7 +1035,7 @@ class ComboSemsegLossWeighted(nn.Module):
         union = dice_output.sum() + dice_target.sum() + self.eps
         dice_loss = (-torch.log(2 * intersection / union))
 
-        if self.use_running_mean == False:
+        if self.use_running_mean is False:
             bmw = self.bce_weight
             dmw = self.dice_weight
             # loss += torch.clamp(1 - torch.log(2 * intersection / union),0,100)  * self.dice_weight
