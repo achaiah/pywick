@@ -131,7 +131,7 @@ def gamma_fast(gt, permutation):
     return jaccard
 
 # WARN: Only applicable to Binary Segmentation right now (zip function needs to be replaced)!
-def lovaszloss(logits, labels, prox=False, max_steps=20, debug={}):
+def lovaszloss(logits, labels, prox=False, max_steps=20, debug=None):
     """
     `The Lovasz-Softmax loss <https://arxiv.org/abs/1705.08790>`_
 
@@ -142,6 +142,8 @@ def lovaszloss(logits, labels, prox=False, max_steps=20, debug={}):
     :param debug:
     :return:
     """
+    if debug is None:
+        debug = {}
 
     # image-level Lovasz hinge
     if logits.size(0) == 1:
@@ -226,7 +228,9 @@ def project(gam, active, members):
         gam[active + 1:] = 0.
 
 
-def find_proximal(x0, gam, lam, eps=1e-6, max_steps=20, debug={}):
+def find_proximal(x0, gam, lam, eps=1e-6, max_steps=20, debug=None):
+    if debug is None:
+        debug = {}
     # x0: sorted margins data
     # gam: initial gamma_fast(target, perm)
     # regularisation parameter lam
@@ -278,7 +282,9 @@ def find_proximal(x0, gam, lam, eps=1e-6, max_steps=20, debug={}):
     return x, gam
 
 
-def lovasz_binary(margins, label, prox=False, max_steps=20, debug={}):
+def lovasz_binary(margins, label, prox=False, max_steps=20, debug=None):
+    if debug is None:
+        debug = {}
     # 1d vector inputs
     # Workaround: can't sort Variable bug
     # prox: False or lambda regularization value
@@ -294,7 +300,9 @@ def lovasz_binary(margins, label, prox=False, max_steps=20, debug={}):
         return loss
 
 
-def lovasz_single(logit, label, prox=False, max_steps=20, debug={}):
+def lovasz_single(logit, label, prox=False, max_steps=20, debug=None):
+    if debug is None:
+        debug = {}
     # single images
     mask = (label.view(-1) != 255)
     num_preds = mask.long().sum()
@@ -476,7 +484,9 @@ class BCEDiceFocalLoss(nn.Module):
         :param size_average: (bool, optional) By default, the losses are averaged over each loss element in the batch.
         :param weights: (list(), default = [1,1,1]) Optional weighing (0.0-1.0) of the losses in order of [bce, dice, focal]
     '''
-    def __init__(self, focal_param, weights=[1.0,1.0,1.0], **kwargs):
+    def __init__(self, focal_param, weights=None, **kwargs):
+        if weights is None:
+            weights = [1.0,1.0,1.0]
         super(BCEDiceFocalLoss, self).__init__()
         self.bce = BCEWithLogitsViewLoss(weight=None, size_average=True, **kwargs)
         self.dice = SoftDiceLoss(**kwargs)

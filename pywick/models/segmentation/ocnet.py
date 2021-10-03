@@ -134,7 +134,9 @@ class BaseOCModule(nn.Module):
     """Base-OC"""
 
     def __init__(self, in_channels, out_channels, key_channels, value_channels,
-                 scales=([1]), norm_layer=nn.BatchNorm2d, concat=True, **kwargs):
+                 scales=None, norm_layer=nn.BatchNorm2d, concat=True, **kwargs):
+        if scales is None:
+            scales = ([1])
         super(BaseOCModule, self).__init__()
         self.stages = nn.ModuleList([
             BaseAttentionBlock(in_channels, out_channels, key_channels, value_channels, scale, norm_layer, **kwargs)
@@ -237,7 +239,9 @@ class PyramidOCModule(nn.Module):
     """Pyramid-OC"""
 
     def __init__(self, in_channels, out_channels, key_channels, value_channels,
-                 scales=([1]), norm_layer=nn.BatchNorm2d, **kwargs):
+                 scales=None, norm_layer=nn.BatchNorm2d, **kwargs):
+        if scales is None:
+            scales = ([1])
         super(PyramidOCModule, self).__init__()
         self.stages = nn.ModuleList([
             PyramidAttentionBlock(in_channels, out_channels, key_channels, value_channels, scale, norm_layer, **kwargs)

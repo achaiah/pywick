@@ -62,8 +62,12 @@ class ModelCheckpoint(Callback):
         Default: False
     """
 
-    def __init__(self, run_id, monitored_log_key, save_dir, addl_k_v=dict(), epoch_log_keys=[], save_interval=5, save_best_only=False, max_saves=5,
+    def __init__(self, run_id, monitored_log_key, save_dir, addl_k_v=None, epoch_log_keys=None, save_interval=5, save_best_only=False, max_saves=5,
                  custom_func=None, do_minimize=True, verbose=False):
+        if addl_k_v is None:
+            addl_k_v = dict()
+        if epoch_log_keys is None:
+            epoch_log_keys = []
 
         self.run_id = run_id
         self.addl_k_v = addl_k_v

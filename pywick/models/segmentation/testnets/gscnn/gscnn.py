@@ -125,7 +125,9 @@ class _AtrousSpatialPyramidPoolingModule(nn.Module):
       Final 1x1 conv
     '''
 
-    def __init__(self, in_dim, reduction_dim=256, output_stride=16, rates=[6, 12, 18]):
+    def __init__(self, in_dim, reduction_dim=256, output_stride=16, rates=None):
+        if rates is None:
+            rates = [6, 12, 18]
         super(_AtrousSpatialPyramidPoolingModule, self).__init__()
 
         # Check if we are using distributed BN and use the nn from encoding.nn
@@ -161,7 +163,6 @@ class _AtrousSpatialPyramidPoolingModule(nn.Module):
         self.edge_conv = nn.Sequential(
             nn.Conv2d(1, reduction_dim, kernel_size=1, bias=False),
             Norm2d(reduction_dim), nn.ReLU(inplace=True))
-         
 
     def forward(self, x, edge):
         x_size = x.size()

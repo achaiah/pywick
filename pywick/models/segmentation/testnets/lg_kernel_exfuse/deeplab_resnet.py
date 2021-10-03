@@ -507,11 +507,13 @@ class _ResidualBlockMulGrid(nn.Sequential):
 	"""
 		Residual Block with multi-grid , note: best model-> (1, 2, 1)
 	"""
-	def __init__(self, layers, inplanes, midplanes, outplanes, stride, dilation, mulgrid=[1,2,1]):
-		super(_ResidualBlockMulGrid, self).__init__()
-		self.add_module("block1", _Bottleneck(inplanes, midplanes, outplanes, stride, dilation * mulgrid[0], True))
-		self.add_module("block2", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[1], False))
-		self.add_module("block3", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[2], False))
+	def __init__(self, layers, inplanes, midplanes, outplanes, stride, dilation, mulgrid=None):
+	    if mulgrid is None:
+	        mulgrid = [1,2,1]
+	    super(_ResidualBlockMulGrid, self).__init__()
+	    self.add_module("block1", _Bottleneck(inplanes, midplanes, outplanes, stride, dilation * mulgrid[0], True))
+	    self.add_module("block2", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[1], False))
+	    self.add_module("block3", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[2], False))
 	def forward(self, x):
 		return super(_ResidualBlockMulGrid, self).forward(x)
 

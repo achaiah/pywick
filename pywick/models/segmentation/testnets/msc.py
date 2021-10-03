@@ -15,7 +15,9 @@ import torch.nn.functional as F
 class MSC(nn.Module):
     """Multi-scale inputs"""
 
-    def __init__(self, scale, pyramids=[0.5, 0.75]):
+    def __init__(self, scale, pyramids=None):
+        if pyramids is None:
+            pyramids = [0.5, 0.75]
         super(MSC, self).__init__()
         self.scale = scale
         self.pyramids = pyramids

@@ -15,7 +15,11 @@ __all__ = ['AFN1', 'AFN2', 'AFN3', 'AFN4', 'AFN5', 'AFN6', 'AFN_ASPP_c', 'AFN_AS
 
 class ModelBuilder():
     @staticmethod
-    def build_net(arch='AFN1', num_input=4, num_classes=5, num_branches=4, padding_list=[0, 4, 8, 12], dilation_list=[2, 6, 10, 14], **kwargs):
+    def build_net(arch='AFN1', num_input=4, num_classes=5, num_branches=4, padding_list=None, dilation_list=None, **kwargs):
+        if padding_list is None:
+            padding_list = [0, 4, 8, 12]
+        if dilation_list is None:
+            dilation_list = [2, 6, 10, 14]
         # parameters in the architecture
         channels = [num_input - 1, 30, 30, 40, 40, 40, 40, 50, 50, num_classes]
         kernel_size = 3
