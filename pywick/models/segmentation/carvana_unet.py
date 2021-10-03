@@ -55,9 +55,9 @@ class ConvBnRelu2d(nn.Module):
 
 
     def merge_bn(self):
-        if self.bn == None: return
+        if self.bn is None: return
 
-        assert(self.conv.bias==None)
+        assert(self.conv.bias is None)
         conv_weight     = self.conv.weight.data
         bn_weight       = self.bn.weight.data
         bn_bias         = self.bn.bias.data
