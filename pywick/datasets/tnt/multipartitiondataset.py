@@ -80,8 +80,7 @@ class MultiPartitionDataset(Dataset):
         try:
             if self.current_partition_idx == 0:
                 return self.dataset[idx]
-            else:
-                offset = self.partition_cum_sizes[self.current_partition_idx - 1]
-                return self.dataset[int(offset) + idx]
+            offset = self.partition_cum_sizes[self.current_partition_idx - 1]
+            return self.dataset[int(offset) + idx]
         except AttributeError:
             raise ValueError("Select a partition before accessing data.")

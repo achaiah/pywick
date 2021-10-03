@@ -206,8 +206,7 @@ def generate_checkpoint_name(run_id, kv_dict, epoch, is_best):
     optimizer_name = kv_dict.get('optimizer', 'o')
     if is_best:
         return str(run_id) + "_" + model_name + "_" + optimizer_name + "_ep_best.pth.tar"
-    else:
-        return str(run_id) + "_" + model_name + "_" + optimizer_name + "_ep_" + str(epoch + 1) + ".pth.tar"
+    return str(run_id) + "_" + model_name + "_" + optimizer_name + "_ep_" + str(epoch + 1) + ".pth.tar"
 
 
 def save_checkpoint(state, is_best=False, save_path=".", filename=None):

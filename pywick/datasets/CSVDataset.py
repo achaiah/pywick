@@ -112,8 +112,7 @@ class CSVDataset(BaseDataset):
 
 
             return self.input_return_processor(input_sample), self.target_return_processor(target_sample)
-        else:
-            return self.input_return_processor(input_sample)
+        return self.input_return_processor(input_sample)
 
     def split_by_column(self, col):
         """

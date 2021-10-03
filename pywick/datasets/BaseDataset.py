@@ -69,10 +69,9 @@ class BaseDataset(object):
         def _parse_shape(x):
             if isinstance(x, (list,tuple)):
                 return (len(x),)
-            elif isinstance(x, th.Tensor):
+            if isinstance(x, th.Tensor):
                 return x.size()
-            else:
-                return (1,)
+            return (1,)
 
         if num_samples is None and load_range is None:
             num_samples = len(self)
@@ -122,29 +121,28 @@ class BaseDataset(object):
                         targets[i][enum_idx] = target_sample[i]
 
             return inputs, targets
-        else:
-            for enum_idx, sample_idx in enumerate(load_range):
-                input_sample = self.__getitem__(sample_idx)
+        for enum_idx, sample_idx in enumerate(load_range):
+            input_sample = self.__getitem__(sample_idx)
 
-                if enum_idx == 0:
-                    if self.num_inputs == 1:
-                        _shape = [len(load_range)] + list(_parse_shape(input_sample))
-                        inputs = np.empty(_shape)
-                        #inputs = np.empty((len(load_range), *_parse_shape(input_sample)))
-                    else:
-                        inputs = []
-                        for i in range(self.num_inputs):
-                            _shape = [len(load_range)] + list(_parse_shape(input_sample[i]))
-                            inputs.append(np.empty(_shape))
-                        #inputs = [np.empty((len(load_range), *_parse_shape(input_sample[i]))) for i in range(self.num_inputs)]
-
+            if enum_idx == 0:
                 if self.num_inputs == 1:
-                    inputs[enum_idx] = input_sample
+                    _shape = [len(load_range)] + list(_parse_shape(input_sample))
+                    inputs = np.empty(_shape)
+                    #inputs = np.empty((len(load_range), *_parse_shape(input_sample)))
                 else:
+                    inputs = []
                     for i in range(self.num_inputs):
-                        inputs[i][enum_idx] = input_sample[i]
+                        _shape = [len(load_range)] + list(_parse_shape(input_sample[i]))
+                        inputs.append(np.empty(_shape))
+                    #inputs = [np.empty((len(load_range), *_parse_shape(input_sample[i]))) for i in range(self.num_inputs)]
 
-            return inputs
+            if self.num_inputs == 1:
+                inputs[enum_idx] = input_sample
+            else:
+                for i in range(self.num_inputs):
+                    inputs[i][enum_idx] = input_sample[i]
+
+        return inputs
 
     def fit_transforms(self):
         """

@@ -182,9 +182,8 @@ def iouloss(pred, gt):
     union = (gt | pred)[mask].long().sum()
     if not union:
         return 0.
-    else:
-        intersection = (gt & pred)[mask].long().sum()
-        return 1. - intersection / union
+    intersection = (gt & pred)[mask].long().sum()
+    return 1. - intersection / union
 
 
 def compute_step_length(x, grad, active, eps=1e-6):
@@ -296,8 +295,7 @@ def lovasz_binary(margins, label, prox=False, max_steps=20, debug=None):
         xp, gam = find_proximal(margins_sorted.detach(), grad, prox, max_steps=max_steps, eps=1e-6, debug=debug)
         hook = margins_sorted.register_hook(lambda grad: (margins_sorted.detach() - xp))
         return loss, hook, gam
-    else:
-        return loss
+    return loss
 
 
 def lovasz_single(logit, label, prox=False, max_steps=20, debug=None):
@@ -975,8 +973,7 @@ class ComboBCEDiceLoss(nn.Module):
 
         if self.combined_loss_only:
             return loss
-        else:
-            return loss, bce_loss, dice_loss
+        return loss, bce_loss, dice_loss
 
 
 class ComboSemsegLossWeighted(nn.Module):
@@ -1063,8 +1060,7 @@ class ComboSemsegLossWeighted(nn.Module):
 
         if self.combined_loss_only:
             return loss
-        else:
-            return loss, bce_loss, dice_loss
+        return loss, bce_loss, dice_loss
 
 
 # ====================== #
@@ -1155,24 +1151,23 @@ class EncNetLoss(nn.CrossEntropyLoss):
         inputs = tuple(list(preds) + [target])
         if not self.se_loss and not self.aux:
             return super(EncNetLoss, self).forward(*inputs)
-        elif not self.se_loss:
+        if not self.se_loss:
             pred1, pred2, target = tuple(inputs)
             loss1 = super(EncNetLoss, self).forward(pred1, target)
             loss2 = super(EncNetLoss, self).forward(pred2, target)
             return dict(loss=loss1 + self.aux_weight * loss2)
-        elif not self.aux:
+        if not self.aux:
             pred, se_pred, target = tuple(inputs)
             se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred)
             loss1 = super(EncNetLoss, self).forward(pred, target)
             loss2 = self.bceloss(torch.sigmoid(se_pred), se_target)
             return dict(loss=loss1 + self.se_weight * loss2)
-        else:
-            pred1, se_pred, pred2, target = tuple(inputs)
-            se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred1)
-            loss1 = super(EncNetLoss, self).forward(pred1, target)
-            loss2 = super(EncNetLoss, self).forward(pred2, target)
-            loss3 = self.bceloss(torch.sigmoid(se_pred), se_target)
-            return dict(loss=loss1 + self.aux_weight * loss2 + self.se_weight * loss3)
+        pred1, se_pred, pred2, target = tuple(inputs)
+        se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred1)
+        loss1 = super(EncNetLoss, self).forward(pred1, target)
+        loss2 = super(EncNetLoss, self).forward(pred2, target)
+        loss3 = self.bceloss(torch.sigmoid(se_pred), se_target)
+        return dict(loss=loss1 + self.aux_weight * loss2 + self.se_weight * loss3)
 
     @staticmethod
     def _get_batch_label_vector(target, nclass):
@@ -1216,8 +1211,7 @@ class MixSoftmaxCrossEntropyOHEMLoss(OhemCrossEntropy2d):
         inputs = tuple(list(preds) + [target])
         if self.aux:
             return dict(loss=self._aux_forward(*inputs))
-        else:
-            return dict(loss=super(MixSoftmaxCrossEntropyOHEMLoss, self).forward(*inputs))
+        return dict(loss=super(MixSoftmaxCrossEntropyOHEMLoss, self).forward(*inputs))
 
 
 # ====================== #
@@ -1246,24 +1240,23 @@ class OHEMSegmentationLosses(OhemCrossEntropy2d):
     def forward(self, *inputs, **_):
         if not self.se_loss and not self.aux:
             return super(OHEMSegmentationLosses, self).forward(*inputs)
-        elif not self.se_loss:
+        if not self.se_loss:
             pred1, pred2, target = tuple(inputs)
             loss1 = super(OHEMSegmentationLosses, self).forward(pred1, target)
             loss2 = super(OHEMSegmentationLosses, self).forward(pred2, target)
             return loss1 + self.aux_weight * loss2
-        elif not self.aux:
+        if not self.aux:
             pred, se_pred, target = tuple(inputs)
             se_target = self._get_batch_label_vector(target, nclass=self.num_classes).type_as(pred)
             loss1 = super(OHEMSegmentationLosses, self).forward(pred, target)
             loss2 = self.bceloss(torch.sigmoid(se_pred), se_target)
             return loss1 + self.se_weight * loss2
-        else:
-            pred1, se_pred, pred2, target = tuple(inputs)
-            se_target = self._get_batch_label_vector(target, nclass=self.num_classes).type_as(pred1)
-            loss1 = super(OHEMSegmentationLosses, self).forward(pred1, target)
-            loss2 = super(OHEMSegmentationLosses, self).forward(pred2, target)
-            loss3 = self.bceloss(torch.sigmoid(se_pred), se_target)
-            return loss1 + self.aux_weight * loss2 + self.se_weight * loss3
+        pred1, se_pred, pred2, target = tuple(inputs)
+        se_target = self._get_batch_label_vector(target, nclass=self.num_classes).type_as(pred1)
+        loss1 = super(OHEMSegmentationLosses, self).forward(pred1, target)
+        loss2 = super(OHEMSegmentationLosses, self).forward(pred2, target)
+        loss3 = self.bceloss(torch.sigmoid(se_pred), se_target)
+        return loss1 + self.aux_weight * loss2 + self.se_weight * loss3
 
     @staticmethod
     def _get_batch_label_vector(target, nclass):
@@ -1324,10 +1317,9 @@ class OhemCELoss(nn.Module):
         select_loss_matrix = sort_loss_matirx[sort_prob < threshold]
         if self.reduction == 'sum' or select_loss_matrix.numel() == 0:
             return select_loss_matrix.sum()
-        elif self.reduction == 'mean':
+        if self.reduction == 'mean':
             return select_loss_matrix.mean()
-        else:
-            raise NotImplementedError('Reduction Error!')
+        raise NotImplementedError('Reduction Error!')
 
     @staticmethod
     def _scale_target(targets_, scaled_size):
@@ -2395,11 +2387,10 @@ class RMILoss(nn.Module):
             pair_ns = la_ns + pr_ns
             p_vectors = torch.stack(pair_ns, dim=2)
             return p_vectors
-        else:
-            # for other purpose
-            la_vectors = torch.stack(la_ns, dim=2)
-            pr_vectors = torch.stack(pr_ns, dim=2)
-            return la_vectors, pr_vectors
+        # for other purpose
+        la_vectors = torch.stack(la_ns, dim=2)
+        pr_vectors = torch.stack(pr_ns, dim=2)
+        return la_vectors, pr_vectors
 
     @staticmethod
     def log_det_by_cholesky(matrix):
@@ -2730,9 +2721,7 @@ class HausdorffDTLoss(nn.Module):
                     target_dt.detach().cpu().numpy()[0, 0],
                 ),
             )
-
-        else:
-            return loss
+        return loss
 
 
 class HausdorffERLoss(nn.Module):
@@ -2789,11 +2778,10 @@ class HausdorffERLoss(nn.Module):
                 if debug:
                     erosions.append(np.copy(erosion[0]))
 
-        # image visualization in debug mode
+                # image visualization in debug mode
         if debug:
             return eroted, erosions
-        else:
-            return eroted
+        return eroted
 
     def forward(self, pred: torch.Tensor, target: torch.Tensor, debug=False) -> torch.Tensor:
         """
@@ -2810,13 +2798,11 @@ class HausdorffERLoss(nn.Module):
         if debug:
             eroted, erosions = self.perform_erosion(pred.detach().cpu().numpy(), target.detach().cpu().numpy(), debug)
             return eroted.mean(), erosions
+        eroted = torch.from_numpy(self.perform_erosion(pred.detach().cpu().numpy(), target.detach().cpu().numpy(), debug)).float()
 
-        else:
-            eroted = torch.from_numpy(self.perform_erosion(pred.detach().cpu().numpy(), target.detach().cpu().numpy(), debug)).float()
+        loss = eroted.mean()
 
-            loss = eroted.mean()
-
-            return loss
+        return loss
 
 
 # ====================== #

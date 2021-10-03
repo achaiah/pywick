@@ -20,8 +20,7 @@ class Swish(nn.Module):
         if self.inplace:
             x.mul_(torch.sigmoid(x))
             return x
-        else:
-            return x * torch.sigmoid(x)
+        return x * torch.sigmoid(x)
 
 
 def conv3x3(in_planes, out_planes, stride=1):

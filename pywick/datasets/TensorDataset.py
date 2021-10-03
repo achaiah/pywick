@@ -56,5 +56,4 @@ class TensorDataset(BaseDataset):
             #    input_sample[i], target_sample[i] = self.co_transform[i](input_sample[i], target_sample[i])
 
             return self.input_return_processor(input_sample), self.target_return_processor(target_sample)
-        else:
-            return self.input_return_processor(input_sample)
+        return self.input_return_processor(input_sample)

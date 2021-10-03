@@ -80,20 +80,18 @@ class BatchReNorm1d(Module):
             output += self.bias.unsqueeze(0).expand_as(input)
 
             return output
+        mean = self.running_mean.expand_as(input)
+        invstd = 1. / torch.sqrt(self.running_var.expand_as(input) + self.eps)
 
-        else:
-            mean = self.running_mean.expand_as(input)
-            invstd = 1. / torch.sqrt(self.running_var.expand_as(input) + self.eps)
+        input_normalized = (input - mean.expand_as(input)) * invstd.expand_as(input)
 
-            input_normalized = (input - mean.expand_as(input)) * invstd.expand_as(input)
+        if not self.affine:
+            return input_normalized
 
-            if not self.affine:
-                return input_normalized
+        output = input_normalized * self.weight.expand_as(input)
+        output += self.bias.unsqueeze(0).expand_as(input)
 
-            output = input_normalized * self.weight.expand_as(input)
-            output += self.bias.unsqueeze(0).expand_as(input)
-
-            return output
+        return output
 
     def __repr__(self):
         return ('{name}({num_features}, eps={eps}, momentum={momentum},'

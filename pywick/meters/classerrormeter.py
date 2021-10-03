@@ -50,7 +50,6 @@ class ClassErrorMeter(meter.Meter):
                 'invalid k (this k was not provided at construction time)'
             if self.accuracy:
                 return (1. - float(self.sum[k]) / self.n) * 100.0
-            else:
-                return float(self.sum[k]) / self.n * 100.0
+            return float(self.sum[k]) / self.n * 100.0
         else:
             return [self.value(k_) for k_ in self.topk]

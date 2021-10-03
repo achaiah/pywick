@@ -105,17 +105,16 @@ class PerturbLayerFirst(nn.Module):  # (2) Felix added this
     def forward(self, x):
         if self.filter_size > 0:
             return self.layers(x)  # image, conv, batchnorm, relu
-        else:
-            y = torch.add(x.unsqueeze(2), self.noise * self.level)
-            # (10, 3, 1, 32, 32) + (1, 3, 128, 32, 32) --> (10, 3, 128, 32, 32)
+        y = torch.add(x.unsqueeze(2), self.noise * self.level)
+        # (10, 3, 1, 32, 32) + (1, 3, 128, 32, 32) --> (10, 3, 128, 32, 32)
 
-            y = y.view(-1, self.in_channels * self.nmasks, self.input_size, self.input_size)
-            y = self.layers(y)
+        y = y.view(-1, self.in_channels * self.nmasks, self.input_size, self.input_size)
+        y = self.layers(y)
 
-            if self.mix_maps:
-                y = self.mix_layers(y)
+        if self.mix_maps:
+            y = self.mix_layers(y)
 
-            return y  # image, perturb, (relu?), conv1x1, batchnorm, relu + mix_maps (conv1x1, batchnorm relu)
+        return y  # image, perturb, (relu?), conv1x1, batchnorm, relu + mix_maps (conv1x1, batchnorm relu)
 
 
 class PerturbLayer(nn.Module):
@@ -189,19 +188,18 @@ class PerturbLayer(nn.Module):
     def forward(self, x):
         if self.filter_size > 0:
             return self.layers(x)  # image, conv, batchnorm, relu
-        else:
-            y = torch.add(x.unsqueeze(2), self.noise * self.level)  # (10, 3, 1, 32, 32) + (1, 3, 128, 32, 32) --> (10, 3, 128, 32, 32)
+        y = torch.add(x.unsqueeze(2), self.noise * self.level)  # (10, 3, 1, 32, 32) + (1, 3, 128, 32, 32) --> (10, 3, 128, 32, 32)
 
-            if self.use_act:
-                y = self.act(y)
+        if self.use_act:
+            y = self.act(y)
 
-            y = y.view(-1, self.in_channels * self.nmasks, self.input_size, self.input_size)
-            y = self.layers(y)
+        y = y.view(-1, self.in_channels * self.nmasks, self.input_size, self.input_size)
+        y = self.layers(y)
 
-            if self.mix_maps:
-                y = self.mix_layers(y)
+        if self.mix_maps:
+            y = self.mix_layers(y)
 
-            return y  # image, perturb, (relu?), conv1x1, batchnorm, relu + mix_maps (conv1x1, batchnorm relu)
+        return y  # image, perturb, (relu?), conv1x1, batchnorm, relu + mix_maps (conv1x1, batchnorm relu)
 
 
 class PerturbBasicBlock(nn.Module):

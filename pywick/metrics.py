@@ -84,8 +84,7 @@ class CategoricalAccuracySingleInput(CategoricalAccuracy):
     def __call__(self, inputs, y_pred, y_true, is_val=False):
         if is_iterable(y_pred):
             return super().__call__(inputs, y_pred[0], y_true, is_val=False)
-        else:
-            return super().__call__(inputs, y_pred, y_true, is_val=False)
+        return super().__call__(inputs, y_pred, y_true, is_val=False)
 
 
 class BinaryAccuracy(Metric):
@@ -182,8 +181,7 @@ class DiceCoefficientMetric(Metric):
             # self.dices.update(dice_coeff(y_pred, y_true).data[0], N)
             self.dices.update(dice_coeff(y_pred, y_true).item(), N)     # changed after pytorch 0.4
             return self.dices.avg
-        else:
-            return -1337.0
+        return -1337.0
 
 
 class JaccardLossMetric(Metric):
@@ -208,8 +206,7 @@ class JaccardLossMetric(Metric):
             # self.jaccard.update(lovaszloss(y_pred, y_true.data).data[0], N)     # changed after pytorch 0.4
             self.jaccard.update(lovaszloss(y_pred, y_true).item(), N)
             return self.jaccard.avg
-        else:
-            return -1337.0
+        return -1337.0
 
 class HingeLossMetric(Metric):
     '''
@@ -233,5 +230,4 @@ class HingeLossMetric(Metric):
             # self.hinge.update(hingeloss(y_pred, y_true.data).data[0], N)    # changed after pytorch 0.4
             self.hinge.update(hingeloss(y_pred, y_true), N)
             return self.hinge.avg
-        else:
-            return -1337.0
+        return -1337.0

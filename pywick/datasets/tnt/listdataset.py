@@ -50,5 +50,4 @@ class ListDataset(Dataset):
 
         if self.path is not None:
             return self.load("%s/%s" % (self.path, self.list[idx]))
-        else:
-            return self.load(self.list[idx])
+        return self.load(self.list[idx])

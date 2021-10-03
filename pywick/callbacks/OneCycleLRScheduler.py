@@ -190,8 +190,7 @@ class OneCycleLR(torch.optim.lr_scheduler.StepLR):
                 raise ValueError("expected {} values for {}, got {}".format(
                     len(optimizer.param_groups), name, len(param)))
             return param
-        else:
-            return [param] * len(optimizer.param_groups)
+        return [param] * len(optimizer.param_groups)
 
     @staticmethod
     def _annealing_cos(start, end, pct):

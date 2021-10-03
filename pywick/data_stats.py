@@ -44,27 +44,26 @@ def get_dataset_mean_std(dataset=None, img_size=None, output_div=255.0, dataset_
     """
     if dataset_name in dataset_mean_std.keys():
         return dataset_mean_std[dataset_name]
-    else:
-        total = np.zeros((3, (len(dataset) * img_size * img_size)), dtype=int)
-        position = 0  # keep track of position in the total array
+    total = np.zeros((3, (len(dataset) * img_size * img_size)), dtype=int)
+    position = 0  # keep track of position in the total array
 
-        for src, _ in tqdm(dataset, ascii=True, desc="Process", unit='images'):
-            src = src.resize((img_size, img_size))  # resize to same size
-            src = np.array(src)
+    for src, _ in tqdm(dataset, ascii=True, desc="Process", unit='images'):
+        src = src.resize((img_size, img_size))  # resize to same size
+        src = np.array(src)
 
-            # reshape into correct shape
-            src = src.reshape(img_size * img_size, 3)
-            src = src.swapaxes(1, 0)
+        # reshape into correct shape
+        src = src.reshape(img_size * img_size, 3)
+        src = src.swapaxes(1, 0)
 
-            # np.concatenate((a, b, c), axis=1)  # NOPE NOPE NOPE -- makes a memory re-allocation for every concatenate operation
+        # np.concatenate((a, b, c), axis=1)  # NOPE NOPE NOPE -- makes a memory re-allocation for every concatenate operation
 
-            # -- In-place value substitution -- #
-            place = img_size * img_size * position
-            total[0:src.shape[0], place:place + src.shape[1]] = src  # copies the src data into the total position at specified index
+        # -- In-place value substitution -- #
+        place = img_size * img_size * position
+        total[0:src.shape[0], place:place + src.shape[1]] = src  # copies the src data into the total position at specified index
 
-            position = position + 1
+        position = position + 1
 
-        return total.mean(1) / output_div, total.std(1) / output_div  # return channel-wise mean for the entire dataset
+    return total.mean(1) / output_div, total.std(1) / output_div  # return channel-wise mean for the entire dataset
 
 
 def create_dataset_stats(data_path, output_path=None, verbose=False):

@@ -20,10 +20,9 @@ def _validate_initializer_string(init):
         except:
             raise ValueError('Invalid loss string input - must match pytorch function.')
         return getattr(torch.nn.init, dir(torch.nn.init)[str_idx])
-    elif callable(init):
+    if callable(init):
         return init
-    else:
-        raise ValueError('Invalid loss input')
+    raise ValueError('Invalid loss input')
 
 
 class InitializerContainer(object):

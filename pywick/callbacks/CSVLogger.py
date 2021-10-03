@@ -45,8 +45,7 @@ class CSVLogger(Callback):
             is_zero_dim_tensor = isinstance(k, torch.Tensor) and k.dim() == 0
             if isinstance(k, Iterable) and not is_zero_dim_tensor:
                 return '"[%s]"' % (', '.join(map(str, k)))
-            else:
-                return k
+            return k
 
         if not self.writer:
             self.keys = sorted(logs.keys())
