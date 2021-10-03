@@ -1,6 +1,6 @@
 from six import iteritems
 from pywick.datasets.tnt.table import canmergetensor as canmerge
-from pywick.datasets.tnt.table import mergetensor as mergetensor
+from pywick.datasets.tnt.table import mergetensor
 
 
 def compose(transforms):
