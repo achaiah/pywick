@@ -17,9 +17,6 @@ class DenseLayer(nn.Sequential):
         self.add_module('conv', nn.Conv2d(in_channels, growth_rate, kernel_size=3, stride=1, padding=1, bias=True))
         self.add_module('drop', nn.Dropout2d(0.2))
 
-    def forward(self, x):
-        return super().forward(x)
-
 
 class DenseBlock(nn.Module):
     def __init__(self, in_channels, growth_rate, n_layers, upsample=False):
@@ -55,9 +52,6 @@ class TransitionDown(nn.Sequential):
         self.add_module('drop', nn.Dropout2d(0.2))
         self.add_module('maxpool', nn.MaxPool2d(2))
 
-    def forward(self, x):
-        return super().forward(x)
-
 
 class TransitionUp(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -75,9 +69,6 @@ class Bottleneck(nn.Sequential):
     def __init__(self, in_channels, growth_rate, n_layers):
         super().__init__()
         self.add_module('bottleneck', DenseBlock(in_channels, growth_rate, n_layers, upsample=True))
-
-    def forward(self, x):
-        return super().forward(x)
 
 
 def center_crop(layer, max_height, max_width):

@@ -5,8 +5,6 @@ import torch.nn as nn
 
 
 class LambdaBase(nn.Sequential):
-    def __init__(self, *args):
-        super(LambdaBase, self).__init__(*args)
 
     def forward_prepare(self, input):
         output = []

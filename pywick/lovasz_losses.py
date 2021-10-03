@@ -128,8 +128,6 @@ def flatten_binary_scores(scores, labels, ignore=None):
 
 
 class LovaszBinaryLoss(torch.nn.modules.Module):
-    def __init__(self):
-        super(LovaszBinaryLoss, self).__init__()
 
     @staticmethod
     def forward(input, target):
@@ -137,8 +135,6 @@ class LovaszBinaryLoss(torch.nn.modules.Module):
 
 
 class StableBCELoss(torch.nn.modules.Module):
-    def __init__(self):
-        super(StableBCELoss, self).__init__()
 
     @staticmethod
     def forward(input, target):

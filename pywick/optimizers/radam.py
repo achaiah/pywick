@@ -31,9 +31,6 @@ class RAdam(Optimizer):
         self.buffer = [[None, None, None] for ind in range(10)]
         super(RAdam, self).__init__(params, defaults)
 
-    def __setstate__(self, state):
-        super(RAdam, self).__setstate__(state)
-
     def step(self, closure=None):
 
         loss = None
