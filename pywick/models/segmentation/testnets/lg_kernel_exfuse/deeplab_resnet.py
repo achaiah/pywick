@@ -500,8 +500,6 @@ class _ConvBatchNormReluBlock(nn.Sequential):
 		self.add_module("bn", nn.BatchNorm2d(num_features=outplanes, momentum=0.999, affine=True))
 		if relu:
 			self.add_module("relu", nn.ReLU())
-	def forward(self, x):
-		return super(_ConvBatchNormReluBlock, self).forward(x)
 
 class _ResidualBlockMulGrid(nn.Sequential):
 	"""
@@ -514,8 +512,6 @@ class _ResidualBlockMulGrid(nn.Sequential):
 	    self.add_module("block1", _Bottleneck(inplanes, midplanes, outplanes, stride, dilation * mulgrid[0], True))
 	    self.add_module("block2", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[1], False))
 	    self.add_module("block3", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[2], False))
-	def forward(self, x):
-		return super(_ResidualBlockMulGrid, self).forward(x)
 
 class _Bottleneck(nn.Sequential):
 	def __init__(self, inplanes, midplanes, outplanes, stride, dilation, downsample):

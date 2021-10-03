@@ -12,9 +12,6 @@ class Ralamb(Optimizer):
         self.buffer = [[None, None, None] for ind in range(10)]
         super(Ralamb, self).__init__(params, defaults)
 
-    def __setstate__(self, state):
-        super(Ralamb, self).__setstate__(state)
-
     def step(self, closure=None):
 
         loss = None

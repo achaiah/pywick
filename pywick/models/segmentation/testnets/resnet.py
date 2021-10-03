@@ -47,9 +47,6 @@ class _ConvBatchNormReLU(nn.Sequential):
         if relu:
             self.add_module("relu", nn.ReLU())
 
-    def forward(self, x):
-        return super(_ConvBatchNormReLU, self).forward(x)
-
 
 class _Bottleneck(nn.Sequential):
     """Bottleneck Unit"""

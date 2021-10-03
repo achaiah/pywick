@@ -48,10 +48,6 @@ def bnrelu(channels):
 
 class GlobalAvgPool2d(nn.Module):
 
-    def __init__(self):
-        """Global average pooling over the input's spatial dimensions"""
-        super(GlobalAvgPool2d, self).__init__()
-
     @staticmethod
     def forward(inputs):
         in_size = inputs.size()
