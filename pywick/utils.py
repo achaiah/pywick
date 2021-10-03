@@ -425,12 +425,14 @@ def load_transform(file):
 from pywick.callbacks import *
 
 
-def class_factory(classname: str, params_dict: dict = {}):
+def class_factory(classname: str, params_dict: dict = None):
     """
     Instantiate a class with given parameters
     :param classname:       Name of class
     :param params_dict:     Dict of parameters
     :return:
     """
+    if params_dict is None:
+        params_dict = {}
     cls = globals()[classname]
     return cls(**params_dict)

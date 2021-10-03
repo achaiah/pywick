@@ -17,9 +17,13 @@ __all__ = ['BaseNet']
 
 class BaseNet(nn.Module):
     def __init__(self, nclass, backbone, aux, se_loss, dilated=True, norm_layer=None,
-                 base_size=576, crop_size=608, mean=[.485, .456, .406],
-                 std=[.229, .224, .225], root='./pretrain_models',
+                 base_size=576, crop_size=608, mean=None,
+                 std=None, root='./pretrain_models',
                  multi_grid=False, multi_dilation=None, **kwargs):
+        if mean is None:
+            mean = [.485, .456, .406]
+        if std is None:
+            std = [.229, .224, .225]
         super(BaseNet, self).__init__()
         self.nclass = nclass
         self.aux = aux

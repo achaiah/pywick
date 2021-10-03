@@ -29,7 +29,7 @@ from tqdm import tqdm
 
 class ModuleTrainer(object):
 
-    def __init__(self, model, cuda_devices=[]):
+    def __init__(self, model, cuda_devices=None):
         """
         ModelTrainer for high-level training of Pytorch models
 
@@ -47,6 +47,8 @@ class ModuleTrainer(object):
         - metrics
         - callbacks
         """
+        if cuda_devices is None:
+            cuda_devices = []
         if not isinstance(model, nn.Module):
             raise ValueError('model argument must inherit from torch.nn.Module')
         self.model = model

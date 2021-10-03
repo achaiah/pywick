@@ -93,7 +93,9 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _make_MG_unit(self, block, planes, blocks=[1,2,4], stride=1, rate=1):
+    def _make_MG_unit(self, block, planes, blocks=None, stride=1, rate=1):
+        if blocks is None:
+            blocks = [1,2,4]
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(

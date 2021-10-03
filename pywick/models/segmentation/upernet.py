@@ -150,7 +150,9 @@ class BaseModel(nn.Module):
 class PSPModule(nn.Module):
     # In the original inmplementation they use precise RoI pooling
     # Instead of using adaptative average pooling
-    def __init__(self, in_channels, bin_sizes=[1, 2, 4, 6]):
+    def __init__(self, in_channels, bin_sizes=None):
+        if bin_sizes is None:
+            bin_sizes = [1, 2, 4, 6]
         super(PSPModule, self).__init__()
         out_channels = in_channels // len(bin_sizes)
         self.stages = nn.ModuleList([self._make_stages(in_channels, out_channels, b_s)
@@ -232,7 +234,9 @@ def up_and_add(x, y):
     return F.interpolate(x, size=(y.size(2), y.size(3)), mode='bilinear', align_corners=True) + y
 
 class FPN_fuse(nn.Module):
-    def __init__(self, feature_channels=[256, 512, 1024, 2048], fpn_out=256):
+    def __init__(self, feature_channels=None, fpn_out=256):
+        if feature_channels is None:
+            feature_channels = [256, 512, 1024, 2048]
         super(FPN_fuse, self).__init__()
         assert feature_channels[0] == fpn_out
         self.conv1x1 = nn.ModuleList([nn.Conv2d(ft_size, fpn_out, kernel_size=1)
