@@ -259,7 +259,6 @@ def resnet152_v1s(pretrained=False, root='~/.torch/models', **kwargs):
 
 
 if __name__ == '__main__':
-    import torch
 
     img = torch.randn(4, 3, 224, 224)
     model = resnet50_v1b(True)
