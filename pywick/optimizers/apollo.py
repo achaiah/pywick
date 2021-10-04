@@ -3,7 +3,7 @@
 import torch
 from torch.optim.optimizer import Optimizer
 
-from .madgrad import OptFloat, OptLossClosure, Params
+from .a2grad import OptFloat, OptLossClosure, Params
 
 
 __all__ = 'Apollo'

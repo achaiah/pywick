@@ -3,7 +3,7 @@
 import torch
 from torch.optim.optimizer import Optimizer
 
-from .madgrad import Betas2, Nus2, OptFloat, OptLossClosure, Params
+from .a2grad import Betas2, Nus2, OptFloat, OptLossClosure, Params
 
 __all__ = ('QHAdam',)
 
