@@ -26,6 +26,13 @@ AdaHessian
     :members: Adahessian
     :undoc-members:
 
+AdamP
+--------------------------------
+
+.. automodule:: pywick.optimizers.adamp
+    :members: AdamP
+    :undoc-members:
+
 AdamW
 --------------------------------
 
@@ -45,6 +52,13 @@ Apollo
 
 .. automodule:: pywick.optimizers.apollo
     :members: Apollo
+    :undoc-members:
+
+Lars
+----------------------------
+
+.. automodule:: pywick.optimizers.lars
+    :members: Lars
     :undoc-members:
 
 Eve
