@@ -248,17 +248,17 @@ def get_supported_models(type: ModelType):
 
     import pkgutil
     if type == ModelType.SEGMENTATION:
-        excludes = list()  # <-- exclude non-model names
+        excludes = []  # <-- exclude non-model names
         for importer, modname, ispkg in pkgutil.walk_packages(path=segmentation.__path__, prefix=segmentation.__name__+".", onerror=lambda x: None):
             excludes.append(modname.split('.')[-1])
         return [x for x in segmentation.__dict__.keys() if ('__' not in x and x not in excludes)]  # filter out hidden object attributes and module names
     elif type == ModelType.CLASSIFICATION:
-        pywick_excludes = list()
+        pywick_excludes = []
         for importer, modname, ispkg in pkgutil.walk_packages(path=classification.__path__, prefix=classification.__name__+".", onerror=lambda x: None):
             pywick_excludes.append(modname.split('.')[-1])
         pywick_names = [x for x in classification.__dict__.keys() if '__' not in x and x not in pywick_excludes]     # includes directory and filenames
 
-        pt_excludes = list()
+        pt_excludes = []
         for importer, modname, ispkg in pkgutil.walk_packages(path=torch_models.__path__, prefix=torch_models.__name__+".", onerror=lambda x: None):
             pt_excludes.append(modname.split('.')[-1])
         pt_names = [x for x in torch_models.__dict__.keys() if '__' not in x and x not in pt_excludes]  # includes directory and filenames

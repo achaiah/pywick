@@ -41,7 +41,7 @@ class PSANet(SegBaseModel):
     def forward(self, x):
         size = x.size()[2:]
         _, _, c3, c4 = self.base_forward(x)
-        outputs = list()
+        outputs = []
         x = self.head(c4)
         x = F.interpolate(x, size, mode='bilinear', align_corners=True)
         outputs.append(x)

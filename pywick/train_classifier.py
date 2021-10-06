@@ -43,8 +43,8 @@ def main(config: ExpConfig):
     :return:
     """
 
-    dsets = dict()
-    dset_loaders = dict()
+    dsets = {}
+    dset_loaders = {}
     if not config.val_root:                     # if no validation root provided, we use a part of the full dataset instead
         total_set = MultiFolderDataset(roots=config.dataroots, class_mode='label', default_loader=load_image)
         dsets['train'], dsets['val'] = random_split_dataset(orig_dataset=total_set, splitRatio=config.train_val_ratio, random_seed=config.random_seed)

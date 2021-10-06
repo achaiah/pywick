@@ -60,7 +60,7 @@ class GridSearch(object):
 
         # get all keys
         keys = available_args.keys()
-        keys_to_remove = list()
+        keys_to_remove = []
 
         for i, key in enumerate(keys):
             values = available_args.get(key)
@@ -82,7 +82,7 @@ class GridSearch(object):
                 input_args[key] = values
                 keys_to_remove.append(key)
                 if (i+1) == len(keys):        # we've reached the final item in the available args
-                    self._execute(input_args, dict())
+                    self._execute(input_args, {})
 
     def run(self):
         """
@@ -90,5 +90,5 @@ class GridSearch(object):
         :return:
         """
 
-        input_args = dict()
+        input_args = {}
         self._execute(input_args, self.args)

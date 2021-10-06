@@ -189,7 +189,7 @@ class DRN(nn.Module):
                 BatchNorm(planes * block.expansion),
             )
 
-        layers = list()
+        layers = []
         layers.append(block(
             self.inplanes, planes, stride, downsample,
             dilation=(1, 1) if dilation == 1 else (
@@ -215,7 +215,7 @@ class DRN(nn.Module):
         return nn.Sequential(*modules)
 
     def forward(self, x):
-        y = list()
+        y = []
 
         if self.arch == 'C':
             x = self.conv1(x)
