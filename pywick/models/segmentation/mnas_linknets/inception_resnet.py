@@ -333,8 +333,8 @@ def inceptionresnetv2(num_classes=1001, pretrained='imagenet'):
     """
     if pretrained:
         settings = pretrained_settings['inceptionresnetv2'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        if num_classes != settings['num_classes']:
+            raise AssertionError("num_classes should be {}, but is {}".format(settings['num_classes'], num_classes))
 
         # both 'imagenet'&'imagenet+background' are loaded from same parameters
         model = InceptionResNetV2(num_classes=1001)

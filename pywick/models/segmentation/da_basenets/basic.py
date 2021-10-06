@@ -104,7 +104,8 @@ class _DepthwiseConv(nn.Module):
 class InvertedResidual(nn.Module):
     def __init__(self, in_channels, out_channels, stride, expand_ratio, norm_layer=nn.BatchNorm2d, **kwargs):
         super(InvertedResidual, self).__init__()
-        assert stride in [1, 2]
+        if stride not in [1, 2]:
+            raise AssertionError
         self.use_res_connect = stride == 1 and in_channels == out_channels
 
         layers = []

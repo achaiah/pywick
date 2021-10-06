@@ -89,8 +89,8 @@ def resnext101_32x4d(num_classes=1000, pretrained='imagenet'):
     model_blob = ResNeXt101_32x4d_blob(num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['resnext101_32x4d'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        if num_classes != settings['num_classes']:
+            raise AssertionError("num_classes should be {}, but is {}".format(settings['num_classes'], num_classes))
         model_blob.load_state_dict(model_zoo.load_url(settings['url']))
         
         model.stem = nn.Sequential( 

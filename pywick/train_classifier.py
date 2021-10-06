@@ -183,7 +183,8 @@ def main(config: ExpConfig):
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 2, "Only one argument is expected: config_path"
+    if len(sys.argv) != 2:
+        raise AssertionError("Only one argument is expected: config_path")
     config_path = sys.argv[1]
     # Create a configuration object to run this experiment
     with open(config_path, 'r') as f:

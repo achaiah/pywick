@@ -332,12 +332,16 @@ python -m pretrainedmodels.inceptionv4
 ```
 '''
 if __name__ == '__main__':
-    assert inceptionv4(num_classes=10, pretrained=None)
+    if not inceptionv4(num_classes=10, pretrained=None):
+        raise AssertionError
     print('success')
-    assert inceptionv4(num_classes=1000, pretrained='imagenet')
+    if not inceptionv4(num_classes=1000, pretrained='imagenet'):
+        raise AssertionError
     print('success')
-    assert inceptionv4(num_classes=1001, pretrained='imagenet+background')
+    if not inceptionv4(num_classes=1001, pretrained='imagenet+background'):
+        raise AssertionError
     print('success')
 
     # fail
-    assert inceptionv4(num_classes=1001, pretrained='imagenet')
+    if not inceptionv4(num_classes=1001, pretrained='imagenet'):
+        raise AssertionError

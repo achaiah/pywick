@@ -225,7 +225,8 @@ def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='
     if class_mode is None:
         return trainlist_inputs, vallist_inputs
     else:
-        assert len(trainlist_inputs) == len(trainlist_targets) and len(vallist_inputs) == len(vallist_targets)
+        if not (len(trainlist_inputs) == len(trainlist_targets) and len(vallist_inputs) == len(vallist_targets)):
+            raise AssertionError
         print("Total processed: %i    Train-list: %i items   Val-list: %i items    Exclusion-list: %i items" % (icount, len(trainlist_inputs), len(vallist_inputs), len(exclusion_list)))
         return list(zip(trainlist_inputs, trainlist_targets)), list(zip(vallist_inputs, vallist_targets))
 

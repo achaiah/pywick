@@ -37,7 +37,8 @@ from .custom_functional import compute_grad_mag
 
 def perturbate_input_(input, n_elements=200):
     N, C, H, W = input.shape
-    assert N == 1
+    if N != 1:
+        raise AssertionError
     c_ = np.random.random_integers(0, C - 1, n_elements)
     h_ = np.random.random_integers(0, H - 1, n_elements)
     w_ = np.random.random_integers(0, W - 1, n_elements)
@@ -67,7 +68,8 @@ def _gumbel_softmax_sample(logits, tau=1, eps=1e-10):
     https://github.com/ericjang/gumbel-softmax/blob/3c8584924603869e90ca74ac20a6a03d99a91ef9/Categorical%20VAE.ipynb
     (MIT license)
     """
-    assert logits.dim() == 3
+    if logits.dim() != 3:
+        raise AssertionError
     gumbel_noise = _sample_gumbel(logits.size(), eps=eps)
     y = logits + gumbel_noise
     return F.softmax(y / tau, 1)

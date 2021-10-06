@@ -31,7 +31,8 @@ def conv2d_same(input, kernel, groups,bias=None,stride=1,padding=0,dilation=1):
 
     input_ = F.pad(input, (pw_l, pw_r, ph_t, ph_b))
     result = F.conv2d(input_, kernel, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups)
-    assert result.shape == input.shape
+    if result.shape != input.shape:
+        raise AssertionError
     return result
 
 
@@ -73,7 +74,8 @@ def numerical_gradients_2d(input, cuda=False):
     :return: X,Y
     """
     n, c, h, w = input.shape
-    assert h > 1 and w > 1
+    if not (h > 1 and w > 1):
+        raise AssertionError
     x, y = gradient_central_diff(input, cuda)
     return x, y
 

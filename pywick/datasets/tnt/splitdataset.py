@@ -34,12 +34,14 @@ class SplitDataset(Dataset):
         self.partitions = partitions
 
         # A few assertions
-        assert isinstance(partitions, dict), 'partitions must be a dict'
-        assert len(partitions) >= 2, \
-            'SplitDataset should have at least two partitions'
-        assert min(partitions.values()) >= 0, \
-            'partition sizes cannot be negative'
-        assert max(partitions.values()) > 0, 'all partitions cannot be empty'
+        if not isinstance(partitions, dict):
+            raise AssertionError('partitions must be a dict')
+        if len(partitions) < 2:
+            raise AssertionError('SplitDataset should have at least two partitions')
+        if min(partitions.values()) < 0:
+            raise AssertionError('partition sizes cannot be negative')
+        if max(partitions.values()) <= 0:
+            raise AssertionError('all partitions cannot be empty')
 
         self.partition_names = sorted(list(self.partitions.keys()))
         self.partition_index = {partition: i for i, partition in
@@ -53,8 +55,9 @@ class SplitDataset(Dataset):
                                     self.partition_sizes]
         else:
             for x in self.partition_sizes:
-                assert x == int(x), ('partition sizes should be integer'
-                                     ' numbers, or sum up to <= 1 ')
+                if x != int(x):
+                    raise AssertionError('partition sizes should be integer'
+                                         ' numbers, or sum up to <= 1 ')
 
         self.partition_cum_sizes = np.cumsum(self.partition_sizes)
 

@@ -217,15 +217,18 @@ class Network(nn.Module):
         depth = config['depth']
         preact_stage = config['preact_stage']
 
-        assert block_type in ['basic', 'bottleneck']
+        if block_type not in ['basic', 'bottleneck']:
+            raise AssertionError
         if block_type == 'basic':
             block = BasicBlock
             n_blocks_per_stage = (depth - 2) // 6
-            assert n_blocks_per_stage * 6 + 2 == depth
+            if n_blocks_per_stage * 6 + 2 != depth:
+                raise AssertionError
         else:
             block = BottleneckBlock
             n_blocks_per_stage = (depth - 2) // 9
-            assert n_blocks_per_stage * 9 + 2 == depth
+            if n_blocks_per_stage * 9 + 2 != depth:
+                raise AssertionError
 
         n_channels = [
             base_channels,

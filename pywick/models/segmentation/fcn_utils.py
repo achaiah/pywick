@@ -117,7 +117,8 @@ class PolyLR(object):
 class Conv2dDeformable(nn.Module):
     def __init__(self, regular_filter, cuda=True):
         super(Conv2dDeformable, self).__init__()
-        assert isinstance(regular_filter, nn.Conv2d)
+        if not isinstance(regular_filter, nn.Conv2d):
+            raise AssertionError
         self.regular_filter = regular_filter
         self.offset_filter = nn.Conv2d(regular_filter.in_channels, 2 * regular_filter.in_channels, kernel_size=3,
                                        padding=1, bias=False)

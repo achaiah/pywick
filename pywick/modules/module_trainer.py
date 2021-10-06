@@ -337,7 +337,8 @@ class ModuleTrainer(object):
                         self._optimizer.zero_grad()
                         output_batch = fit_forward_fn(input_batch)
                         loss = fit_loss_fn(output_batch, target_batch)
-                        assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                        if math.isnan(loss):
+                            raise AssertionError('Assertion failed: Loss is not NaN.')
                         loss.backward()
                         self._optimizer.step()
                         # ---------------------------------------------
@@ -457,7 +458,8 @@ class ModuleTrainer(object):
                         output_batch = fit_forward_fn(input_batch)
 
                         loss = fit_loss_fn(output_batch, target_batch)
-                        assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                        if math.isnan(loss):
+                            raise AssertionError('Assertion failed: Loss is not NaN.')
                         loss.backward()
                         self._optimizer.step()
                         # ---------------------------------------------
@@ -613,7 +615,8 @@ class ModuleTrainer(object):
                 self._optimizer.zero_grad()
                 output_batch = eval_forward_fn(input_batch)
                 loss = eval_loss_fn(output_batch, target_batch)
-                assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                if math.isnan(loss):
+                    raise AssertionError('Assertion failed: Loss is not NaN.')
 
                 if conditions_container:
                     cond_logs = conditions_container(CondType.POST, epoch_num=None, batch_num=batch_idx, net=self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)
@@ -670,7 +673,8 @@ class ModuleTrainer(object):
                 self._optimizer.zero_grad()
                 output_batch = eval_forward_fn(input_batch)
                 loss = eval_loss_fn(output_batch, target_batch)
-                assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                if math.isnan(loss):
+                    raise AssertionError('Assertion failed: Loss is not NaN.')
 
                 if conditions_container:
                     cond_logs = conditions_container(CondType.POST, epoch_num=None, batch_num=batch_idx, net=self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)
@@ -828,7 +832,8 @@ class SingleInput_SingleTarget_Helper(object):
         total_loss = 0.
         if is_tuple_or_list(output_batch):     # some networks output multiple results (to compute separate losses)
             if self.loss_multipliers:
-                assert len(output_batch) == len(self.loss_multipliers)
+                if len(output_batch) != len(self.loss_multipliers):
+                    raise AssertionError
 
             for i, output in enumerate(output_batch):
                 if self.loss_multipliers:

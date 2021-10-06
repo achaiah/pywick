@@ -110,7 +110,8 @@ class DilatedDenseNet(DenseNet):
                  bn_size=4, drop_rate=0, num_classes=1000, dilate_scale=8, norm_layer=nn.BatchNorm2d, **kwargs):
         super(DilatedDenseNet, self).__init__(growth_rate, block_config, num_init_features,
                                               bn_size, drop_rate, num_classes, norm_layer)
-        assert dilate_scale in (8, 16), "dilate_scale can only set as 8 or 16"
+        if dilate_scale not in (8, 16):
+            raise AssertionError("dilate_scale can only set as 8 or 16")
         from functools import partial
         if dilate_scale == 8:
             self.features.denseblock3.apply(partial(self._conv_dilate, dilate=2))

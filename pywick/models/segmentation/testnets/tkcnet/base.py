@@ -70,7 +70,8 @@ def resize_image(img, h, w, **up_kwargs):
 
 def pad_image(img, mean, std, crop_size):
     b,c,h,w = img.size()
-    assert(c==3)
+    if (c != 3):
+        raise AssertionError
     padh = crop_size - h if h < crop_size else 0
     padw = crop_size - w if w < crop_size else 0
     pad_values = -np.array(mean) / np.array(std)
@@ -78,14 +79,16 @@ def pad_image(img, mean, std, crop_size):
     for i in range(c):
         # note that pytorch pad params is in reversed orders
         img_pad[:,i,:,:] = F.pad(img[:,i,:,:], (0, padw, 0, padh), value=pad_values[i])
-    assert(img_pad.size(2)>=crop_size and img_pad.size(3)>=crop_size)
+    if not (img_pad.size(2)>=crop_size and img_pad.size(3)>=crop_size):
+        raise AssertionError
     return img_pad
 
 def crop_image(img, h0, h1, w0, w1):
     return img[:,:,h0:h1,w0:w1]
 
 def flip_image(img):
-    assert(img.dim()==4)
+    if (img.dim() != 4):
+        raise AssertionError
     with torch.cuda.device_of(img):
         idx = torch.arange(img.size(3)-1, -1, -1).type_as(img).long()
     return img.index_select(3, idx)

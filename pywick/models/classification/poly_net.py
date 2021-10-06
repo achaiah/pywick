@@ -243,7 +243,8 @@ class InceptionResNetBPoly(nn.Module):
 
     def __init__(self, scale, num_blocks):
         super(InceptionResNetBPoly, self).__init__()
-        assert num_blocks >= 1, 'num_blocks should be greater or equal to 1'
+        if num_blocks < 1:
+            raise AssertionError('num_blocks should be greater or equal to 1')
         self.scale = scale
         self.num_blocks = num_blocks
         self.path0_1x1 = PolyConv2d(1152, 128, kernel_size=1,
@@ -293,7 +294,8 @@ class InceptionResNetCPoly(nn.Module):
 
     def __init__(self, scale, num_blocks):
         super(InceptionResNetCPoly, self).__init__()
-        assert num_blocks >= 1, 'num_blocks should be greater or equal to 1'
+        if num_blocks < 1:
+            raise AssertionError('num_blocks should be greater or equal to 1')
         self.scale = scale
         self.num_blocks = num_blocks
         self.path0_1x1 = PolyConv2d(2048, 192, kernel_size=1,
@@ -336,7 +338,8 @@ class MultiWay(nn.Module):
 
     def __init__(self, scale, block_cls, num_blocks):
         super(MultiWay, self).__init__()
-        assert num_blocks >= 1, 'num_blocks should be greater or equal to 1'
+        if num_blocks < 1:
+            raise AssertionError('num_blocks should be greater or equal to 1')
         self.scale = scale
         self.blocks = nn.ModuleList([block_cls() for _ in range(num_blocks)])
         self.relu = nn.ReLU()

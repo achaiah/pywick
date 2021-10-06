@@ -81,7 +81,8 @@ class Bottleneck(nn.Module):
 
     @staticmethod
     def _sum_each(x, y):
-        assert(len(x) == len(y))
+        if (len(x) != len(y)):
+            raise AssertionError
         z = []
         for i in range(len(x)):
             z.append(x[i]+y[i])
