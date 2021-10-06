@@ -129,7 +129,7 @@ class OneCycleLR(torch.optim.lr_scheduler.StepLR):
         # Validate total_steps
         if total_steps is None and epochs is None and steps_per_epoch is None:
             raise ValueError("You must define either total_steps OR (epochs AND steps_per_epoch)")
-        elif total_steps is not None:
+        if total_steps is not None:
             if total_steps <= 0 or not isinstance(total_steps, int):
                 raise ValueError("Expected non-negative integer total_steps, but got {}".format(total_steps))
             self.total_steps = total_steps
@@ -149,7 +149,7 @@ class OneCycleLR(torch.optim.lr_scheduler.StepLR):
         # Validate anneal_strategy
         if anneal_strategy not in ['cos', 'linear']:
             raise ValueError("anneal_strategy must by one of 'cos' or 'linear', instead got {}".format(anneal_strategy))
-        elif anneal_strategy == 'cos':
+        if anneal_strategy == 'cos':
             self.anneal_func = self._annealing_cos
         elif anneal_strategy == 'linear':
             self.anneal_func = self._annealing_linear
