@@ -1,6 +1,8 @@
 from functools import partial
 from typing import Callable
 
+from torchvision.models.resnet import Bottleneck
+
 from . import classification
 from .segmentation import *
 from . import segmentation
@@ -304,7 +306,7 @@ def _get_untrained_model(model_name, num_classes):
     elif model_name.startswith('pyresnet'):
         return classification.PyResNet(num_classes=num_classes)
     elif model_name.startswith('resnet'):
-        return torch_models.ResNet(num_classes=num_classes)
+        return torch_models.ResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes)
     elif model_name.startswith('resnext101_32x4d'):
         return classification.ResNeXt101_32x4d(num_classes=num_classes)
     elif model_name.startswith('resnext101_64x4d'):

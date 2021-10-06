@@ -67,7 +67,7 @@ print(eval_loss)
 # multiple loss functions
 model = Network()
 trainer = ModuleTrainer(model)
-trainer.compile(loss=['nll_loss', 'nll_loss'],
+trainer.compile(criterion=['nll_loss', 'nll_loss'],
                 optimizer='adadelta')
 trainer.fit(x_train, 
             [y_train, y_train], 

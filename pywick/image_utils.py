@@ -30,7 +30,7 @@ def draw_dice_on_image(label, prob, threshold=125, is_0_255=False):
     results[miss] = np.array([255,255,255])
     results[hit]  = np.array([19,138,249])
     results[fp]   = np.array([246,249,16])
-    results = results.reshape(H,W,3)
+    results = results.reshape((H, W, 3))
 
     return results
 

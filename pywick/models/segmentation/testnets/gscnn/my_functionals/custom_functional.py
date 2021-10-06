@@ -63,7 +63,7 @@ def numerical_gradients_2d(input_, cuda=False):
     n, c, h, w = input_.shape
     if not (h > 1 and w > 1):
         raise AssertionError
-    x, y = gradient_central_diff(input_, cuda)
+    x, y = gradient_central_diff(input_)
     return x, y
 
 

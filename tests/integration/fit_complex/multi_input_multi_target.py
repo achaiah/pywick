@@ -100,7 +100,7 @@ try:
     model = Network()
     trainer = ModuleTrainer(model)
 
-    trainer.compile(loss=['nll_loss', 'nll_loss'],
+    trainer.compile(criterion=['nll_loss', 'nll_loss'],
                     optimizer='adadelta',
                     regularizers=regularizers,
                     constraints=constraints,

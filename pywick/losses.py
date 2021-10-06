@@ -1230,7 +1230,7 @@ class MixSoftmaxCrossEntropyOHEMLoss(OhemCrossEntropy2d):
         if self.aux:
             return dict(loss=self._aux_forward(*inputs))
         else:
-            return dict(loss=super(MixSoftmaxCrossEntropyOHEMLoss, self).forward(*inputs))
+            return dict(loss=super(MixSoftmaxCrossEntropyOHEMLoss, self).forward(preds, target))
 
 
 # ====================== #
