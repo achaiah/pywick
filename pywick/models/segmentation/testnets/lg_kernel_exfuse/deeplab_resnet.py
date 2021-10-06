@@ -400,7 +400,7 @@ class ModelBuilder():
 
     @staticmethod
     def build_encoder(arch='resnet50_dilated8', fc_dim=512, weights='', **kwargs):
-        pretrained = True if len(weights) == 0 else False
+        pretrained = len(weights) == 0
         if arch == 'resnet34':
             raise NotImplementedError
         elif arch == 'resnet34_dilated8':
