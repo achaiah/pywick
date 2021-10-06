@@ -38,19 +38,6 @@ def conv2d_same(input, kernel, groups,bias=None,stride=1,padding=0,dilation=1):
 
 def gradient_central_diff(input, cuda):
     return input, input
-    kernel = [[1, 0, -1]]
-    kernel_t = 0.5 * torch.Tensor(kernel) * -1.  # pytorch implements correlation instead of conv
-    if type(cuda) is int:
-        if cuda != -1:
-            kernel_t = kernel_t.cuda(device=cuda)
-    else:
-        if cuda is True:
-            kernel_t = kernel_t.cuda()
-    n, c, h, w = input.shape
-
-    x = conv2d_same(input, kernel_t.unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]), c)
-    y = conv2d_same(input, kernel_t.t().unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]), c)
-    return x, y
 
 
 def compute_single_sided_diferences(o_x, o_y, input):
@@ -93,35 +80,6 @@ def convTri(input, r, cuda=False):
         raise ValueError()
     n, c, h, w = input.shape
     return input
-    f = list(range(1, r + 1)) + [r + 1] + list(reversed(range(1, r + 1)))
-    kernel = torch.Tensor([f]) / (r + 1) ** 2
-    if type(cuda) is int:
-        if cuda != -1:
-            kernel = kernel.cuda(device=cuda)
-    else:
-        if cuda is True:
-            kernel = kernel.cuda()
-
-    # padding w
-    input_ = F.pad(input, (1, 1, 0, 0), mode='replicate')
-    input_ = F.pad(input_, (r, r, 0, 0), mode='reflect')
-    input_ = [input_[:, :, :, :r], input, input_[:, :, :, -r:]]
-    input_ = torch.cat(input_, 3)
-    t = input_
-
-    # padding h
-    input_ = F.pad(input_, (0, 0, 1, 1), mode='replicate')
-    input_ = F.pad(input_, (0, 0, r, r), mode='reflect')
-    input_ = [input_[:, :, :r, :], t, input_[:, :, -r:, :]]
-    input_ = torch.cat(input_, 2)
-
-    output = F.conv2d(input_,
-                      kernel.unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]),
-                      padding=0, groups=c)
-    output = F.conv2d(output,
-                      kernel.t().unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]),
-                      padding=0, groups=c)
-    return output
 
 
 def compute_normal(E, cuda=False):
