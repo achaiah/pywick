@@ -25,9 +25,9 @@ class Adahessian(torch.optim.Optimizer):
 
     def __init__(self, params, lr=0.1, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0,
                  hessian_power=1.0, update_each=1, n_samples=1, avg_conv_kernel=False):
-        if not 0.0 <= lr:
+        if 0.0 > lr:
             raise ValueError(f"Invalid learning rate: {lr}")
-        if not 0.0 <= eps:
+        if 0.0 > eps:
             raise ValueError(f"Invalid epsilon value: {eps}")
         if not 0.0 <= betas[0] < 1.0:
             raise ValueError(f"Invalid beta parameter at index 0: {betas[0]}")
