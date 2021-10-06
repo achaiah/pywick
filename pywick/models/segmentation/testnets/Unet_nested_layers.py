@@ -324,13 +324,13 @@ class unetConv2_dilation(nn.Module):
         output = inputs
         # print(output.shape)
         x_0 = inputs
-        conv = getattr(self, 'conv1')
+        conv = self.conv1
         x_1 = conv(x_0)
-        conv = getattr(self, 'conv2')
+        conv = self.conv2
         x_2 = conv(x_1)
-        conv = getattr(self, 'conv3')
+        conv = self.conv3
         x_3 = conv(x_2)
-        conv = getattr(self, 'conv4')
+        conv = self.conv4
         x_4 = conv(x_3)
 
         return x_0 + x_1 + x_2 + x_3 + x_4
@@ -365,11 +365,11 @@ class unetConv2_dilation2(nn.Module):
         output = inputs
         # print(output.shape)
         x_0 = inputs
-        conv = getattr(self, 'conv1')
+        conv = self.conv1
         x_1 = conv(x_0)
-        conv = getattr(self, 'conv2')
+        conv = self.conv2
         x_2 = conv(x_1)
-        conv = getattr(self, 'conv3')
+        conv = self.conv3
         x_3 = conv(x_2)
 
         return x_0 + x_1 + x_2 + x_3
