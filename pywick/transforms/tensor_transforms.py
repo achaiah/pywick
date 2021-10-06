@@ -349,11 +349,10 @@ class Slice2D(object):
 
             if not self.reject_zeros:
                 break
-            else:
-                if y is not None and th.sum(slice_y) > 0:
-                    break
-                if th.sum(slice_x) > 0:
-                    break
+            if y is not None and th.sum(slice_y) > 0:
+                break
+            if th.sum(slice_x) > 0:
+                break
         if y is not None:
             return slice_x, slice_y
         return slice_x
