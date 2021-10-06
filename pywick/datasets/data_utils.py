@@ -163,7 +163,7 @@ def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='
         The list must contain paths relative to the root parameter\n
         each line may include the filename and additional comma-separated metadata, in which case the first item will be considered the path itself and the rest will be ignored
 
-    :return: partition1 (list of (i_input, target)), partition2 (list of (i_input, target))
+    :return: partition1 (list of (input_, target)), partition2 (list of (input_, target))
     """
     if class_mode not in ('image', 'label', 'path'):
         raise ValueError('class_mode must be one of: {label, image, path}')

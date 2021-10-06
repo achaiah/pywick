@@ -24,8 +24,8 @@ class Conv(nn.Module):
         if self.bn_acti:
             self.bn_prelu = BNPReLU(nOut)
 
-    def forward(self, input):
-        output = self.conv(input)
+    def forward(self, input_):
+        output = self.conv(input_)
 
         if self.bn_acti:
             output = self.bn_prelu(output)
@@ -39,8 +39,8 @@ class BNPReLU(nn.Module):
         self.bn = nn.BatchNorm2d(nIn, eps=1e-3)
         self.acti = nn.PReLU(nIn)
 
-    def forward(self, input):
-        output = self.bn(input)
+    def forward(self, input_):
+        output = self.bn(input_)
         output = self.acti(output)
 
         return output
@@ -65,8 +65,8 @@ class DABModule(nn.Module):
         self.bn_relu_2 = BNPReLU(nIn // 2)
         self.conv1x1 = Conv(nIn // 2, nIn, 1, 1, padding=0, bn_acti=False)
 
-    def forward(self, input):
-        output = self.bn_relu_1(input)
+    def forward(self, input_):
+        output = self.bn_relu_1(input_)
         output = self.conv3x3(output)
 
         br1 = self.dconv3x1(output)
@@ -78,7 +78,7 @@ class DABModule(nn.Module):
         output = self.bn_relu_2(output)
         output = self.conv1x1(output)
 
-        return output + input
+        return output + input_
 
 
 class DownSamplingBlock(nn.Module):
@@ -96,11 +96,11 @@ class DownSamplingBlock(nn.Module):
         self.max_pool = nn.MaxPool2d(2, stride=2)
         self.bn_prelu = BNPReLU(nOut)
 
-    def forward(self, input):
-        output = self.conv3x3(input)
+    def forward(self, input_):
+        output = self.conv3x3(input_)
 
         if self.nIn < self.nOut:
-            max_pool = self.max_pool(input)
+            max_pool = self.max_pool(input_)
             output = torch.cat([output, max_pool], 1)
 
         output = self.bn_prelu(output)
@@ -115,11 +115,11 @@ class InputInjection(nn.Module):
         for i in range(0, ratio):
             self.pool.append(nn.AvgPool2d(3, stride=2, padding=1))
 
-    def forward(self, input):
+    def forward(self, input_):
         for pool in self.pool:
-            input = pool(input)
+            input_ = pool(input_)
 
-        return input
+        return input_
 
 
 class DABNet(nn.Module):
@@ -155,13 +155,13 @@ class DABNet(nn.Module):
 
         self.classifier = nn.Sequential(Conv(259, num_classes, 1, 1, padding=0))
 
-    def forward(self, input):
+    def forward(self, input_):
 
-        output0 = self.init_conv(input)
+        output0 = self.init_conv(input_)
 
-        down_1 = self.down_1(input)
-        down_2 = self.down_2(input)
-        down_3 = self.down_3(input)
+        down_1 = self.down_1(input_)
+        down_2 = self.down_2(input_)
+        down_3 = self.down_3(input_)
 
         output0_cat = self.bn_prelu_1(torch.cat([output0, down_1], 1))
 
@@ -176,6 +176,6 @@ class DABNet(nn.Module):
         output2_cat = self.bn_prelu_3(torch.cat([output2, output2_0, down_3], 1))
 
         out = self.classifier(output2_cat)
-        out = F.interpolate(out, input.size()[2:], mode='bilinear', align_corners=False)
+        out = F.interpolate(out, input_.size()[2:], mode='bilinear', align_corners=False)
 
         return out

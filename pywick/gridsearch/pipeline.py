@@ -25,12 +25,12 @@ class Pipeline(object):
         self.func_args = func_args
         self.output = None
 
-    def call(self, input):
+    def call(self, input_):
         """Apply the functions in current Pipeline to an input.
 
-        :param input: The input to process with the Pipeline.
+        :param input_: The input to process with the Pipeline.
         """
-        out = input
+        out = input_
         for pipe in self.pipes:
             if pipe.__name__ in self.func_args:     # if additional arguments present
                 all_args = self.func_args[pipe.__name__]

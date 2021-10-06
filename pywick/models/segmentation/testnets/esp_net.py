@@ -28,12 +28,12 @@ class CBR(nn.Module):
         self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.act = nn.PReLU(nOut)
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: input feature map
+        :param input_: input feature map
         :return: transformed feature map
         '''
-        output = self.conv(input)
+        output = self.conv(input_)
         # output = self.conv1(output)
         output = self.bn(output)
         output = self.act(output)
@@ -53,12 +53,12 @@ class BR(nn.Module):
         self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
         self.act = nn.PReLU(nOut)
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: input feature map
+        :param input_: input feature map
         :return: normalized and thresholded feature map
         '''
-        output = self.bn(input)
+        output = self.bn(input_)
         output = self.act(output)
         return output
 
@@ -80,13 +80,13 @@ class CB(nn.Module):
         self.conv = nn.Conv2d(nIn, nOut, (kSize, kSize), stride=stride, padding=(padding, padding), bias=False)
         self.bn = nn.BatchNorm2d(nOut, eps=1e-03)
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
 
-        :param input: input feature map
+        :param input_: input feature map
         :return: transformed feature map
         '''
-        output = self.conv(input)
+        output = self.conv(input_)
         output = self.bn(output)
         return output
 
@@ -108,12 +108,12 @@ class C(nn.Module):
         padding = int((kSize - 1) / 2)
         self.conv = nn.Conv2d(nIn, nOut, (kSize, kSize), stride=stride, padding=(padding, padding), bias=False)
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: input feature map
+        :param input_: input feature map
         :return: transformed feature map
         '''
-        output = self.conv(input)
+        output = self.conv(input_)
         return output
 
 
@@ -134,12 +134,12 @@ class CDilated(nn.Module):
         padding = int((kSize - 1) / 2) * d
         self.conv = nn.Conv2d(nIn, nOut, (kSize, kSize), stride=stride, padding=(padding, padding), bias=False, dilation=d)
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: input feature map
+        :param input_: input feature map
         :return: transformed feature map
         '''
-        output = self.conv(input)
+        output = self.conv(input_)
         return output
 
 
@@ -157,8 +157,8 @@ class DownSamplerB(nn.Module):
         self.bn = nn.BatchNorm2d(nOut, eps=1e-3)
         self.act = nn.PReLU(nOut)
 
-    def forward(self, input):
-        output1 = self.c1(input)
+    def forward(self, input_):
+        output1 = self.c1(input_)
         d1 = self.d1(output1)
         d2 = self.d2(output1)
         d4 = self.d4(output1)
@@ -203,13 +203,13 @@ class DilatedParllelResidualBlockB(nn.Module):
         self.bn = BR(nOut)
         self.add = add
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: input feature map
+        :param input_: input feature map
         :return: transformed feature map
         '''
         # reduce
-        output1 = self.c1(input)
+        output1 = self.c1(input_)
         # split and transform
         d1 = self.d1(output1)
         d2 = self.d2(output1)
@@ -228,7 +228,7 @@ class DilatedParllelResidualBlockB(nn.Module):
 
         # if residual version
         if self.add:
-            combine = input + combine
+            combine = input_ + combine
         output = self.bn(combine)
         return output
 
@@ -250,14 +250,14 @@ class InputProjectionA(nn.Module):
             # pyramid-based approach for down-sampling
             self.pool.append(nn.AvgPool2d(3, stride=2, padding=1))
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: Input RGB Image
+        :param input_: Input RGB Image
         :return: down-sampled image (pyramid-based approach)
         '''
         for pool in self.pool:
-            input = pool(input)
-        return input
+            input_ = pool(input_)
+        return input_
 
 
 class ESPNet_Encoder(nn.Module):
@@ -292,14 +292,14 @@ class ESPNet_Encoder(nn.Module):
 
         self.classifier = C(256, classes, 1, 1)
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: Receives the input RGB image
+        :param input_: Receives the input RGB image
         :return: the transformed feature map with spatial dimensions 1/8th of the input image
         '''
-        output0 = self.level1(input)
-        inp1 = self.sample1(input)
-        inp2 = self.sample2(input)
+        output0 = self.level1(input_)
+        inp1 = self.sample1(input_)
+        inp2 = self.sample2(input_)
 
         output0_cat = self.b1(torch.cat([output0, inp1], 1))
         output1_0 = self.level2_0(output0_cat)  # down-sampled
@@ -361,14 +361,14 @@ class ESPNet(nn.Module):
 
         self.classifier = nn.ConvTranspose2d(num_classes, num_classes, 2, stride=2, padding=0, output_padding=0, bias=False)
 
-    def forward(self, input):
+    def forward(self, input_):
         '''
-        :param input: RGB image
+        :param input_: RGB image
         :return: transformed feature map
         '''
-        output0 = self.modules[0](input)
-        inp1 = self.modules[1](input)
-        inp2 = self.modules[2](input)
+        output0 = self.modules[0](input_)
+        inp1 = self.modules[1](input_)
+        inp2 = self.modules[2](input_)
 
         output0_cat = self.modules[3](torch.cat([output0, inp1], 1))
         output1_0 = self.modules[4](output0_cat)  # down-sampled

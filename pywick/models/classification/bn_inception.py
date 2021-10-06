@@ -253,8 +253,8 @@ class BNInception(nn.Module):
         self.inception_5b_relu_pool_proj = nn.ReLU (inplace)
         self.last_linear = nn.Linear (1024, num_classes)
 
-    def features(self, input):
-        conv1_7x7_s2_out = self.conv1_7x7_s2(input)
+    def features(self, input_):
+        conv1_7x7_s2_out = self.conv1_7x7_s2(input_)
         conv1_7x7_s2_bn_out = self.conv1_7x7_s2_bn(conv1_7x7_s2_out)
         conv1_relu_7x7_out = self.conv1_relu_7x7(conv1_7x7_s2_bn_out)
         pool1_3x3_s2_out = self.pool1_3x3_s2(conv1_relu_7x7_out)
@@ -492,8 +492,8 @@ class BNInception(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 

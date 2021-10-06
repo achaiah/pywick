@@ -178,8 +178,8 @@ class Mean(nn.Module):
         self.dim = dim
         self.keep_dim = keep_dim
 
-    def forward(self, input):
-        return input.mean(self.dim, self.keep_dim)
+    def forward(self, input_):
+        return input_.mean(self.dim, self.keep_dim)
 
 
 def get_encnet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):

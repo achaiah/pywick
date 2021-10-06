@@ -109,15 +109,15 @@ class LambdaBase(nn.Sequential):
 		super(LambdaBase, self).__init__(*args)
 		self.lambda_func = fn
 
-	def forward_prepare(self, input):
+	def forward_prepare(self, input_):
 		output = []
 		for module in self._modules.values():
-			output.append(module(input))
-		return output if output else input
+			output.append(module(input_))
+		return output if output else input_
 
 class Lambda(LambdaBase):
-    def forward(self, input):
-        return self.lambda_func(self.forward_prepare(input))
+    def forward(self, input_):
+        return self.lambda_func(self.forward_prepare(input_))
 
 class ResNeXt(nn.Module):
 

@@ -578,8 +578,8 @@ class NASNetAMobile(nn.Module):
         self.dropout = nn.Dropout()
         self.last_linear = nn.Linear(24*filters, self.num_classes)
 
-    def features(self, input):
-        x_conv0 = self.conv0(input)
+    def features(self, input_):
+        x_conv0 = self.conv0(input_)
         x_stem_0 = self.cell_stem_0(x_conv0)
         x_stem_1 = self.cell_stem_1(x_conv0, x_stem_0)
 
@@ -611,8 +611,8 @@ class NASNetAMobile(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
@@ -645,7 +645,7 @@ def nasnetamobile(pretrained='imagenet'):
 if __name__ == "__main__":
 
     model = NASNetAMobile()
-    input = torch.randn(2, 3, 224, 224)
-    output = model(input)
+    input_ = torch.randn(2, 3, 224, 224)
+    output = model(input_)
 
     print(output.size())

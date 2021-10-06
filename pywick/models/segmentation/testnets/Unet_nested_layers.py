@@ -155,12 +155,12 @@ class unetUp(nn.Module):
             if m.__class__.__name__.find('unetConv2') != -1: continue
             init_weights(m, init_type='kaiming')
 
-    def forward(self, inputs0, *input):
+    def forward(self, inputs0, *input_):
         # print(self.n_concat)
-        # print(input)
+        # print(input_)
         outputs0 = self.up(inputs0)
-        for i in range(len(input)):
-            outputs0 = torch.cat([outputs0, input[i]], 1)
+        for i in range(len(input_)):
+            outputs0 = torch.cat([outputs0, input_[i]], 1)
         return self.conv(outputs0)
 
 
@@ -185,8 +185,8 @@ class UnetConv3(nn.Module):
         for m in self.children():
             init_weights(m, init_type='kaiming')
 
-    def forward(self, inputs):
-        outputs = self.conv1(inputs)
+    def forward(self, input_):
+        outputs = self.conv1(input_)
         outputs = self.conv2(outputs)
         return outputs
 

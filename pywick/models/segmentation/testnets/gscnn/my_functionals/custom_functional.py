@@ -19,8 +19,8 @@ def calc_pad_same(in_siz, out_siz, stride, ksize):
     return (out_siz - 1) * stride + ksize - in_siz
 
 
-def conv2d_same(i_input, kernel, groups, bias=None, stride=1, padding=0, dilation=1):
-    n, c, h, w = i_input.shape
+def conv2d_same(input_, kernel, groups, bias=None, stride=1, padding=0, dilation=1):
+    n, c, h, w = input_.shape
     kout, ki_c_g, kh, kw = kernel.shape
     pw = calc_pad_same(w, w, 1, kw)
     ph = calc_pad_same(h, h, 1, kh)
@@ -29,57 +29,57 @@ def conv2d_same(i_input, kernel, groups, bias=None, stride=1, padding=0, dilatio
     ph_t = ph // 2
     ph_b = ph - ph_t
 
-    input_ = F.pad(i_input, (pw_l, pw_r, ph_t, ph_b))
+    input_ = F.pad(input_, (pw_l, pw_r, ph_t, ph_b))
     result = F.conv2d(input_, kernel, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups)
-    if result.shape != i_input.shape:
+    if result.shape != input_.shape:
         raise AssertionError
     return result
 
 
-def gradient_central_diff(i_input, cuda):
-    return i_input, i_input
+def gradient_central_diff(input_):
+    return input_, input_
 
 
-def compute_single_sided_diferences(o_x, o_y, input):
+def compute_single_sided_diferences(o_x, o_y, input_):
     # n,c,h,w
     #input = input.clone()
-    o_y[:, :, 0, :] = input[:, :, 1, :].clone() - input[:, :, 0, :].clone()
-    o_x[:, :, :, 0] = input[:, :, :, 1].clone() - input[:, :, :, 0].clone()
+    o_y[:, :, 0, :] = input_[:, :, 1, :].clone() - input_[:, :, 0, :].clone()
+    o_x[:, :, :, 0] = input_[:, :, :, 1].clone() - input_[:, :, :, 0].clone()
     # --
-    o_y[:, :, -1, :] = input[:, :, -1, :].clone() - input[:, :, -2, :].clone()
-    o_x[:, :, :, -1] = input[:, :, :, -1].clone() - input[:, :, :, -2].clone()
+    o_y[:, :, -1, :] = input_[:, :, -1, :].clone() - input_[:, :, -2, :].clone()
+    o_x[:, :, :, -1] = input_[:, :, :, -1].clone() - input_[:, :, :, -2].clone()
     return o_x, o_y
 
 
-def numerical_gradients_2d(i_input, cuda=False):
+def numerical_gradients_2d(input_, cuda=False):
     """
     numerical gradients implementation over batches using torch group conv operator.
     the single sided differences are re-computed later.
     it matches np.gradient(image) with the difference than here output=x,y for an image while there output=y,x
-    :param i_input: N,C,H,W
+    :param input_: N,C,H,W
     :param cuda: whether or not use cuda
     :return: X,Y
     """
-    n, c, h, w = i_input.shape
+    n, c, h, w = input_.shape
     if not (h > 1 and w > 1):
         raise AssertionError
-    x, y = gradient_central_diff(i_input, cuda)
+    x, y = gradient_central_diff(input_, cuda)
     return x, y
 
 
-def convTri(i_input, r, cuda=False):
+def convTri(input_, r, cuda=False):
     """
     Convolves an image by a 2D triangle filter (the 1D triangle filter f is
     [1:r r+1 r:-1:1]/(r+1)^2, the 2D version is simply conv2(f,f'))
-    :param i_input:
+    :param input_:
     :param r: integer filter radius
     :param cuda: move the kernel to gpu
     :return:
     """
     if (r <= 1):
         raise ValueError()
-    n, c, h, w = i_input.shape
-    return i_input
+    n, c, h, w = input_.shape
+    return input_
 
 
 def compute_normal(E, cuda=False):

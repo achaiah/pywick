@@ -91,10 +91,10 @@ class ToNumpyType(object):
     def __init__(self, type):
         self.type = type
 
-    def __call__(self, i_input):
-        if isinstance(i_input, list):     # handle a simple list
-            return np.array(i_input, dtype=self.type)
-        return i_input.astype(self.type)
+    def __call__(self, input_):
+        if isinstance(input_, list):     # handle a simple list
+            return np.array(input_, dtype=self.type)
+        return input_.astype(self.type)
 
 
 class ChannelsLast(object):

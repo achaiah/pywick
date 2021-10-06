@@ -164,8 +164,8 @@ class Xception(nn.Module):
         #         m.bias.data.zero_()
         # #-----------------------------
 
-    def features(self, input):
-        x = self.conv1(input)
+    def features(self, input_):
+        x = self.conv1(input_)
         x = self.bn1(x)
         x = self.relu1(x)
 
@@ -202,8 +202,8 @@ class Xception(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 

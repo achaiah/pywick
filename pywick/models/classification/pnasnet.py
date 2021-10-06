@@ -370,8 +370,8 @@ class PNASNet5Large(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 

@@ -8,23 +8,23 @@ class LambdaBase(nn.Sequential):
         super(LambdaBase, self).__init__(*args)
         self.lambda_func = fn
 
-    def forward_prepare(self, input):
+    def forward_prepare(self, input_):
         output = []
         for module in self._modules.values():
-            output.append(module(input))
-        return output if output else input
+            output.append(module(input_))
+        return output if output else input_
 
 class Lambda(LambdaBase):
-    def forward(self, input):
-        return self.lambda_func(self.forward_prepare(input))
+    def forward(self, input_):
+        return self.lambda_func(self.forward_prepare(input_))
 
 class LambdaMap(LambdaBase):
-    def forward(self, input):
-        return list(map(self.lambda_func,self.forward_prepare(input)))
+    def forward(self, input_):
+        return list(map(self.lambda_func, self.forward_prepare(input_)))
 
 class LambdaReduce(LambdaBase):
-    def forward(self, input):
-        return reduce(self.lambda_func,self.forward_prepare(input))
+    def forward(self, input_):
+        return reduce(self.lambda_func, self.forward_prepare(input_))
 
 class resnext101_32x4d_features_blob(nn.Module):
 
@@ -685,8 +685,8 @@ class resnext101_32x4d_features_blob(nn.Module):
             )
         )
         
-    def forward(self, input):
-        x = self.resnext101_32x4d_features(input)
+    def forward(self, input_):
+        x = self.resnext101_32x4d_features(input_)
         return x        
     
 class resnext101_32x4d_features(nn.Module):
@@ -1361,8 +1361,8 @@ class resnext101_32x4d_features(nn.Module):
         )        
 
         
-    def forward(self, input):
-        x = self.resnext101_32x4d_stem(input)
+    def forward(self, input_):
+        x = self.resnext101_32x4d_stem(input_)
         x = self.resnext101_32x4d_layer1(x)
         x = self.resnext101_32x4d_layer2(x)
         x = self.resnext101_32x4d_layer3(x)

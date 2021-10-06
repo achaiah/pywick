@@ -149,8 +149,8 @@ class FBResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def features(self, input):
-        x = self.conv1(input)
+    def features(self, input_):
+        x = self.conv1(input_)
         self.conv1_input = x.clone()
         x = self.bn1(x)
         x = self.relu(x)
@@ -169,8 +169,8 @@ class FBResNet(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 

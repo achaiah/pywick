@@ -48,14 +48,14 @@ class SWA(Optimizer):
         >>> opt = SWA(base_opt, swa_start=10, swa_freq=5, swa_lr=0.05)
         >>> for _ in range(100):
         >>>     opt.zero_grad()
-        >>>     loss_fn(model(input), target).backward()
+        >>>     loss_fn(model(input_), target).backward()
         >>>     opt.step()
         >>> opt.swap_swa_sgd()
         >>> # manual mode
         >>> opt = SWA(base_opt)
         >>> for i in range(100):
         >>>     opt.zero_grad()
-        >>>     loss_fn(model(input), target).backward()
+        >>>     loss_fn(model(input_), target).backward()
         >>>     opt.step()
         >>>     if i > 10 and i % 5 == 0:
         >>>         opt.update_swa()
@@ -150,7 +150,7 @@ class SWA(Optimizer):
             >>> opt = torchcontrib.optim.SWA(base_opt)
             >>> for i in range(100):
             >>>     opt.zero_grad()
-            >>>     loss_fn(model(input), target).backward()
+            >>>     loss_fn(model(input_), target).backward()
             >>>     opt.step()
             >>>     if i > 10 and i % 5 == 0:
             >>>         # Update SWA for the second parameter group
@@ -283,19 +283,19 @@ class SWA(Optimizer):
         model.apply(_reset_bn)
         model.apply(lambda module: _get_momenta(module, momenta))
         n = 0
-        for i_input in loader:
-            if isinstance(i_input, (list, tuple)):
-                i_input = i_input[0]
-            b = i_input.size(0)
+        for input_ in loader:
+            if isinstance(input_, (list, tuple)):
+                input_ = input_[0]
+            b = input_.size(0)
 
             momentum = b / float(n + b)
             for module in momenta:
                 module.momentum = momentum
 
             if device is not None:
-                i_input = i_input.to(device)
+                input_ = input_.to(device)
 
-            model(i_input)
+            model(input_)
             n += b
 
         model.apply(lambda module: _set_momenta(module, momenta))

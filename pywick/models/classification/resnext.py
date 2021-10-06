@@ -60,14 +60,14 @@ class ResNeXt50_32x4d(nn.Module):
         self.avg_pool = nn.AvgPool2d((7, 7), (1, 1))
         self.last_linear = nn.Linear(2048, num_classes)
 
-    def logits(self, input):
-        x = self.avg_pool(input)
+    def logits(self, input_):
+        x = self.avg_pool(input_)
         x = x.view(x.size(0), -1)
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
@@ -80,14 +80,14 @@ class ResNeXt101_32x4d(nn.Module):
         self.avg_pool = nn.AvgPool2d((7, 7), (1, 1))
         self.last_linear = nn.Linear(2048, num_classes)
 
-    def logits(self, input):
-        x = self.avg_pool(input)
+    def logits(self, input_):
+        x = self.avg_pool(input_)
         x = x.view(x.size(0), -1)
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
@@ -101,14 +101,14 @@ class ResNeXt101_64x4d(nn.Module):
         self.avg_pool = nn.AvgPool2d((7, 7), (1, 1))
         self.last_linear = nn.Linear(2048, num_classes)
 
-    def logits(self, input):
-        x = self.avg_pool(input)
+    def logits(self, input_):
+        x = self.avg_pool(input_)
         x = x.view(x.size(0), -1)
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 

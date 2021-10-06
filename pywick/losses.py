@@ -65,9 +65,9 @@ class StableBCELoss(nn.Module):
         super(StableBCELoss, self).__init__()
 
     @staticmethod
-    def forward(i_input, target, **_):
-        neg_abs = - i_input.abs()
-        loss = i_input.clamp(min=0) - i_input * target + (1 + neg_abs.exp()).log()
+    def forward(input_, target, **_):
+        neg_abs = - input_.abs()
+        loss = input_.clamp(min=0) - input_ * target + (1 + neg_abs.exp()).log()
         return loss.mean()
 
 
@@ -780,15 +780,15 @@ class BCEWithLogitsViewLoss(nn.BCEWithLogitsLoss):
     def __init__(self, weight=None, size_average=True, **_):
         super().__init__(weight=weight, size_average=size_average)
 
-    def forward(self, i_input, target, **_):
+    def forward(self, input_, target, **_):
         '''
-        :param i_input:
+        :param input_:
         :param target:
         :return:
 
         Simply passes along input.view(-1), target.view(-1)
         '''
-        return super().forward(i_input.view(-1), target.view(-1))
+        return super().forward(input_.view(-1), target.view(-1))
 
 
 # ===================== #
@@ -2323,24 +2323,24 @@ class RMILossAlt(nn.Module):
             logits = torch.sigmoid(logits)
 
         # Calculate RMI loss
-        rmi = self.rmi_loss(input=logits, target=labels)
+        rmi = self.rmi_loss(input_=logits, target=labels)
         rmi = rmi.mean() * (1.0 - self.bce_weight)
         return rmi + bce
 
-    def rmi_loss(self, input, target):
+    def rmi_loss(self, input_, target):
         """
         Calculates the RMI loss between the prediction and target.
         :return:
             RMI loss
         """
 
-        if input.shape != target.shape:
+        if input_.shape != target.shape:
             raise AssertionError
         vector_size = self.radius * self.radius
 
         # Get region vectors
         y = self.extract_region_vector(target)
-        p = self.extract_region_vector(input)
+        p = self.extract_region_vector(input_)
 
         # Convert to doubles for better precision
         if self.use_double_precision:
@@ -2778,7 +2778,7 @@ class RMIBCEDicePenalizeBorderLoss(RMILossAlt):
                 raise Exception(f'Non-matching shapes for logits ({logits.shape}) and labels ({labels.shape})')
 
         # Calculate RMI loss
-        rmi = self.rmi_loss(input=torch.sigmoid(logits), target=labels)
+        rmi = self.rmi_loss(input_=torch.sigmoid(logits), target=labels)
         bce = self.bce(logits, labels)
         # rmi = rmi.mean() * (1.0 - self.bce_weight)
         return self.rmi_weight * rmi + self.bce_weight * bce
