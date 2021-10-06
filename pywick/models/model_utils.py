@@ -1,4 +1,7 @@
+from functools import partial
 from typing import Callable
+
+from torchvision.models.resnet import Bottleneck
 
 from . import classification
 from .segmentation import *
@@ -247,20 +250,20 @@ def get_supported_models(type: ModelType):
 
     import pkgutil
     if type == ModelType.SEGMENTATION:
-        excludes = list()  # <-- exclude non-model names
+        excludes = []  # <-- exclude non-model names
         for importer, modname, ispkg in pkgutil.walk_packages(path=segmentation.__path__, prefix=segmentation.__name__+".", onerror=lambda x: None):
             excludes.append(modname.split('.')[-1])
         return [x for x in segmentation.__dict__.keys() if ('__' not in x and x not in excludes)]  # filter out hidden object attributes and module names
     elif type == ModelType.CLASSIFICATION:
-        pywick_excludes = list()
+        pywick_excludes = []
         for importer, modname, ispkg in pkgutil.walk_packages(path=classification.__path__, prefix=classification.__name__+".", onerror=lambda x: None):
             pywick_excludes.append(modname.split('.')[-1])
         pywick_names = [x for x in classification.__dict__.keys() if '__' not in x and x not in pywick_excludes]     # includes directory and filenames
 
-        pt_excludes = list()
+        pt_excludes = []
         for importer, modname, ispkg in pkgutil.walk_packages(path=torch_models.__path__, prefix=torch_models.__name__+".", onerror=lambda x: None):
             pt_excludes.append(modname.split('.')[-1])
-        pt_names = [x for x in torch_models.__dict__.keys() if '__' not in x and x not in pt_excludes]  # includes directory and filenames
+        pt_names = [x for x in torch_models.__dict__ if '__' not in x and x not in pt_excludes]  # includes directory and filenames
 
         torch_hub_names = torch.hub.list(rwightman_repo, force_reload=True)
 
@@ -303,7 +306,7 @@ def _get_untrained_model(model_name, num_classes):
     elif model_name.startswith('pyresnet'):
         return classification.PyResNet(num_classes=num_classes)
     elif model_name.startswith('resnet'):
-        return torch_models.ResNet(num_classes=num_classes)
+        return torch_models.ResNet(Bottleneck, [3, 4, 23, 3], num_classes=num_classes)
     elif model_name.startswith('resnext101_32x4d'):
         return classification.ResNeXt101_32x4d(num_classes=num_classes)
     elif model_name.startswith('resnext101_64x4d'):
@@ -344,12 +347,15 @@ def diff_states(dict_canonical, dict_subset):
     # for every pretrained model
     not_in_1 = [n for n in names1 if n not in names2]
     not_in_2 = [n for n in names2 if n not in names1]
-    assert len(not_in_1) == 0
-    assert len(not_in_2) == 0
+    if len(not_in_1) != 0:
+        raise AssertionError
+    if len(not_in_2) != 0:
+        raise AssertionError
 
     for name, v1 in dict_canonical.items():
         v2 = dict_subset[name]
-        assert hasattr(v2, 'size')
+        if not hasattr(v2, 'size'):
+            raise AssertionError
         if v1.size() != v2.size():
             yield (name, v1)
 
@@ -428,3 +434,20 @@ def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, igno
             print('INFO: => Attempting to load checkpoint data onto model. Device: {}    Strict: {}'.format(device, strict))
             model.load_state_dict(checkpoint['state_dict'], strict=strict)
     return checkpoint
+
+
+def load_model(model_type: ModelType, model_name: str, num_classes: int, pretrained: bool = True, **kwargs):
+    """
+    Certain timm models may exist but not be listed in torch.hub so uses a custom partial function to bypass the model check in pywick
+
+    :param model_type:
+    :param model_name:
+    :param num_classes:
+    :param pretrained:
+    :param kwargs:
+    :return:
+    """
+    custom_func = partial(torch.hub.load, github=rwightman_repo)
+    model = get_model(model_type=model_type, model_name=model_name, num_classes=num_classes, pretrained=pretrained, custom_load_fn=custom_func, **kwargs)
+
+    return model

@@ -81,10 +81,10 @@ def ToFile_setup():
     tforms = {}
 
     ROOT = '~/desktop/data/'
-    tforms['tofile_npy'] = ToFile(root=ROOT, fmt='npy')
-    tforms['tofile_pth'] = ToFile(root=ROOT, fmt='pth')
-    tforms['tofile_jpg'] = ToFile(root=ROOT, fmt='jpg')
-    tforms['tofile_png'] = ToFile(root=ROOT, fmt='png')
+    # tforms['tofile_npy'] = ToFile(root=ROOT, fmt='npy')
+    # tforms['tofile_pth'] = ToFile(root=ROOT, fmt='pth')
+    # tforms['tofile_jpg'] = ToFile(root=ROOT, fmt='jpg')
+    # tforms['tofile_png'] = ToFile(root=ROOT, fmt='png')
 
     return tforms
 

@@ -1,10 +1,11 @@
 """
-Utility functions for th.Tensors
+Utility functions
 """
 
 import pickle
 import random
-import numpy as np
+from .optimizers import *
+from .callbacks import *
 
 import torch as th
 
@@ -133,43 +134,43 @@ def th_affine2d(x, matrix, mode='bilinear', center=True):
     return x_transformed
 
 
-def th_nearest_interp2d(input, coords):
+def th_nearest_interp2d(input_, coords):
     """
     2d nearest neighbor interpolation th.Tensor
     """
     # take clamp of coords so they're in the image bounds
-    x = th.clamp(coords[:,:,0], 0, input.size(1)-1).round()
-    y = th.clamp(coords[:,:,1], 0, input.size(2)-1).round()
+    x = th.clamp(coords[:,:,0], 0, input_.size(1) - 1).round()
+    y = th.clamp(coords[:,:,1], 0, input_.size(2) - 1).round()
 
-    stride = th.LongTensor(input.stride())
+    stride = th.LongTensor(input_.stride())
     x_ix = x.mul(stride[1]).long()
     y_ix = y.mul(stride[2]).long()
 
-    input_flat = input.view(input.size(0),-1)
+    input_flat = input_.view(input_.size(0), -1)
 
     mapped_vals = input_flat.gather(1, x_ix.add(y_ix))
 
-    return mapped_vals.view_as(input)
+    return mapped_vals.view_as(input_)
 
 
-def th_bilinear_interp2d(input, coords):
+def th_bilinear_interp2d(input_, coords):
     """
     bilinear interpolation in 2d
     """
-    x = th.clamp(coords[:,:,0], 0, input.size(1)-2)
+    x = th.clamp(coords[:,:,0], 0, input_.size(1) - 2)
     x0 = x.floor()
     x1 = x0 + 1
-    y = th.clamp(coords[:,:,1], 0, input.size(2)-2)
+    y = th.clamp(coords[:,:,1], 0, input_.size(2) - 2)
     y0 = y.floor()
     y1 = y0 + 1
 
-    stride = th.LongTensor(input.stride())
+    stride = th.LongTensor(input_.stride())
     x0_ix = x0.mul(stride[1]).long()
     x1_ix = x1.mul(stride[1]).long()
     y0_ix = y0.mul(stride[2]).long()
     y1_ix = y1.mul(stride[2]).long()
 
-    input_flat = input.view(input.size(0),-1)
+    input_flat = input_.view(input_.size(0), -1)
 
     vals_00 = input_flat.gather(1, x0_ix.add(y0_ix))
     vals_10 = input_flat.gather(1, x1_ix.add(y0_ix))
@@ -186,7 +187,7 @@ def th_bilinear_interp2d(input, coords):
                 vals_01.mul(xm).mul(yd) +
                 vals_11.mul(xd).mul(yd))
 
-    return x_mapped.view_as(input)
+    return x_mapped.view_as(input_)
 
 
 def th_affine3d(x, matrix, mode='trilinear', center=True):
@@ -227,43 +228,43 @@ def th_affine3d(x, matrix, mode='trilinear', center=True):
     return x_transformed
 
 
-def th_nearest_interp3d(input, coords):
+def th_nearest_interp3d(input_, coords):
     """
     2d nearest neighbor interpolation th.Tensor
     """
     # take clamp of coords so they're in the image bounds
-    coords[:,0] = th.clamp(coords[:,0], 0, input.size(1)-1).round()
-    coords[:,1] = th.clamp(coords[:,1], 0, input.size(2)-1).round()
-    coords[:,2] = th.clamp(coords[:,2], 0, input.size(3)-1).round()
+    coords[:,0] = th.clamp(coords[:,0], 0, input_.size(1) - 1).round()
+    coords[:,1] = th.clamp(coords[:,1], 0, input_.size(2) - 1).round()
+    coords[:,2] = th.clamp(coords[:,2], 0, input_.size(3) - 1).round()
 
-    stride = th.LongTensor(input.stride())[1:].float()
+    stride = th.LongTensor(input_.stride())[1:].float()
     idx = coords.mv(stride).long()
 
-    input_flat = th_flatten(input)
+    input_flat = th_flatten(input_)
 
     mapped_vals = input_flat[idx]
 
-    return mapped_vals.view_as(input)
+    return mapped_vals.view_as(input_)
 
 
-def th_trilinear_interp3d(input, coords):
+def th_trilinear_interp3d(input_, coords):
     """
     trilinear interpolation of 3D th.Tensor image
     """
     # take clamp then floor/ceil of x coords
-    x = th.clamp(coords[:,0], 0, input.size(1)-2)
+    x = th.clamp(coords[:,0], 0, input_.size(1) - 2)
     x0 = x.floor()
     x1 = x0 + 1
     # take clamp then floor/ceil of y coords
-    y = th.clamp(coords[:,1], 0, input.size(2)-2)
+    y = th.clamp(coords[:,1], 0, input_.size(2) - 2)
     y0 = y.floor()
     y1 = y0 + 1
     # take clamp then floor/ceil of z coords
-    z = th.clamp(coords[:,2], 0, input.size(3)-2)
+    z = th.clamp(coords[:,2], 0, input_.size(3) - 2)
     z0 = z.floor()
     z1 = z0 + 1
 
-    stride = th.LongTensor(input.stride())[1:]
+    stride = th.LongTensor(input_.stride())[1:]
     x0_ix = x0.mul(stride[0]).long()
     x1_ix = x1.mul(stride[0]).long()
     y0_ix = y0.mul(stride[1]).long()
@@ -271,7 +272,7 @@ def th_trilinear_interp3d(input, coords):
     z0_ix = z0.mul(stride[2]).long()
     z1_ix = z1.mul(stride[2]).long()
 
-    input_flat = th_flatten(input)
+    input_flat = th_flatten(input_)
 
     vals_000 = input_flat[x0_ix+y0_ix+z0_ix]
     vals_100 = input_flat[x1_ix+y0_ix+z0_ix]
@@ -298,7 +299,7 @@ def th_trilinear_interp3d(input, coords):
                 vals_110.mul(xd).mul(yd).mul(zm1) +
                 vals_111.mul(xd).mul(yd).mul(zd))
 
-    return x_mapped.view_as(input)
+    return x_mapped.view_as(input_)
 
 
 def th_pearsonr(x, y):
@@ -402,24 +403,36 @@ def th_random_choice(a, n_samples=1, replace=True, p=None):
         selection = selection[0]
     return selection
 
-
-def save_transform(file, transform):
-    """
-    Save a transform object
-    """
-    with open(file, 'wb') as output_file:
-        pickler = pickle.Pickler(output_file, -1)
-        pickler.dump(transform)
-
-
-def load_transform(file):
-    """
-    Load a transform object
-    """
-    with open(file, 'rb') as input_file:
-        transform = pickle.load(input_file)
-    return transform
+## REMOVED due to security concerns with pickle
+# def save_transform(file, transform):
+#     """
+#     Save a transform object
+#     """
+#     with open(file, 'wb') as output_file:
+#         pickler = pickle.Pickler(output_file, -1)
+#         pickler.dump(transform)
+#
+#
+# def load_transform(file):
+#     """
+#     Load a transform object
+#     """
+#     with open(file, 'rb') as input_file:
+#         transform = pickle.load(input_file)
+#     return transform
     
 
+from pywick.callbacks import *
 
-    
+
+def class_factory(classname: str, params_dict: dict = None):
+    """
+    Instantiate a class with given parameters
+    :param classname:       Name of class
+    :param params_dict:     Dict of parameters
+    :return:
+    """
+    if params_dict is None:
+        params_dict = {}
+    cls = globals()[classname]
+    return cls(**params_dict)

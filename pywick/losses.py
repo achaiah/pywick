@@ -39,13 +39,22 @@ Softmax is used for multi-classification in the Logistic Regression model, where
 import numpy as np
 import torch
 import math
-from .models.segmentation.testnets.drnet.drnet import DRCLoss
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Function
 from torch.autograd import Variable
 from torch import Tensor
-from typing import Iterable, Set, Any
+from typing import Iterable, Set
+
+
+__all__ = ['ActiveContourLoss', 'ActiveContourLossAlt', 'AngularPenaltySMLoss', 'AsymLoss', 'BCELoss2d', 'BCEDiceLoss',
+           'BCEWithLogitsViewLoss', 'BCEDiceTL1Loss', 'BCEDicePenalizeBorderLoss', 'BCEDiceFocalLoss', 'BinaryFocalLoss',
+           'ComboBCEDiceLoss', 'ComboSemsegLossWeighted', 'EncNetLoss', 'FocalLoss', 'FocalLoss2',
+           'HausdorffERLoss', 'HausdorffDTLoss', 'LovaszSoftmax', 'mIoULoss', 'MixSoftmaxCrossEntropyOHEMLoss',
+           'MSE3D', 'OhemCELoss', 'OhemCrossEntropy2d', 'OhemBCEDicePenalizeBorderLoss', 'PoissonLoss',
+           'PoissonLoss3d', 'RecallLoss', 'RMILoss', 'RMILossAlt', 'RMIBCEDicePenalizeBorderLoss', 'SoftInvDiceLoss',
+           'SoftDiceLoss', 'StableBCELoss', 'TverskyLoss', 'ThresholdedL1Loss', 'WeightedSoftDiceLoss', 'WeightedBCELoss2d',
+           'BDLoss', 'L1Loss3d', 'WingLoss', 'BoundaryLoss']
 
 VOID_LABEL = 255
 N_CLASSES = 1
@@ -55,9 +64,10 @@ class StableBCELoss(nn.Module):
     def __init__(self, **_):
         super(StableBCELoss, self).__init__()
 
-    def forward(self, input, target, **_):
-        neg_abs = - input.abs()
-        loss = input.clamp(min=0) - input * target + (1 + neg_abs.exp()).log()
+    @staticmethod
+    def forward(input_, target, **_):
+        neg_abs = - input_.abs()
+        loss = input_.clamp(min=0) - input_ * target + (1 + neg_abs.exp()).log()
         return loss.mean()
 
 
@@ -121,7 +131,7 @@ def gamma_fast(gt, permutation):
     return jaccard
 
 # WARN: Only applicable to Binary Segmentation right now (zip function needs to be replaced)!
-def lovaszloss(logits, labels, prox=False, max_steps=20, debug={}):
+def lovaszloss(logits, labels, prox=False, max_steps=20, debug=None):
     """
     `The Lovasz-Softmax loss <https://arxiv.org/abs/1705.08790>`_
 
@@ -132,6 +142,8 @@ def lovaszloss(logits, labels, prox=False, max_steps=20, debug={}):
     :param debug:
     :return:
     """
+    if debug is None:
+        debug = {}
 
     # image-level Lovasz hinge
     if logits.size(0) == 1:
@@ -216,7 +228,9 @@ def project(gam, active, members):
         gam[active + 1:] = 0.
 
 
-def find_proximal(x0, gam, lam, eps=1e-6, max_steps=20, debug={}):
+def find_proximal(x0, gam, lam, eps=1e-6, max_steps=20, debug=None):
+    if debug is None:
+        debug = {}
     # x0: sorted margins data
     # gam: initial gamma_fast(target, perm)
     # regularisation parameter lam
@@ -268,7 +282,9 @@ def find_proximal(x0, gam, lam, eps=1e-6, max_steps=20, debug={}):
     return x, gam
 
 
-def lovasz_binary(margins, label, prox=False, max_steps=20, debug={}):
+def lovasz_binary(margins, label, prox=False, max_steps=20, debug=None):
+    if debug is None:
+        debug = {}
     # 1d vector inputs
     # Workaround: can't sort Variable bug
     # prox: False or lambda regularization value
@@ -284,7 +300,9 @@ def lovasz_binary(margins, label, prox=False, max_steps=20, debug={}):
         return loss
 
 
-def lovasz_single(logit, label, prox=False, max_steps=20, debug={}):
+def lovasz_single(logit, label, prox=False, max_steps=20, debug=None):
+    if debug is None:
+        debug = {}
     # single images
     mask = (label.view(-1) != 255)
     num_preds = mask.long().sum()
@@ -313,7 +331,8 @@ def dice_coefficient(logit, label, isCuda=True):
     A = A.clone()
     B = B.clone()
 
-    assert len(A) == len(B)
+    if len(A) != len(B):
+        raise AssertionError
 
     for i in list(range(len(A))):
         if A[i] > 0.5:
@@ -341,7 +360,8 @@ class WeightedSoftDiceLoss(torch.nn.Module):
     def __init__(self, **_):
         super(WeightedSoftDiceLoss, self).__init__()
 
-    def forward(self, logits, labels, weights, **_):
+    @staticmethod
+    def forward(logits, labels, weights, **_):
         probs = torch.sigmoid(logits)
         num   = labels.size(0)
         w     = weights.view(num,-1)
@@ -465,7 +485,9 @@ class BCEDiceFocalLoss(nn.Module):
         :param size_average: (bool, optional) By default, the losses are averaged over each loss element in the batch.
         :param weights: (list(), default = [1,1,1]) Optional weighing (0.0-1.0) of the losses in order of [bce, dice, focal]
     '''
-    def __init__(self, focal_param, weights=[1.0,1.0,1.0], **kwargs):
+    def __init__(self, focal_param, weights=None, **kwargs):
+        if weights is None:
+            weights = [1.0,1.0,1.0]
         super(BCEDiceFocalLoss, self).__init__()
         self.bce = BCEWithLogitsViewLoss(weight=None, size_average=True, **kwargs)
         self.dice = SoftDiceLoss(**kwargs)
@@ -490,31 +512,14 @@ class WeightedBCELoss2d(nn.Module):
     def __init__(self, **_):
         super(WeightedBCELoss2d, self).__init__()
 
-    def forward(self, logits, labels, weights, **_):
+    @staticmethod
+    def forward(logits, labels, weights, **_):
         w = weights.view(-1)            # (-1 operation flattens all the dimensions)
         z = logits.view(-1)             # (-1 operation flattens all the dimensions)
         t = labels.view(-1)             # (-1 operation flattens all the dimensions)
         loss = w*z.clamp(min=0) - w*z*t + w*torch.log(1 + torch.exp(-z.abs()))
         loss = loss.sum()/w.sum()
         return loss
-
-
-class WeightedSoftDiceLoss(nn.Module):
-    def __init__(self, **_):
-        super(WeightedSoftDiceLoss, self).__init__()
-
-    def forward(self, logits, labels, weights, **_):
-        probs = torch.sigmoid(logits)
-        num   = labels.size(0)
-        w     = (weights).view(num,-1)
-        w2    = w*w
-        m1    = (probs).view(num, -1)
-        m2    = (labels).view(num, -1)
-        intersection = (m1 * m2)
-        smooth = 1.
-        score = 2. * ((w2*intersection).sum(1)+smooth) / ((w2*m1).sum(1) + (w2*m2).sum(1)+smooth)
-        score = 1 - score.sum()/num
-        return score
 
 
 class BCEDicePenalizeBorderLoss(nn.Module):
@@ -575,7 +580,8 @@ class FocalLoss2(nn.Module):
         if self.alpha is None:
             self.alpha = torch.ones(self.num_class, 1)
         elif isinstance(self.alpha, (list, np.ndarray)):
-            assert len(self.alpha) == self.num_class
+            if len(self.alpha) != self.num_class:
+                raise AssertionError
             self.alpha = torch.FloatTensor(alpha).view(self.num_class, 1)
             self.alpha = self.alpha / self.alpha.sum()
         elif isinstance(self.alpha, float):
@@ -592,7 +598,7 @@ class FocalLoss2(nn.Module):
 
     def forward(self, logits, labels, **_):
 
-        # logit = F.softmax(input, dim=1)
+        # logits = F.softmax(logits, dim=1)
 
         if logits.dim() > 2:
             # N,C,d1,d2 -> N,C,m (m=d1*d2*...)
@@ -746,7 +752,8 @@ class L1Loss3d(nn.Module):
         super().__init__()
         self.bias = bias
 
-    def forward(self, output, target, **_):
+    @staticmethod
+    def forward(output, target, **_):
         # _assert_no_grad(target)
         with torch.no_grad:  # Pytorch 0.4.0 replacement (should be ok to use like this)
             lag = target.size(1) - output.size(1)
@@ -757,7 +764,8 @@ class MSE3D(nn.Module):
     def __init__(self, **_):
         super().__init__()
 
-    def forward(self, output, target, **_):
+    @staticmethod
+    def forward(output, target, **_):
         # _assert_no_grad(target)
         with torch.no_grad:  # Pytorch 0.4.0 replacement (should be ok to use like this)
             lag = target.size(1) - output.size(1)
@@ -772,15 +780,15 @@ class BCEWithLogitsViewLoss(nn.BCEWithLogitsLoss):
     def __init__(self, weight=None, size_average=True, **_):
         super().__init__(weight=weight, size_average=size_average)
 
-    def forward(self, input, target, **_):
+    def forward(self, input_, target, **_):
         '''
-        :param input:
+        :param input_:
         :param target:
         :return:
 
         Simply passes along input.view(-1), target.view(-1)
         '''
-        return super().forward(input.view(-1), target.view(-1))
+        return super().forward(input_.view(-1), target.view(-1))
 
 
 # ===================== #
@@ -921,7 +929,7 @@ class ComboBCEDiceLoss(nn.Module):
         self.bce_weight = bce_weight
         self.dice_weight = dice_weight
 
-        if self.use_running_mean == True:
+        if self.use_running_mean is True:
             self.register_buffer('running_bce_loss', torch.zeros(1))
             self.register_buffer('running_dice_loss', torch.zeros(1))
             self.reset_parameters()
@@ -937,11 +945,15 @@ class ComboBCEDiceLoss(nn.Module):
     def forward(self, outputs, labels, **_):
         # inputs and targets are assumed to be BxCxWxH (batch, color, width, height)
         outputs = outputs.squeeze()       # necessary in case we're dealing with binary segmentation (color dim of 1)
-        assert len(outputs.shape) == len(labels.shape)
+        if len(outputs.shape) != len(labels.shape):
+            raise AssertionError
         # assert that B, W and H are the same
-        assert outputs.size(-0) == labels.size(-0)
-        assert outputs.size(-1) == labels.size(-1)
-        assert outputs.size(-2) == labels.size(-2)
+        if outputs.size(-0) != labels.size(-0):
+            raise AssertionError
+        if outputs.size(-1) != labels.size(-1):
+            raise AssertionError
+        if outputs.size(-2) != labels.size(-2):
+            raise AssertionError
 
         bce_loss = self.bce_logits_loss(outputs, labels)
 
@@ -951,7 +963,7 @@ class ComboBCEDiceLoss(nn.Module):
         union = dice_output.sum() + dice_target.sum() + self.eps
         dice_loss = (-torch.log(2 * intersection / union))
 
-        if self.use_running_mean == False:
+        if self.use_running_mean is False:
             bmw = self.bce_weight
             dmw = self.dice_weight
             # loss += torch.clamp(1 - torch.log(2 * intersection / union),0,100)  * self.dice_weight
@@ -998,7 +1010,7 @@ class ComboSemsegLossWeighted(nn.Module):
         self.bce_weight = bce_weight
         self.dice_weight = dice_weight
 
-        if self.use_running_mean == True:
+        if self.use_running_mean is True:
             self.register_buffer('running_bce_loss', torch.zeros(1))
             self.register_buffer('running_dice_loss', torch.zeros(1))
             self.reset_parameters()
@@ -1013,17 +1025,24 @@ class ComboSemsegLossWeighted(nn.Module):
 
     def forward(self, logits, labels, weights, **_):
         # logits and labels are assumed to be BxCxWxH
-        assert len(logits.shape) == len(labels.shape)
+        if len(logits.shape) != len(labels.shape):
+            raise AssertionError
         # assert that B, W and H are the same
-        assert logits.size(0) == labels.size(0)
-        assert logits.size(2) == labels.size(2)
-        assert logits.size(3) == labels.size(3)
+        if logits.size(0) != labels.size(0):
+            raise AssertionError
+        if logits.size(2) != labels.size(2):
+            raise AssertionError
+        if logits.size(3) != labels.size(3):
+            raise AssertionError
 
         # weights are assumed to be BxWxH
         # assert that B, W and H are the are the same for target and mask
-        assert logits.size(0) == weights.size(0)
-        assert logits.size(2) == weights.size(1)
-        assert logits.size(3) == weights.size(2)
+        if logits.size(0) != weights.size(0):
+            raise AssertionError
+        if logits.size(2) != weights.size(1):
+            raise AssertionError
+        if logits.size(3) != weights.size(2):
+            raise AssertionError
 
         if self.use_weight_mask:
             bce_loss = F.binary_cross_entropy_with_logits(input=logits,
@@ -1039,7 +1058,7 @@ class ComboSemsegLossWeighted(nn.Module):
         union = dice_output.sum() + dice_target.sum() + self.eps
         dice_loss = (-torch.log(2 * intersection / union))
 
-        if self.use_running_mean == False:
+        if self.use_running_mean is False:
             bmw = self.bce_weight
             dmw = self.dice_weight
             # loss += torch.clamp(1 - torch.log(2 * intersection / union),0,100)  * self.dice_weight
@@ -1211,7 +1230,7 @@ class MixSoftmaxCrossEntropyOHEMLoss(OhemCrossEntropy2d):
         if self.aux:
             return dict(loss=self._aux_forward(*inputs))
         else:
-            return dict(loss=super(MixSoftmaxCrossEntropyOHEMLoss, self).forward(*inputs))
+            return dict(loss=super(MixSoftmaxCrossEntropyOHEMLoss, self).forward(preds, target))
 
 
 # ====================== #
@@ -1330,191 +1349,6 @@ class OhemCELoss(nn.Module):
         return targets.squeeze(1).long()
 
 
-# ====================== #
-# Source: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/TverskyLoss/binarytverskyloss.py (MIT)
-class FocalBinaryTverskyFunc(Function):
-    """
-        Focal Tversky Loss as defined in `this paper <https://arxiv.org/abs/1810.07842>`_
-
-        `Authors' implementation <https://github.com/nabsabraham/focal-tversky-unet>`_ in Keras.
-
-        Params:
-            :param alpha: controls the penalty for false positives.
-            :param beta: penalty for false negative.
-            :param gamma : focal coefficient range[1,3]
-            :param reduction: return mode
-
-        Notes:
-            alpha = beta = 0.5 => dice coeff
-            alpha = beta = 1 => tanimoto coeff
-            alpha + beta = 1 => F beta coeff
-            add focal index -> loss=(1-T_index)**(1/gamma)
-    """
-
-    def __init__(ctx, alpha=0.5, beta=0.7, gamma=1.0, reduction='mean', **_):
-        """
-        :param alpha: controls the penalty for false positives.
-        :param beta: penalty for false negative.
-        :param gamma : focal coefficient range[1,3]
-        :param reduction: return mode
-        Notes:
-        alpha = beta = 0.5 => dice coeff
-        alpha = beta = 1 => tanimoto coeff
-        alpha + beta = 1 => F beta coeff
-        add focal index -> loss=(1-T_index)**(1/gamma)
-        """
-        ctx.alpha = alpha
-        ctx.beta = beta
-        ctx.epsilon = 1e-6
-        ctx.reduction = reduction
-        ctx.gamma = gamma
-        sum = ctx.beta + ctx.alpha
-        if sum != 1:
-            ctx.beta = ctx.beta / sum
-            ctx.alpha = ctx.alpha / sum
-
-    # @staticmethod
-    def forward(ctx, input, target, **_):
-        batch_size = input.size(0)
-        _, input_label = input.max(1)
-
-        input_label = input_label.float()
-        target_label = target.float()
-
-        ctx.save_for_backward(input, target_label)
-
-        input_label = input_label.view(batch_size, -1)
-        target_label = target_label.view(batch_size, -1)
-
-        ctx.P_G = torch.sum(input_label * target_label, 1)  # TP
-        ctx.P_NG = torch.sum(input_label * (1 - target_label), 1)  # FP
-        ctx.NP_G = torch.sum((1 - input_label) * target_label, 1)  # FN
-
-        index = ctx.P_G / (ctx.P_G + ctx.alpha * ctx.P_NG + ctx.beta * ctx.NP_G + ctx.epsilon)
-        loss = torch.pow((1 - index), 1 / ctx.gamma)
-        # target_area = torch.sum(target_label, 1)
-        # loss[target_area == 0] = 0
-        if ctx.reduction == 'none':
-            loss = loss
-        elif ctx.reduction == 'sum':
-            loss = torch.sum(loss)
-        else:
-            loss = torch.mean(loss)
-        return loss
-
-    # @staticmethod
-    def backward(ctx, grad_out):
-        """
-        :param ctx:
-        :param grad_out:
-        :return:
-        d_loss/dT_loss=(1/gamma)*(T_loss)**(1/gamma-1)
-        (dT_loss/d_P1)  = 2*P_G*[G*(P_G+alpha*P_NG+beta*NP_G)-(G+alpha*NG)]/[(P_G+alpha*P_NG+beta*NP_G)**2]
-                        = 2*P_G
-        (dT_loss/d_p0)=
-        """
-        inputs, target = ctx.saved_tensors
-        inputs = inputs.float()
-        target = target.float()
-        batch_size = inputs.size(0)
-        sum = ctx.P_G + ctx.alpha * ctx.P_NG + ctx.beta * ctx.NP_G + ctx.epsilon
-        P_G = ctx.P_G.view(batch_size, 1, 1, 1, 1)
-        if inputs.dim() == 5:
-            sum = sum.view(batch_size, 1, 1, 1, 1)
-        elif inputs.dim() == 4:
-            sum = sum.view(batch_size, 1, 1, 1)
-            P_G = ctx.P_G.view(batch_size, 1, 1, 1)
-        sub = (ctx.alpha * (1 - target) + target) * P_G
-
-        dL_dT = (1 / ctx.gamma) * torch.pow((P_G / sum), (1 / ctx.gamma - 1))
-        dT_dp0 = -2 * (target / sum - sub / sum / sum)
-        dL_dp0 = dL_dT * dT_dp0
-
-        dT_dp1 = ctx.beta * (1 - target) * P_G / sum / sum
-        dL_dp1 = dL_dT * dT_dp1
-        grad_input = torch.cat((dL_dp1, dL_dp0), dim=1)
-        # grad_input = torch.cat((grad_out.item() * dL_dp0, dL_dp0 * grad_out.item()), dim=1)
-        return grad_input, None
-
-
-class MultiTverskyLoss(nn.Module):
-    """
-    Tversky Loss for segmentation adaptive with multi class segmentation
-
-    Args
-        :param alpha (Tensor, float, optional): controls the penalty for false positives.
-        :param beta (Tensor, float, optional): controls the penalty for false negative.
-        :param gamma (Tensor, float, optional): focal coefficient
-        :param weights (Tensor, optional): a manual rescaling weight given to each class. If given, it has to be a Tensor of size `C`
-    """
-
-    def __init__(self, alpha=0.5, beta=0.5, gamma=1.0, reduction='mean', weights=None, **_):
-        """
-        :param alpha (Tensor, float, optional): controls the penalty for false positives.
-        :param beta (Tensor, float, optional): controls the penalty for false negative.
-        :param gamma (Tensor, float, optional): focal coefficient
-        :param weights (Tensor, optional): a manual rescaling weight given to each
-            class. If given, it has to be a Tensor of size `C`
-        """
-        super(MultiTverskyLoss, self).__init__()
-        self.alpha = alpha
-        self.beta = beta
-        self.gamma = gamma
-        self.reduction = reduction
-        self.weights = weights
-
-    def forward(self, inputs, labels, **_):
-        num_class = inputs.size(1)
-        weight_losses = 0.0
-        if self.weights is not None:
-            assert len(self.weights) == num_class, 'number of classes should be equal to length of weights '
-            weights = self.weights
-        else:
-            weights = [1.0 / num_class] * num_class
-        input_slices = torch.split(inputs, [1] * num_class, dim=1)
-        for idx in range(num_class):
-            input_idx = input_slices[idx]
-            input_idx = torch.cat((1 - input_idx, input_idx), dim=1)
-            target_idx = (labels == idx) * 1
-            loss_func = FocalBinaryTverskyFunc(self.alpha, self.beta, self.gamma, self.reduction)
-            loss_idx = loss_func(input_idx, target_idx)
-            weight_losses+=loss_idx * weights[idx]
-        # loss = torch.Tensor(weight_losses)
-        # loss = loss.to(inputs.device)
-        # loss = torch.sum(loss)
-        return weight_losses
-
-
-class FocalBinaryTverskyLoss(MultiTverskyLoss):
-    """
-            Binary version of Focal Tversky Loss as defined in `this paper <https://arxiv.org/abs/1810.07842>`_
-
-            `Authors' implementation <https://github.com/nabsabraham/focal-tversky-unet>`_ in Keras.
-
-            Params:
-                :param alpha: controls the penalty for false positives.
-                :param beta: penalty for false negative.
-                :param gamma : focal coefficient range[1,3]
-                :param reduction: return mode
-
-            Notes:
-                alpha = beta = 0.5 => dice coeff
-                alpha = beta = 1 => tanimoto coeff
-                alpha + beta = 1 => F beta coeff
-                add focal index -> loss=(1-T_index)**(1/gamma)
-        """
-
-    def __init__(self, alpha=0.5, beta=0.7, gamma=1.0, reduction='mean', **_):
-        """
-        :param alpha (Tensor, float, optional): controls the penalty for false positives.
-        :param beta (Tensor, float, optional): controls the penalty for false negative.
-        :param gamma (Tensor, float, optional): focal coefficient
-        """
-        super().__init__(alpha, beta, gamma, reduction)
-
-    def forward(self, inputs, labels, **_):
-        return super().forward(inputs, labels.unsqueeze(1))
-
 # ===================== #
 # Source: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/LovaszSoftmax/lovasz_loss.py
 def lovasz_grad(gt_sorted):
@@ -1537,8 +1371,10 @@ class LovaszSoftmax(nn.Module):
         super(LovaszSoftmax, self).__init__()
         self.reduction = reduction
 
-    def prob_flatten(self, input, target):
-        assert input.dim() in [4, 5]
+    @staticmethod
+    def prob_flatten(input, target):
+        if input.dim() not in [4, 5]:
+            raise AssertionError
         num_class = input.size(1)
         if input.dim() == 4:
             input = input.permute(0, 2, 3, 1).contiguous()
@@ -1747,16 +1583,21 @@ def one_hot(t: Tensor, axis=1) -> bool:
 
 def numpy_haussdorf(pred: np.ndarray, target: np.ndarray) -> float:
     from scipy.spatial.distance import directed_hausdorff
-    assert len(pred.shape) == 2
-    assert pred.shape == target.shape
+    if len(pred.shape) != 2:
+        raise AssertionError
+    if pred.shape != target.shape:
+        raise AssertionError
 
     return max(directed_hausdorff(pred, target)[0], directed_hausdorff(target, pred)[0])
 
 
 def haussdorf(preds: Tensor, target: Tensor) -> Tensor:
-    assert preds.shape == target.shape
-    assert one_hot(preds)
-    assert one_hot(target)
+    if preds.shape != target.shape:
+        raise AssertionError
+    if not one_hot(preds):
+        raise AssertionError
+    if not one_hot(target):
+        raise AssertionError
 
     B, C, _, _ = preds.shape
 
@@ -1853,8 +1694,8 @@ def get_tp_fp_fn(net_output, gt, axes=None, mask=None, square=False):
 def compute_sdf(img_gt, out_shape):
     """
     compute the signed distance map of binary mask
-    input: segmentation, shape = (batch_size, x, y, z)
-    output: the Signed Distance Map (SDM)
+    img_gt: segmentation, shape = (batch_size, x, y, z)
+    out_shape: the Signed Distance Map (SDM)
     sdf(x) = 0; x in segmentation boundary
              -inf|x-y|; x in segmentation
              +inf|x-y|; x out of segmentation
@@ -2008,7 +1849,8 @@ class AngularPenaltySMLoss(nn.Module):
         '''
         super(AngularPenaltySMLoss, self).__init__()
         loss_type = loss_type.lower()
-        assert loss_type in ['arcface', 'sphereface', 'cosface']
+        if loss_type not in ['arcface', 'sphereface', 'cosface']:
+            raise AssertionError
         if loss_type == 'arcface':
             self.s = 64.0 if not s else s
             self.m = 0.5 if not m else m
@@ -2028,9 +1870,12 @@ class AngularPenaltySMLoss(nn.Module):
         '''
         input shape (N, in_features)
         '''
-        assert len(x) == len(labels)
-        assert torch.min(labels) >= 0
-        assert torch.max(labels) < self.out_features
+        if len(x) != len(labels):
+            raise AssertionError
+        if torch.min(labels) < 0:
+            raise AssertionError
+        if torch.max(labels) >= self.out_features:
+            raise AssertionError
 
         for W in self.fc.parameters():
             W = F.normalize(W, p=2, dim=1)
@@ -2167,13 +2012,16 @@ class RMILoss(nn.Module):
 
         self.num_classes = num_classes
         # radius choices
-        assert rmi_radius in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        if rmi_radius not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+            raise AssertionError
         self.rmi_radius = rmi_radius
-        assert rmi_pool_way in [0, 1, 2, 3]
+        if rmi_pool_way not in [0, 1, 2, 3]:
+            raise AssertionError
         self.rmi_pool_way = rmi_pool_way
 
         # set the pool_size = rmi_pool_stride
-        assert rmi_pool_size == rmi_pool_stride
+        if rmi_pool_size != rmi_pool_stride:
+            raise AssertionError
         self.rmi_pool_size = rmi_pool_size
         self.rmi_pool_stride = rmi_pool_stride
         self.weight_lambda = loss_weight_lambda
@@ -2280,7 +2128,8 @@ class RMILoss(nn.Module):
             labels_4D 	:	[N, C, H, W], dtype=float32
             probs_4D 	:	[N, C, H, W], dtype=float32
         """
-        assert labels_4D.size() == probs_4D.size()
+        if labels_4D.size() != probs_4D.size():
+            raise AssertionError
 
         p, s = self.rmi_pool_size, self.rmi_pool_stride
         if self.rmi_pool_stride > 1:
@@ -2474,23 +2323,24 @@ class RMILossAlt(nn.Module):
             logits = torch.sigmoid(logits)
 
         # Calculate RMI loss
-        rmi = self.rmi_loss(input=logits, target=labels)
+        rmi = self.rmi_loss(input_=logits, target=labels)
         rmi = rmi.mean() * (1.0 - self.bce_weight)
         return rmi + bce
 
-    def rmi_loss(self, input, target):
+    def rmi_loss(self, input_, target):
         """
         Calculates the RMI loss between the prediction and target.
         :return:
             RMI loss
         """
 
-        assert input.shape == target.shape
+        if input_.shape != target.shape:
+            raise AssertionError
         vector_size = self.radius * self.radius
 
         # Get region vectors
         y = self.extract_region_vector(target)
-        p = self.extract_region_vector(input)
+        p = self.extract_region_vector(input_)
 
         # Convert to doubles for better precision
         if self.use_double_precision:
@@ -2672,7 +2522,8 @@ class HausdorffDTLoss(nn.Module):
         self.alpha = alpha
 
     @torch.no_grad()
-    def distance_field(self, img: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def distance_field(img: np.ndarray) -> np.ndarray:
         field = np.zeros_like(img)
 
         for batch in range(len(img)):
@@ -2696,8 +2547,10 @@ class HausdorffDTLoss(nn.Module):
         """
         labels = labels.unsqueeze(1)
 
-        assert logits.dim() == 4 or logits.dim() == 5, "Only 2D and 3D supported"
-        assert (logits.dim() == labels.dim()), "Prediction and target need to be of same dimension"
+        if logits.dim() not in (4, 5):
+            raise AssertionError("Only 2D and 3D supported")
+        if (logits.dim() != labels.dim()):
+            raise AssertionError("Prediction and target need to be of same dimension")
 
         # this is necessary for binary loss
         logits = torch.sigmoid(logits)
@@ -2794,8 +2647,10 @@ class HausdorffERLoss(nn.Module):
         target: (b, 1, x, y, z) or (b, 1, x, y)
         """
         target = target.unsqueeze(1)
-        assert pred.dim() == 4 or pred.dim() == 5, "Only 2D and 3D supported"
-        assert (pred.dim() == target.dim()), "Prediction and target need to be of same dimension"
+        if pred.dim() not in (4, 5):
+            raise AssertionError("Only 2D and 3D supported")
+        if (pred.dim() != target.dim()):
+            raise AssertionError("Prediction and target need to be of same dimension")
 
         pred = torch.sigmoid(pred)
 
@@ -2923,7 +2778,7 @@ class RMIBCEDicePenalizeBorderLoss(RMILossAlt):
                 raise Exception(f'Non-matching shapes for logits ({logits.shape}) and labels ({labels.shape})')
 
         # Calculate RMI loss
-        rmi = self.rmi_loss(input=torch.sigmoid(logits), target=labels)
+        rmi = self.rmi_loss(input_=torch.sigmoid(logits), target=labels)
         bce = self.bce(logits, labels)
         # rmi = rmi.mean() * (1.0 - self.bce_weight)
         return self.rmi_weight * rmi + self.bce_weight * bce

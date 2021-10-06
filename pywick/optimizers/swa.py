@@ -48,14 +48,14 @@ class SWA(Optimizer):
         >>> opt = SWA(base_opt, swa_start=10, swa_freq=5, swa_lr=0.05)
         >>> for _ in range(100):
         >>>     opt.zero_grad()
-        >>>     loss_fn(model(input), target).backward()
+        >>>     loss_fn(model(input_), target).backward()
         >>>     opt.step()
         >>> opt.swap_swa_sgd()
         >>> # manual mode
         >>> opt = SWA(base_opt)
         >>> for i in range(100):
         >>>     opt.zero_grad()
-        >>>     loss_fn(model(input), target).backward()
+        >>>     loss_fn(model(input_), target).backward()
         >>>     opt.step()
         >>>     if i > 10 and i % 5 == 0:
         >>>         opt.update_swa()
@@ -118,7 +118,7 @@ class SWA(Optimizer):
             group['step_counter'] = 0
 
     @staticmethod
-    def _check_params(self, swa_start, swa_freq):
+    def _check_params(swa_start, swa_freq):
         params = [swa_start, swa_freq]
         params_none = [param is None for param in params]
         if not all(params_none) and any(params_none):
@@ -150,7 +150,7 @@ class SWA(Optimizer):
             >>> opt = torchcontrib.optim.SWA(base_opt)
             >>> for i in range(100):
             >>>     opt.zero_grad()
-            >>>     loss_fn(model(input), target).backward()
+            >>>     loss_fn(model(input_), target).backward()
             >>>     opt.step()
             >>>     if i > 10 and i % 5 == 0:
             >>>         # Update SWA for the second parameter group
@@ -283,19 +283,19 @@ class SWA(Optimizer):
         model.apply(_reset_bn)
         model.apply(lambda module: _get_momenta(module, momenta))
         n = 0
-        for input in loader:
-            if isinstance(input, (list, tuple)):
-                input = input[0]
-            b = input.size(0)
+        for input_ in loader:
+            if isinstance(input_, (list, tuple)):
+                input_ = input_[0]
+            b = input_.size(0)
 
             momentum = b / float(n + b)
-            for module in momenta.keys():
+            for module in momenta:
                 module.momentum = momentum
 
             if device is not None:
-                input = input.to(device)
+                input_ = input_.to(device)
 
-            model(input)
+            model(input_)
             n += b
 
         model.apply(lambda module: _set_momenta(module, momenta))

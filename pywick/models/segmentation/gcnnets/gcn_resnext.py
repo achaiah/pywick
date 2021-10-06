@@ -63,7 +63,8 @@ class _DeconvModule(nn.Module):
         out = self.deconv(x)
         return out
 
-    def make_bilinear_weights(self, size, num_channels):
+    @staticmethod
+    def make_bilinear_weights(size, num_channels):
         factor = (size + 1) // 2
         if size % 2 == 1:
             center = factor - 1
@@ -108,15 +109,15 @@ class LambdaBase(nn.Sequential):
 		super(LambdaBase, self).__init__(*args)
 		self.lambda_func = fn
 
-	def forward_prepare(self, input):
+	def forward_prepare(self, input_):
 		output = []
 		for module in self._modules.values():
-			output.append(module(input))
-		return output if output else input
+			output.append(module(input_))
+		return output if output else input_
 
 class Lambda(LambdaBase):
-    def forward(self, input):
-        return self.lambda_func(self.forward_prepare(input))
+    def forward(self, input_):
+        return self.lambda_func(self.forward_prepare(input_))
 
 class ResNeXt(nn.Module):
 
@@ -223,10 +224,11 @@ class GCN_Resnext(nn.Module):
 
         return out
 
-    def initialize_weights(self, *models):
+    @staticmethod
+    def initialize_weights(*models):
         for model in models:
             for module in model.modules():
-                if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
+                if isinstance(module, (nn.Conv2d, nn.Linear)):
                     nn.init.kaiming_normal_(module.weight)
                     if module.bias is not None:
                         module.bias.data.zero_()

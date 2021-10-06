@@ -1,12 +1,14 @@
 from six import iteritems
 from pywick.datasets.tnt.table import canmergetensor as canmerge
-from pywick.datasets.tnt.table import mergetensor as mergetensor
+from pywick.datasets.tnt.table import mergetensor
 
 
 def compose(transforms):
-    assert isinstance(transforms, list)
+    if not isinstance(transforms, list):
+        raise AssertionError
     for tr in transforms:
-        assert callable(tr), 'list of functions expected'
+        if not callable(tr):
+            raise AssertionError('list of functions expected')
 
     def composition(z):
         for tr in transforms:
@@ -21,13 +23,13 @@ def tablemergekeys():
         if isinstance(tbl, dict):
             for idx, elem in tbl.items():
                 for key, value in elem.items():
-                    if not key in mergetbl:
+                    if key not in mergetbl:
                         mergetbl[key] = {}
                     mergetbl[key][idx] = value
         elif isinstance(tbl, list):
             for elem in tbl:
                 for key, value in elem.items():
-                    if not key in mergetbl:
+                    if key not in mergetbl:
                         mergetbl[key] = []
                     mergetbl[key].append(value)
         return mergetbl
@@ -47,4 +49,4 @@ def makebatch(merge=None):
                        if canmerge(field) else field)
         ])
 
-    return lambda samples: makebatch(samples)
+    return makebatch

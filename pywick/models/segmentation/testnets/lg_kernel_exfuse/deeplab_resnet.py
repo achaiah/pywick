@@ -78,7 +78,8 @@ class ResnetDilated(nn.Module):
         self.layer3 = orig_resnet.layer3
         self.layer4 = orig_resnet.layer4
 
-    def _nostride_dilate(self, m, dilate):
+    @staticmethod
+    def _nostride_dilate(m, dilate):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
             # the convolution with stride
@@ -386,7 +387,8 @@ def conv3x3_bn_relu(in_planes, out_planes, stride=1):
 # this is used to build the different models, both encoder and decoder
 class ModelBuilder():
     # custom weights initialization
-    def weights_init(self, m):
+    @staticmethod
+    def weights_init(m):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
             nn.init.kaiming_normal(m.weight.data)
@@ -396,23 +398,16 @@ class ModelBuilder():
         elif classname.find('Linear') != -1:
             m.weight.data.normal_(0.0, 0.0001)
 
-    def build_encoder(self, arch='resnet50_dilated8', fc_dim=512, weights='', **kwargs):
-        pretrained = True if len(weights) == 0 else False
+    @staticmethod
+    def build_encoder(arch='resnet50_dilated8', fc_dim=512, weights='', **kwargs):
+        pretrained = len(weights) == 0
         if arch == 'resnet34':
             raise NotImplementedError
-            orig_resnet = resnet.__dict__['resnet34'](pretrained=pretrained)
-            net_encoder = Resnet(orig_resnet)
-        elif arch == 'resnet34_dilated8':
+        if arch == 'resnet34_dilated8':
             raise NotImplementedError
-            orig_resnet = resnet.__dict__['resnet34'](pretrained=pretrained)
-            net_encoder = ResnetDilated(orig_resnet,
-                                        dilate_scale=8)
-        elif arch == 'resnet34_dilated16':
+        if arch == 'resnet34_dilated16':
             raise NotImplementedError
-            orig_resnet = resnet.__dict__['resnet34'](pretrained=pretrained)
-            net_encoder = ResnetDilated(orig_resnet,
-                                        dilate_scale=16)
-        elif arch == 'resnet50':
+        if arch == 'resnet50':
             orig_resnet = resnet.resnet50(**kwargs)
             net_encoder = Resnet(orig_resnet)
         elif arch == 'resnet50_dilated8':
@@ -497,20 +492,18 @@ class _ConvBatchNormReluBlock(nn.Sequential):
 		self.add_module("bn", nn.BatchNorm2d(num_features=outplanes, momentum=0.999, affine=True))
 		if relu:
 			self.add_module("relu", nn.ReLU())
-	def forward(self, x):
-		return super(_ConvBatchNormReluBlock, self).forward(x)
 
 class _ResidualBlockMulGrid(nn.Sequential):
 	"""
 		Residual Block with multi-grid , note: best model-> (1, 2, 1)
 	"""
-	def __init__(self, layers, inplanes, midplanes, outplanes, stride, dilation, mulgrid=[1,2,1]):
-		super(_ResidualBlockMulGrid, self).__init__()
-		self.add_module("block1", _Bottleneck(inplanes, midplanes, outplanes, stride, dilation * mulgrid[0], True))
-		self.add_module("block2", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[1], False))
-		self.add_module("block3", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[2], False))
-	def forward(self, x):
-		return super(_ResidualBlockMulGrid, self).forward(x)
+	def __init__(self, layers, inplanes, midplanes, outplanes, stride, dilation, mulgrid=None):
+	    if mulgrid is None:
+	        mulgrid = [1,2,1]
+	    super(_ResidualBlockMulGrid, self).__init__()
+	    self.add_module("block1", _Bottleneck(inplanes, midplanes, outplanes, stride, dilation * mulgrid[0], True))
+	    self.add_module("block2", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[1], False))
+	    self.add_module("block3", _Bottleneck(outplanes, midplanes, outplanes, stride, dilation * mulgrid[2], False))
 
 class _Bottleneck(nn.Sequential):
 	def __init__(self, inplanes, midplanes, outplanes, stride, dilation, downsample):

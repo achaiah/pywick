@@ -7,7 +7,7 @@ from .losses import lovaszloss, hingeloss, dice_coeff
 def is_iterable(x):
     return isinstance(x, (tuple, list))
 
-class MetricContainer(object):
+class MetricContainer:
     def __init__(self, metrics, prefix=''):
         self.metrics = metrics
         self.helper = None
@@ -29,7 +29,7 @@ class MetricContainer(object):
                 logs[self.prefix + metric._name] = metric_out
         return logs
 
-class Metric(object):
+class Metric:
 
     def __call__(self, inputs, y_pred, y_true, is_val):
         '''
@@ -80,8 +80,6 @@ class CategoricalAccuracySingleInput(CategoricalAccuracy):
     This class is a tiny modification of CategoricalAccuracy to handle the issue when we desire a single output but
     the network outputs multiple y_pred (e.g. inception)
     '''
-    def __init__(self, top_k=1):
-        super().__init__(top_k)
 
     def __call__(self, inputs, y_pred, y_true, is_val=False):
         if is_iterable(y_pred):

@@ -59,7 +59,7 @@ constraints = [cons.UnitNorm(5, 'batch', 'fc*'),
                cons.MaxNorm(5, 0, 'batch', 'conv*')]
 callbacks = [cbks.ReduceLROnPlateau(monitor='loss', verbose=1)]
 
-trainer.compile(loss='nll_loss',
+trainer.compile(criterion='nll_loss',
                 optimizer='adadelta',
                 regularizers=regularizers,
                 constraints=constraints,
@@ -82,7 +82,7 @@ print(eval_loss)
 model = Network()
 trainer = ModuleTrainer(model)
 
-trainer.compile(loss=['nll_loss', 'nll_loss', 'nll_loss'],
+trainer.compile(criterion=['nll_loss', 'nll_loss', 'nll_loss'],
                 optimizer='adadelta',
                 regularizers=regularizers,
                 constraints=constraints,
@@ -100,7 +100,7 @@ try:
     model = Network()
     trainer = ModuleTrainer(model)
 
-    trainer.compile(loss=['nll_loss', 'nll_loss'],
+    trainer.compile(criterion=['nll_loss', 'nll_loss'],
                     optimizer='adadelta',
                     regularizers=regularizers,
                     constraints=constraints,

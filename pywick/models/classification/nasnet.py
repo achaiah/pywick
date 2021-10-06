@@ -554,8 +554,8 @@ class NASNetALarge(nn.Module):
         self.dropout = nn.Dropout()
         self.last_linear = nn.Linear(4032, self.num_classes)
 
-    def features(self, input):
-        x_conv0 = self.conv0(input)
+    def features(self, input_):
+        x_conv0 = self.conv0(input_)
         x_stem_0 = self.cell_stem_0(x_conv0)
         x_stem_1 = self.cell_stem_1(x_conv0, x_stem_0)
 
@@ -593,8 +593,8 @@ class NASNetALarge(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 

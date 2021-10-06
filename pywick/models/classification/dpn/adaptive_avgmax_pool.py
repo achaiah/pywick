@@ -52,7 +52,7 @@ class AdaptiveAvgMaxPool2d(torch.nn.Module):
         super(AdaptiveAvgMaxPool2d, self).__init__()
         self.output_size = output_size
         self.pool_type = pool_type
-        if pool_type == 'avgmaxc' or pool_type == 'avgmax':
+        if pool_type in ('avgmaxc', 'avgmax'):
             self.pool = nn.ModuleList([nn.AdaptiveAvgPool2d(output_size), nn.AdaptiveMaxPool2d(output_size)])
         elif pool_type == 'max':
             self.pool = nn.AdaptiveMaxPool2d(output_size)

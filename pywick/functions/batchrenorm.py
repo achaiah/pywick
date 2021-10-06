@@ -39,19 +39,19 @@ class BatchReNorm1d(Module):
             self.weight.data.uniform_()
             self.bias.data.zero_()
 
-    def _check_input_dim(self, input):
-        if input.size(1) != self.running_mean.nelement():
+    def _check_input_dim(self, input_):
+        if input_.size(1) != self.running_mean.nelement():
             raise ValueError('got {}-feature tensor, expected {}'
-                             .format(input.size(1), self.num_features))
+                             .format(input_.size(1), self.num_features))
 
-    def forward(self, input):
-        self._check_input_dim(input)
-        n = input.size()[0]
+    def forward(self, input_):
+        self._check_input_dim(input_)
+        n = input_.size()[0]
 
         if self.training:
-            mean = torch.mean(input, dim=0)
+            mean = torch.mean(input_, dim=0)
 
-            sum = torch.sum((input - mean.expand_as(input)) ** 2, dim=0)
+            sum = torch.sum((input_ - mean.expand_as(input_)) ** 2, dim=0)
             if sum == 0 and self.eps == 0:
                 invstd = 0.0
             else:
@@ -63,10 +63,10 @@ class BatchReNorm1d(Module):
             self.d = torch.clamp((mean.data - self.running_mean) / torch.sqrt(self.running_var),
                                  -self.dmax, self.dmax)
 
-            r = self.r.expand_as(input)
-            d = self.d.expand_as(input)
+            r = self.r.expand_as(input_)
+            d = self.d.expand_as(input_)
 
-            input_normalized = (input - mean.expand_as(input)) * invstd.expand_as(input)
+            input_normalized = (input_ - mean.expand_as(input_)) * invstd.expand_as(input_)
 
             input_normalized = input_normalized * r + d
 
@@ -76,22 +76,22 @@ class BatchReNorm1d(Module):
             if not self.affine:
                 return input_normalized
 
-            output = input_normalized * self.weight.expand_as(input)
-            output += self.bias.unsqueeze(0).expand_as(input)
+            output = input_normalized * self.weight.expand_as(input_)
+            output += self.bias.unsqueeze(0).expand_as(input_)
 
             return output
 
         else:
-            mean = self.running_mean.expand_as(input)
-            invstd = 1. / torch.sqrt(self.running_var.expand_as(input) + self.eps)
+            mean = self.running_mean.expand_as(input_)
+            invstd = 1. / torch.sqrt(self.running_var.expand_as(input_) + self.eps)
 
-            input_normalized = (input - mean.expand_as(input)) * invstd.expand_as(input)
+            input_normalized = (input_ - mean.expand_as(input_)) * invstd.expand_as(input_)
 
             if not self.affine:
                 return input_normalized
 
-            output = input_normalized * self.weight.expand_as(input)
-            output += self.bias.unsqueeze(0).expand_as(input)
+            output = input_normalized * self.weight.expand_as(input_)
+            output += self.bias.unsqueeze(0).expand_as(input_)
 
             return output
 

@@ -20,12 +20,12 @@ model_urls = {
 class _DenseLayer(nn.Sequential):
     def __init__(self, num_input_features, growth_rate, bn_size, drop_rate, dilation=1, norm_layer=nn.BatchNorm2d):
         super(_DenseLayer, self).__init__()
-        self.add_module('norm1', norm_layer(num_input_features)),
-        self.add_module('relu1', nn.ReLU(True)),
-        self.add_module('conv1', nn.Conv2d(num_input_features, bn_size * growth_rate, 1, 1, bias=False)),
-        self.add_module('norm2', norm_layer(bn_size * growth_rate)),
-        self.add_module('relu2', nn.ReLU(True)),
-        self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate, 3, 1, dilation, dilation, bias=False)),
+        self.add_module('norm1', norm_layer(num_input_features))
+        self.add_module('relu1', nn.ReLU(True))
+        self.add_module('conv1', nn.Conv2d(num_input_features, bn_size * growth_rate, 1, 1, bias=False))
+        self.add_module('norm2', norm_layer(bn_size * growth_rate))
+        self.add_module('relu2', nn.ReLU(True))
+        self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate, 3, 1, dilation, dilation, bias=False))
         self.drop_rate = drop_rate
 
     def forward(self, x):
@@ -110,7 +110,8 @@ class DilatedDenseNet(DenseNet):
                  bn_size=4, drop_rate=0, num_classes=1000, dilate_scale=8, norm_layer=nn.BatchNorm2d, **kwargs):
         super(DilatedDenseNet, self).__init__(growth_rate, block_config, num_init_features,
                                               bn_size, drop_rate, num_classes, norm_layer)
-        assert (dilate_scale == 8 or dilate_scale == 16), "dilate_scale can only set as 8 or 16"
+        if dilate_scale not in (8, 16):
+            raise AssertionError("dilate_scale can only set as 8 or 16")
         from functools import partial
         if dilate_scale == 8:
             self.features.denseblock3.apply(partial(self._conv_dilate, dilate=2))
@@ -121,7 +122,8 @@ class DilatedDenseNet(DenseNet):
             self.features.denseblock4.apply(partial(self._conv_dilate, dilate=2))
             del self.features.transition3.pool
 
-    def _conv_dilate(self, m, dilate):
+    @staticmethod
+    def _conv_dilate(m, dilate):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
             if m.kernel_size == (3, 3):

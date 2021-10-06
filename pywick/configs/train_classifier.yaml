@@ -1,0 +1,61 @@
+# This specification extends / overrides default.yaml where necessary
+__include__: default.yaml
+train:
+  # define general variables to reuse
+  lr: &lr 0.001                   # optimizer learning rate
+  momentum: &momentum 0.9         # optimizer momentum
+  weight_decay: &wd 0.0001        # important to keep FIXED during the entire training. Can be 1e-4 or 1e-5!
+
+  batch_size: 32                  # Size of the batch to use when training (per GPU)
+  dataroots: ['/data/17flowers']  # where to find the training data
+  gpu_ids: [0]                    # gpus to use for training (if more than one available)
+#  gpu_ids: [0, 1, 2, 4]          # gpus to use for training (if more than one available)
+  input_size: 224                 # size of the input image. Networks with atrous convolutions (densenet, fbresnet, inceptionv4) allow flexible image sizes while others do not
+                                  # see table: https://github.com/rwightman/pytorch-image-models/blob/master/results/results-imagenet-a.csv
+  model_spec: resnet50            # model to use (over 200 models available! see: https://github.com/rwightman/pytorch-image-models/blob/master/results/results-imagenet-a.csv)
+
+  num_epochs: &nepochs 15         # number of epochs to train for (use small number if starting from pretrained NN)
+  optimizer:                      # choice of optimizer (sgd is typically slowest but best)
+    name: SGD
+    params:
+      lr: *lr
+      momentum: *momentum
+      weight_decay: *wd
+  output_root: &outroot '/jobs/17flowers'  # where to save outputs (e.g. trained NNs)
+  random_seed: 1337               # the random seed used to initialize various randomness functions (set for reproduceability)
+  save_callback:                  # callback to use for saving the model (if any)
+    name: ModelCheckpoint
+    params:
+      do_minimize:  True            # whether the monitored key is minimized or maximized
+      max_saves:  5                 # maximum number of NNs to keep
+      monitored_log_key: val_loss   # which key is used as loss
+      save_best_only: False         # whether to save only best NN
+      save_interval: 1              # save every N epochs
+      save_dir: *outroot            # where to save output
+      custom_func:                  # name of custom function to execute on key/val dictionary (if any)
+      verbose: False
+  scheduler:                      # scheduler configuration
+    name: OnceCycleLRScheduler    # should match to a name of an imported scheduler (either from callbacks or torch.optim.lr_scheduler)
+    params:
+      epochs: *nepochs
+      max_lr: 0.05
+      pct_start: 0.2
+  train_val_ratio: 0.9            # split ratio between training and validation data (if using a single dataset)
+  use_apex: False                 # whether to use APEX optimization (not yet implemented)
+  use_gpu: True                   # whether to use the GPU for training
+  val_root:                       # where to find validation data (if separate). Note that typically validation data is simply split off from training data based on split_ratio
+  workers: 6                      # number of workers to read training data from disk and feed it to the GPU
+#  workers: 0                      # set workers to 0 if training on CPU (or alternatively must adjust multiprocessing in __main__
+
+eval:
+  batch_size:  1                          # size of batch to run through eval
+  CUDA_VISIBLE_DEVICES: '0'
+  dataroots:  '/data/eval'                # directory containing evaluation data
+  eval_chkpt: '/data/models/best.pth'     # saved checkpoint to use for evaluation
+  gpu_id: [0]
+  has_grnd_truth:  True                   # whether ground truth is provided (as directory names under which images reside)
+#  input_size:  224                       # should be saved with the model but could be overridden here
+  jobroot:  '/jobs/eval_output'           # where to output predictions
+  topK: 5                                 # number of results to return
+  use_gpu: False                          # toggle gpu use for inference
+  workers:  1                             # keep at 1 otherwise statistics may not be accurate

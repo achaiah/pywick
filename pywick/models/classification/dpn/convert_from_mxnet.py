@@ -26,7 +26,8 @@ def _convert_bn(k):
         aux = True
         add = 'moving_var'
     else:
-        assert False, 'Unknown key: %s' % k
+        if not False:
+            raise AssertionError('Unknown key: %s' % k)
     return aux, add
 
 
@@ -48,20 +49,19 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
                     aux, key_add = _convert_bn(k[3])
                     mxnet_key += key_add
                 else:
-                    assert k[3] == 'weight'
+                    if k[3] != 'weight':
+                        raise AssertionError
                     mxnet_key += 'conv_' + k[3]
             elif k[1] == 'conv5_bn_ac':
                 # bn + ac at end of features block
                 mxnet_key += 'conv5_x_x__relu-sp__bn_'
-                assert k[2] == 'bn'
+                if k[2] != 'bn':
+                    raise AssertionError
                 aux, key_add = _convert_bn(k[3])
                 mxnet_key += key_add
             else:
                 # middle blocks
-                if model.b and 'c1x1_c' in k[2]:
-                    bc_block = True  # b-variant split c-block special treatment
-                else:
-                    bc_block = False
+                bc_block = bool(model.b and 'c1x1_c' in k[2])
                 ck = k[1].split('_')
                 mxnet_key += ck[0] + '_x__' + ck[1] + '_'
                 ck = k[2].split('_')
@@ -75,7 +75,8 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
                     mxnet_key += key_add
                 else:
                     ki = 3 if bc_block else 4
-                    assert k[ki] == 'weight'
+                    if k[ki] != 'weight':
+                        raise AssertionError
                     mxnet_key += 'conv_' + k[ki]
         elif k[0] == 'classifier':
             if 'fc6-1k_weight' in mxnet_weights:
@@ -84,7 +85,8 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
                 mxnet_key += 'fc6_'
             mxnet_key += k[1]
         else:
-            assert False, 'Unexpected token'
+            if not False:
+                raise AssertionError('Unexpected token')
 
         if debug:
             print(mxnet_key, '=> ', state_key, end=' ')
@@ -111,11 +113,9 @@ parser.add_argument('--model', '-m', metavar='MODEL', default='dpn92',
 def main():
     args = parser.parse_args()
     if 'dpn' not in args.model:
-        print('Error: Can only convert DPN models.')
-        exit(1)
+        raise Exception('Error: Can only convert DPN models.')
     if not has_mxnet:
-        print('Error: Cannot import MXNet module. Please install.')
-        exit(1)
+        raise Exception('Error: Cannot import MXNet module. Please install.')
 
     model = create_model(args.model, num_classes=1000, pretrained=False)
 

@@ -1,0 +1,14 @@
+# This specification extends / overrides default.yaml where necessary
+__include__: default.yaml
+
+eval:
+  batch_size:  1                          # size of batch to run through eval
+  dataroots:  '/data/eval'                # directory containing evaluation data
+  eval_chkpt: '/data/models/best.pth'     # saved checkpoint to use for evaluation
+  gpu_id: 0
+  has_grnd_truth:  True                   # whether ground truth is provided (as directory names under which images reside)
+#  input_size:  224                       # should be saved with the model but could be overridden here
+  jobroot:  '/jobs/eval_output'           # where to output predictions
+  topK: 5                                 # number of results to return
+  use_gpu: False                          # toggle gpu use for inference
+  workers:  1                             # keep at 1 otherwise statistics may not be accurate

@@ -117,7 +117,7 @@ class ResNet(nn.Module):
         if grids is None:
             grids = [1] * blocks
 
-        if dilation == 1 or dilation == 2:
+        if dilation in (1, 2):
             layers.append(block(self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample,
                                 previous_dilation=dilation))
@@ -266,7 +266,8 @@ class EMAU(nn.Module):
 
         return x, mu
 
-    def _l2norm(self, inp, dim):
+    @staticmethod
+    def _l2norm(inp, dim):
         '''Normlize the inp tensor with l2-norm.
 
         Returns a tensor where each sub-tensor of input along the given dim is

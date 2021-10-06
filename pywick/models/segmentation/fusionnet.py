@@ -15,7 +15,7 @@ def initialize_weights(method='kaiming', *models):
     for model in models:
         for module in model.modules():
 
-            if isinstance(module, nn.Conv2d) or isinstance(module, nn.ConvTranspose2d) or isinstance(module, nn.Linear):
+            if isinstance(module, (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)):
                 if method == 'kaiming':
                     init.kaiming_normal_(module.weight.data, np.sqrt(2.0))
                 elif method == 'xavier':
@@ -108,5 +108,6 @@ class FusionNet(nn.Module):
         output = self.final(dec4)
         return self.activation(output)
 
-    def _do_downsample(self, x, kernel_size=2, stride=2):
+    @staticmethod
+    def _do_downsample(x, kernel_size=2, stride=2):
         return F.max_pool2d(x, kernel_size=kernel_size, stride=stride)

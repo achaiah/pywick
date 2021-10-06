@@ -93,7 +93,9 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _make_MG_unit(self, block, planes, blocks=[1,2,4], stride=1, rate=1):
+    def _make_MG_unit(self, block, planes, blocks=None, stride=1, rate=1):
+        if blocks is None:
+            blocks = [1,2,4]
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
@@ -110,8 +112,8 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, input):
-        x = self.conv1(input)
+    def forward(self, input_):
+        x = self.conv1(input_)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
@@ -228,8 +230,8 @@ class DeepLabv3_plus(nn.Module):
                                          nn.ReLU(),
                                          nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
 
-    def forward(self, input):
-        x, low_level_features = self.resnet_features(input)
+    def forward(self, input_):
+        x, low_level_features = self.resnet_features(input_)
         x1 = self.aspp1(x)
         x2 = self.aspp2(x)
         x3 = self.aspp3(x)
@@ -242,8 +244,8 @@ class DeepLabv3_plus(nn.Module):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
-        x = F.upsample(x, size=(int(math.ceil(input.size()[-2]/4)),
-                                int(math.ceil(input.size()[-1]/4))), mode='bilinear', align_corners=True)
+        x = F.upsample(x, size=(int(math.ceil(input_.size()[-2] / 4)),
+                                int(math.ceil(input_.size()[-1] / 4))), mode='bilinear', align_corners=True)
 
         low_level_features = self.conv2(low_level_features)
         low_level_features = self.bn2(low_level_features)
@@ -252,7 +254,7 @@ class DeepLabv3_plus(nn.Module):
 
         x = torch.cat((x, low_level_features), dim=1)
         x = self.last_linear(x)
-        x = F.upsample(x, size=input.size()[2:], mode='bilinear', align_corners=True)
+        x = F.upsample(x, size=input_.size()[2:], mode='bilinear', align_corners=True)
 
         return x
 

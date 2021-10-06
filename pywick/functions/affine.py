@@ -39,24 +39,24 @@ def F_affine2d(x, matrix, center=True):
     return x_transformed
 
 
-def F_bilinear_interp2d(input, coords):
+def F_bilinear_interp2d(input_, coords):
     """
     bilinear interpolation of 2d torch Tensor
     """
-    x = torch.clamp(coords[:, :, 0], 0, input.size(1) - 2)
+    x = torch.clamp(coords[:, :, 0], 0, input_.size(1) - 2)
     x0 = x.floor()
     x1 = x0 + 1
-    y = torch.clamp(coords[:, :, 1], 0, input.size(2) - 2)
+    y = torch.clamp(coords[:, :, 1], 0, input_.size(2) - 2)
     y0 = y.floor()
     y1 = y0 + 1
 
-    stride = torch.LongTensor(input.stride())
+    stride = torch.LongTensor(input_.stride())
     x0_ix = x0.mul(stride[1]).long()
     x1_ix = x1.mul(stride[1]).long()
     y0_ix = y0.mul(stride[2]).long()
     y1_ix = y1.mul(stride[2]).long()
 
-    input_flat = input.view(input.size(0), -1).contiguous()
+    input_flat = input_.view(input_.size(0), -1).contiguous()
 
     vals_00 = input_flat.gather(1, x0_ix.add(y0_ix).detach())
     vals_10 = input_flat.gather(1, x1_ix.add(y0_ix).detach())
@@ -73,7 +73,7 @@ def F_bilinear_interp2d(input, coords):
                 vals_01.mul(xm).mul(yd) +
                 vals_11.mul(xd).mul(yd))
 
-    return x_mapped.view_as(input)
+    return x_mapped.view_as(input_)
 
 
 def F_batch_affine2d(x, matrix, center=True):
@@ -125,27 +125,27 @@ def F_batch_affine2d(x, matrix, center=True):
     return x_transformed
 
 
-def F_batch_bilinear_interp2d(input, coords):
+def F_batch_bilinear_interp2d(input_, coords):
     """
     input : torch.Tensor
         size = (N,H,W,C)
     coords : torch.Tensor
         size = (N,H*W*C,2)
     """
-    x = torch.clamp(coords[:, :, 0], 0, input.size(2) - 2)
+    x = torch.clamp(coords[:, :, 0], 0, input_.size(2) - 2)
     x0 = x.floor()
     x1 = x0 + 1
-    y = torch.clamp(coords[:, :, 1], 0, input.size(3) - 2)
+    y = torch.clamp(coords[:, :, 1], 0, input_.size(3) - 2)
     y0 = y.floor()
     y1 = y0 + 1
 
-    stride = torch.LongTensor(input.stride())
+    stride = torch.LongTensor(input_.stride())
     x0_ix = x0.mul(stride[2]).long()
     x1_ix = x1.mul(stride[2]).long()
     y0_ix = y0.mul(stride[3]).long()
     y1_ix = y1.mul(stride[3]).long()
 
-    input_flat = input.view(input.size(0), -1).contiguous()
+    input_flat = input_.view(input_.size(0), -1).contiguous()
 
     vals_00 = input_flat.gather(1, x0_ix.add(y0_ix).detach())
     vals_10 = input_flat.gather(1, x1_ix.add(y0_ix).detach())
@@ -162,7 +162,7 @@ def F_batch_bilinear_interp2d(input, coords):
                 vals_01.mul(xm).mul(yd) +
                 vals_11.mul(xd).mul(yd))
 
-    return x_mapped.view_as(input)
+    return x_mapped.view_as(input_)
 
 
 def F_affine3d(x, matrix, center=True):
@@ -194,24 +194,24 @@ def F_affine3d(x, matrix, center=True):
     return x_transformed
 
 
-def F_trilinear_interp3d(input, coords):
+def F_trilinear_interp3d(input_, coords):
     """
     trilinear interpolation of 3D image
     """
     # take clamp then floor/ceil of x coords
-    x = torch.clamp(coords[:, 0], 0, input.size(1) - 2)
+    x = torch.clamp(coords[:, 0], 0, input_.size(1) - 2)
     x0 = x.floor()
     x1 = x0 + 1
     # take clamp then floor/ceil of y coords
-    y = torch.clamp(coords[:, 1], 0, input.size(2) - 2)
+    y = torch.clamp(coords[:, 1], 0, input_.size(2) - 2)
     y0 = y.floor()
     y1 = y0 + 1
     # take clamp then floor/ceil of z coords
-    z = torch.clamp(coords[:, 2], 0, input.size(3) - 2)
+    z = torch.clamp(coords[:, 2], 0, input_.size(3) - 2)
     z0 = z.floor()
     z1 = z0 + 1
 
-    stride = torch.LongTensor(input.stride())[1:]
+    stride = torch.LongTensor(input_.stride())[1:]
     x0_ix = x0.mul(stride[0]).long()
     x1_ix = x1.mul(stride[0]).long()
     y0_ix = y0.mul(stride[1]).long()
@@ -219,7 +219,7 @@ def F_trilinear_interp3d(input, coords):
     z0_ix = z0.mul(stride[2]).long()
     z1_ix = z1.mul(stride[2]).long()
 
-    input_flat = th_flatten(input)
+    input_flat = th_flatten(input_)
 
     vals_000 = input_flat[x0_ix.add(y0_ix).add(z0_ix).detach()]
     vals_100 = input_flat[x1_ix.add(y0_ix).add(z0_ix).detach()]
@@ -246,7 +246,7 @@ def F_trilinear_interp3d(input, coords):
                 vals_110.mul(xd).mul(yd).mul(zm) +
                 vals_111.mul(xd).mul(yd).mul(zd))
 
-    return x_mapped.view_as(input)
+    return x_mapped.view_as(input_)
 
 
 def F_batch_affine3d(x, matrix, center=True):
@@ -300,24 +300,24 @@ def F_batch_affine3d(x, matrix, center=True):
     return x_transformed
 
 
-def F_batch_trilinear_interp3d(input, coords):
+def F_batch_trilinear_interp3d(input_, coords):
     """
     input : torch.Tensor
         size = (N,H,W,C)
     coords : torch.Tensor
         size = (N,H*W*C,2)
     """
-    x = torch.clamp(coords[:, :, 0], 0, input.size(2) - 2)
+    x = torch.clamp(coords[:, :, 0], 0, input_.size(2) - 2)
     x0 = x.floor()
     x1 = x0 + 1
-    y = torch.clamp(coords[:, :, 1], 0, input.size(3) - 2)
+    y = torch.clamp(coords[:, :, 1], 0, input_.size(3) - 2)
     y0 = y.floor()
     y1 = y0 + 1
-    z = torch.clamp(coords[:, :, 2], 0, input.size(4) - 2)
+    z = torch.clamp(coords[:, :, 2], 0, input_.size(4) - 2)
     z0 = z.floor()
     z1 = z0 + 1
 
-    stride = torch.LongTensor(input.stride())
+    stride = torch.LongTensor(input_.stride())
     x0_ix = x0.mul(stride[2]).long()
     x1_ix = x1.mul(stride[2]).long()
     y0_ix = y0.mul(stride[3]).long()
@@ -325,7 +325,7 @@ def F_batch_trilinear_interp3d(input, coords):
     z0_ix = z0.mul(stride[4]).long()
     z1_ix = z1.mul(stride[4]).long()
 
-    input_flat = input.contiguous().view(input.size(0), -1)
+    input_flat = input_.contiguous().view(input_.size(0), -1)
 
     vals_000 = input_flat.gather(1, x0_ix.add(y0_ix).add(z0_ix).detach())
     vals_100 = input_flat.gather(1, x1_ix.add(y0_ix).add(z0_ix).detach())
@@ -352,4 +352,4 @@ def F_batch_trilinear_interp3d(input, coords):
                 vals_110.mul(xd).mul(yd).mul(zm) +
                 vals_111.mul(xd).mul(yd).mul(zd))
 
-    return x_mapped.view_as(input)
+    return x_mapped.view_as(input_)

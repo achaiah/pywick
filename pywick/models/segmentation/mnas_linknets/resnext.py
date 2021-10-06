@@ -41,14 +41,14 @@ class ResNeXt101_32x4d_blob(nn.Module):
         self.avg_pool = nn.AvgPool2d((7, 7), (1, 1))
         self.last_linear = nn.Linear(2048, num_classes)
 
-    def logits(self, input):
-        x = self.avg_pool(input)
+    def logits(self, input_):
+        x = self.avg_pool(input_)
         x = x.view(x.size(0), -1)
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
@@ -69,14 +69,14 @@ class ResNeXt101_32x4d(nn.Module):
         self.avg_pool = nn.AvgPool2d((7, 7), (1, 1))
         self.last_linear = nn.Linear(2048, num_classes)
 
-    def logits(self, input):
-        x = self.avg_pool(input)
+    def logits(self, input_):
+        x = self.avg_pool(input_)
         x = x.view(x.size(0), -1)
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.stem(input)
+    def forward(self, input_):
+        x = self.stem(input_)
         x = self.layer1(x)
         x = self.layer2(x)       
         x = self.layer3(x)       
@@ -89,8 +89,8 @@ def resnext101_32x4d(num_classes=1000, pretrained='imagenet'):
     model_blob = ResNeXt101_32x4d_blob(num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['resnext101_32x4d'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        if num_classes != settings['num_classes']:
+            raise AssertionError("num_classes should be {}, but is {}".format(settings['num_classes'], num_classes))
         model_blob.load_state_dict(model_zoo.load_url(settings['url']))
         
         model.stem = nn.Sequential( 

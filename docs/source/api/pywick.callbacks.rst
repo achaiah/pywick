@@ -78,6 +78,14 @@ ModelCheckpoint
     :undoc-members:
     :show-inheritance:
 
+OneCycleLRScheduler
+-----------------------------------
+
+.. automodule:: pywick.callbacks.OneCycleLRScheduler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 ReduceLROnPlateau
 -----------------------------------------
 
@@ -90,6 +98,14 @@ SimpleModelCheckpoint
 ---------------------------------------------
 
 .. automodule:: pywick.callbacks.SimpleModelCheckpoint
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+TQDM
+---------------------------------------------
+
+.. automodule:: pywick.callbacks.TQDM
     :members:
     :undoc-members:
     :show-inheritance:

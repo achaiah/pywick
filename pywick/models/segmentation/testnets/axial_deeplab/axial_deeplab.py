@@ -21,7 +21,8 @@ def conv1x1(in_planes, out_planes, stride=1):
 class AxialAttention(nn.Module):
     def __init__(self, in_planes, out_planes, groups=8, kernel_size=56,
                  stride=1, bias=False, width=False):
-        assert (in_planes % groups == 0) and (out_planes % groups == 0)
+        if not ((in_planes % groups == 0) and (out_planes % groups == 0)):
+            raise AssertionError
         super(AxialAttention, self).__init__()
         self.in_planes = in_planes
         self.out_planes = out_planes

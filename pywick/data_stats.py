@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from pywick.datasets.FolderDataset import FolderDataset, rgb_image_loader
 
-opt = dict()
+opt = {}
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_path', required=False, type=str, help='Path to root directory of the images')
 parser.add_argument('--output_path', required=False, type=str, help='Path to save computed statistics to. If not provided, will save inside root_path')
@@ -15,7 +15,7 @@ parser.add_argument('--output_path', required=False, type=str, help='Path to sav
 opt = vars(parser.parse_args())
 
 # clean up the dictionary so it doesn't contain 'None' values
-removals = list()
+removals = []
 for key, val in opt.items():
     if val is None:
         removals.append(key)

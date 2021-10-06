@@ -9,7 +9,7 @@ from torch.optim.optimizer import Optimizer
 import numpy as np
 
 
-class CyclicLR(object):
+class CyclicLR:
     """Sets the learning rate of each parameter group according to
     cyclical learning rate policy (CLR). The policy cycles the learning
     rate between two boundaries with a constant frequency, as detailed in
@@ -82,14 +82,14 @@ class CyclicLR(object):
             raise TypeError('{} is not an Optimizer'.format(type(optimizer).__name__))
         self.optimizer = optimizer
 
-        if isinstance(base_lr, list) or isinstance(base_lr, tuple):
+        if isinstance(base_lr, (list, tuple)):
             if len(base_lr) != len(optimizer.param_groups):
                 raise ValueError("expected {} base_lr, got {}".format(len(optimizer.param_groups), len(base_lr)))
             self.base_lrs = list(base_lr)
         else:
             self.base_lrs = [base_lr] * len(optimizer.param_groups)
 
-        if isinstance(max_lr, list) or isinstance(max_lr, tuple):
+        if isinstance(max_lr, (list, tuple)):
             if len(max_lr) != len(optimizer.param_groups):
                 raise ValueError("expected {} max_lr, got {}".format(len(optimizer.param_groups), len(max_lr)))
             self.max_lrs = list(max_lr)
@@ -128,10 +128,12 @@ class CyclicLR(object):
         for param_group, lr in zip(self.optimizer.param_groups, self.get_lr()):
             param_group['lr'] = lr
 
-    def _triangular_scale_fn(self, x):
+    @staticmethod
+    def _triangular_scale_fn(x):
         return 1.
 
-    def _triangular2_scale_fn(self, x):
+    @staticmethod
+    def _triangular2_scale_fn(x):
         return 1 / (2. ** (x - 1))
 
     def _exp_range_scale_fn(self, x):

@@ -88,7 +88,9 @@ class UNetUpStack(nn.Module):
 
 
 class UNet_stack(nn.Module):
-    def get_n_stacks(self, input_size, **kwargs):
+
+    @staticmethod
+    def get_n_stacks(input_size, **_):
         n_stacks = 0
         width, height = input_size, input_size
         while width % 2 == 0 and height % 2 == 0:
@@ -98,7 +100,7 @@ class UNet_stack(nn.Module):
 
         return n_stacks
 
-    def __init__(self, input_size=512, filters=12, kernel_size=3, max_stacks=6, **kwargs):
+    def __init__(self, input_size=512, filters=12, kernel_size=3, max_stacks=6, **_):
         super(UNet_stack, self).__init__()
         self.n_stacks = min(self.get_n_stacks((input_size, input_size)), max_stacks)
 
@@ -155,7 +157,7 @@ class UNet_stack(nn.Module):
 
 
 class UNet960(nn.Module):
-    def __init__(self, filters=12, kernel_size=3, **kwargs):
+    def __init__(self, filters=12, kernel_size=3, **_):
         super(UNet960, self).__init__()
 
         # 960

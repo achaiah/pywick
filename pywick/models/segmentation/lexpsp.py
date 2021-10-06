@@ -25,7 +25,8 @@ class PSPModule(nn.Module):
         self.bottleneck = nn.Conv2d(features * (len(sizes) + 1), out_features, kernel_size=1)
         self.relu = nn.ReLU()
 
-    def _make_stage(self, features, size):
+    @staticmethod
+    def _make_stage(features, size):
         prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
         conv = nn.Conv2d(features, features, kernel_size=1, bias=False)
         return nn.Sequential(prior, conv)

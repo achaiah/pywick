@@ -36,13 +36,13 @@ def summary(model, input_shape, batch_size=-1, intputshow=True):
     """
 
     def register_hook(module):
-        def hook(module, input, output=None):
+        def hook(module, input_, output=None):
             class_name = str(module.__class__).split(".")[-1].split("'")[0]
             module_idx = len(summary)
 
             m_key = "%s-%i" % (class_name, module_idx + 1)
             summary[m_key] = OrderedDict()
-            summary[m_key]["input_shape"] = list(input[0].size())
+            summary[m_key]["input_shape"] = list(input_[0].size())
             summary[m_key]["input_shape"][0] = batch_size
 
             params = 0
@@ -95,7 +95,7 @@ def summary(model, input_shape, batch_size=-1, intputshow=True):
         else:
             total_output += np.prod(summary[layer]["output_shape"])
         if "trainable" in summary[layer]:
-            if summary[layer]["trainable"] == True:
+            if summary[layer]["trainable"] is True:
                 trainable_params += summary[layer]["nb_params"]
 
         model_info += line_new + '\n'
@@ -132,7 +132,7 @@ class BaseModel(nn.Module):
         super(BaseModel, self).__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def forward(self):
+    def forward(self, x):
         raise NotImplementedError
 
     def summary(self):
@@ -150,7 +150,9 @@ class BaseModel(nn.Module):
 class PSPModule(nn.Module):
     # In the original inmplementation they use precise RoI pooling
     # Instead of using adaptative average pooling
-    def __init__(self, in_channels, bin_sizes=[1, 2, 4, 6]):
+    def __init__(self, in_channels, bin_sizes=None):
+        if bin_sizes is None:
+            bin_sizes = [1, 2, 4, 6]
         super(PSPModule, self).__init__()
         out_channels = in_channels // len(bin_sizes)
         self.stages = nn.ModuleList([self._make_stages(in_channels, out_channels, b_s)
@@ -163,7 +165,8 @@ class PSPModule(nn.Module):
             nn.Dropout2d(0.1)
         )
 
-    def _make_stages(self, in_channels, out_channels, bin_sz):
+    @staticmethod
+    def _make_stages(in_channels, out_channels, bin_sz):
         prior = nn.AdaptiveAvgPool2d(output_size=bin_sz)
         conv = nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)
         bn = nn.BatchNorm2d(out_channels)
@@ -173,10 +176,10 @@ class PSPModule(nn.Module):
     def forward(self, features):
         h, w = features.size()[2], features.size()[3]
         pyramids = [features]
-        pyramids.extend([F.interpolate(stage(features), size=(h, w), mode='bilinear',
-                                        align_corners=True) for stage in self.stages])
+        pyramids.extend([F.interpolate(stage(features), size=(h, w), mode='bilinear', align_corners=True) for stage in self.stages])
         output = self.bottleneck(torch.cat(pyramids, dim=1))
         return output
+
 
 class ResNet(nn.Module):
     def __init__(self, in_channels=3, output_stride=16, backbone='resnet101', pretrained=True):
@@ -203,7 +206,7 @@ class ResNet(nn.Module):
 
         if output_stride == 8:
             for n, m in self.layer3.named_modules():
-                if 'conv1' in n and (backbone == 'resnet34' or backbone == 'resnet18'):
+                if 'conv1' in n and backbone in ('resnet34', 'resnet18'):
                     m.dilation, m.padding, m.stride = (d3,d3), (d3,d3), (s3,s3)
                 elif 'conv2' in n:
                     m.dilation, m.padding, m.stride = (d3,d3), (d3,d3), (s3,s3)
@@ -211,7 +214,7 @@ class ResNet(nn.Module):
                     m.stride = (s3, s3)
 
         for n, m in self.layer4.named_modules():
-            if 'conv1' in n and (backbone == 'resnet34' or backbone == 'resnet18'):
+            if 'conv1' in n and backbone in ('resnet34', 'resnet18'):
                 m.dilation, m.padding, m.stride = (d4,d4), (d4,d4), (s4,s4)
             elif 'conv2' in n:
                 m.dilation, m.padding, m.stride = (d4,d4), (d4,d4), (s4,s4)
@@ -231,9 +234,12 @@ def up_and_add(x, y):
     return F.interpolate(x, size=(y.size(2), y.size(3)), mode='bilinear', align_corners=True) + y
 
 class FPN_fuse(nn.Module):
-    def __init__(self, feature_channels=[256, 512, 1024, 2048], fpn_out=256):
+    def __init__(self, feature_channels=None, fpn_out=256):
+        if feature_channels is None:
+            feature_channels = [256, 512, 1024, 2048]
         super(FPN_fuse, self).__init__()
-        assert feature_channels[0] == fpn_out
+        if feature_channels[0] != fpn_out:
+            raise AssertionError
         self.conv1x1 = nn.ModuleList([nn.Conv2d(ft_size, fpn_out, kernel_size=1)
                                     for ft_size in feature_channels[1:]])
         self.smooth_conv =  nn.ModuleList([nn.Conv2d(fpn_out, fpn_out, kernel_size=3, padding=1)]
@@ -263,7 +269,7 @@ class UperNet(BaseModel):
     def __init__(self, num_classes, in_channels=3, backbone='resnet101', pretrained=True, fpn_out=256, freeze_bn=False, freeze_backbone=False, **_):
         super(UperNet, self).__init__()
 
-        if backbone == 'resnet34' or backbone == 'resnet18':
+        if backbone in ('resnet34', 'resnet18'):
             feature_channels = [64, 128, 256, 512]
         else:
             feature_channels = [256, 512, 1024, 2048]

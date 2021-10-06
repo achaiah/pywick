@@ -13,7 +13,7 @@ __all__ = ['ModelCheckpoint']
 
 class ModelCheckpoint(Callback):
     """
-    Model Checkpoint to save model weights during training. 'Best' is determined by minimizing the value found under monitored_log_key in the logs
+    Model Checkpoint to save model weights during training. 'Best' is determined by minimizing (or maximizing) the value found under monitored_log_key in the logs
     Saved checkpoints contain these keys by default:
         'run_id'
         'epoch'
@@ -62,8 +62,12 @@ class ModelCheckpoint(Callback):
         Default: False
     """
 
-    def __init__(self, run_id, monitored_log_key, save_dir, addl_k_v=dict(), epoch_log_keys=[], save_interval=5, save_best_only=False, max_saves=5,
+    def __init__(self, run_id, monitored_log_key, save_dir, addl_k_v=None, epoch_log_keys=None, save_interval=5, save_best_only=False, max_saves=5,
                  custom_func=None, do_minimize=True, verbose=False):
+        if addl_k_v is None:
+            addl_k_v = {}
+        if epoch_log_keys is None:
+            epoch_log_keys = []
 
         self.run_id = run_id
         self.addl_k_v = addl_k_v
@@ -73,7 +77,7 @@ class ModelCheckpoint(Callback):
         self.save_best_only = save_best_only
         self.max_saves = max_saves
         self.custom_func = custom_func
-        self.custom_func_dict = dict()  # this is expected to be filled by the custom_func
+        self.custom_func_dict = {}  # this is expected to be filled by the custom_func
         self.verbose = verbose
         self.monitored_log_key = monitored_log_key  # 'e.g. dice_coeff'
         self.do_minimize = do_minimize
@@ -94,12 +98,10 @@ class ModelCheckpoint(Callback):
         super().__init__()
 
     def on_epoch_end(self, epoch, logs=None):
-        # import pdb
-        # pdb.set_trace()
         self.last_epoch_logs = logs
         self.last_epoch = epoch
 
-        if ((epoch + 1) % self.save_interval == 0):  # only save with given frequency
+        if (epoch + 1) % self.save_interval == 0:  # only save with given frequency
             current_loss = logs.get(self.monitored_log_key)
 
             if (current_loss < self.best_loss and self.save_best_only) or not self.save_best_only or (not self.do_minimize and current_loss > self.best_loss):

@@ -1,7 +1,7 @@
 # Source: https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/activations/activations_jit.py (Apache 2.0)
 
 import torch
-from torch import nn as nn
+from torch import nn
 from torch.nn import functional as F
 
 
@@ -46,7 +46,8 @@ class SwishJit(nn.Module):
         super(SwishJit, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return SwishJitAutoFn.apply(x)
 
 
@@ -84,7 +85,8 @@ class MishJit(nn.Module):
         super(MishJit, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return MishJitAutoFn.apply(x)
 
 

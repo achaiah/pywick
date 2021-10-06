@@ -134,7 +134,9 @@ class BaseOCModule(nn.Module):
     """Base-OC"""
 
     def __init__(self, in_channels, out_channels, key_channels, value_channels,
-                 scales=([1]), norm_layer=nn.BatchNorm2d, concat=True, **kwargs):
+                 scales=None, norm_layer=nn.BatchNorm2d, concat=True, **kwargs):
+        if scales is None:
+            scales = ([1])
         super(BaseOCModule, self).__init__()
         self.stages = nn.ModuleList([
             BaseAttentionBlock(in_channels, out_channels, key_channels, value_channels, scale, norm_layer, **kwargs)
@@ -183,8 +185,8 @@ class PyramidAttentionBlock(nn.Module):
     def forward(self, x):
         batch_size, c, w, h = x.size()
 
-        local_x = list()
-        local_y = list()
+        local_x = []
+        local_y = []
         step_w, step_h = w // self.scale, h // self.scale
         for i in range(self.scale):
             for j in range(self.scale):
@@ -201,7 +203,7 @@ class PyramidAttentionBlock(nn.Module):
         query = self.f_query(x)
         key = self.f_key(x)
 
-        local_list = list()
+        local_list = []
         local_block_cnt = (self.scale ** 2) * 2
         for i in range(0, local_block_cnt, 2):
             value_local = value[:, :, local_x[i]:local_x[i + 1], local_y[i]:local_y[i + 1]]
@@ -220,9 +222,9 @@ class PyramidAttentionBlock(nn.Module):
             context_local = context_local.view(batch_size, self.value_channels, w_local, h_local)
             local_list.append(context_local)
 
-        context_list = list()
+        context_list = []
         for i in range(0, self.scale):
-            row_tmp = list()
+            row_tmp = []
             for j in range(self.scale):
                 row_tmp.append(local_list[j + i * self.scale])
             context_list.append(torch.cat(row_tmp, 3))
@@ -237,7 +239,9 @@ class PyramidOCModule(nn.Module):
     """Pyramid-OC"""
 
     def __init__(self, in_channels, out_channels, key_channels, value_channels,
-                 scales=([1]), norm_layer=nn.BatchNorm2d, **kwargs):
+                 scales=None, norm_layer=nn.BatchNorm2d, **kwargs):
+        if scales is None:
+            scales = ([1])
         super(PyramidOCModule, self).__init__()
         self.stages = nn.ModuleList([
             PyramidAttentionBlock(in_channels, out_channels, key_channels, value_channels, scale, norm_layer, **kwargs)

@@ -34,14 +34,14 @@ class AUCMeter(meter.Meter):
             target = target.cpu().squeeze().numpy()
         elif isinstance(target, numbers.Number):
             target = np.asarray([target])
-        assert np.ndim(output) == 1, \
-            'wrong output size (1D expected)'
-        assert np.ndim(target) == 1, \
-            'wrong target size (1D expected)'
-        assert output.shape[0] == target.shape[0], \
-            'number of outputs and targets does not match'
-        assert np.all(np.add(np.equal(target, 1), np.equal(target, 0))), \
-            'targets should be binary (0, 1)'
+        if np.ndim(output) != 1:
+            raise AssertionError('wrong output size (1D expected)')
+        if np.ndim(target) != 1:
+            raise AssertionError('wrong target size (1D expected)')
+        if output.shape[0] != target.shape[0]:
+            raise AssertionError('number of outputs and targets does not match')
+        if not np.all(np.add(np.equal(target, 1), np.equal(target, 0))):
+            raise AssertionError('targets should be binary (0, 1)')
 
         self.scores = np.append(self.scores, output)
         self.targets = np.append(self.targets, target)

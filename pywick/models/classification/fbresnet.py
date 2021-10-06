@@ -3,8 +3,6 @@
 # Source: https://github.com/Cadene/pretrained-models.pytorch/blob/0819c4f43a70fcd40234b03ff02f87599cd8ace6/pretrainedmodels/models/fbresnet.py
 # Note this is the version with adaptive capabilities so it can accept differently-sized images
 
-
-from __future__ import print_function, division, absolute_import
 import torch.nn as nn
 import torch.nn.functional as F
 import math
@@ -151,8 +149,8 @@ class FBResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def features(self, input):
-        x = self.conv1(input)
+    def features(self, input_):
+        x = self.conv1(input_)
         self.conv1_input = x.clone()
         x = self.bn1(x)
         x = self.relu(x)
@@ -171,8 +169,8 @@ class FBResNet(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
@@ -226,8 +224,8 @@ def fbresnet152(num_classes=1000, pretrained='imagenet'):
     model = FBResNet(Bottleneck, [3, 8, 36, 3], num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['fbresnet152'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        if num_classes != settings['num_classes']:
+            raise AssertionError("num_classes should be {}, but is {}".format(settings['num_classes'], num_classes))
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
         model.input_size = settings['input_size']

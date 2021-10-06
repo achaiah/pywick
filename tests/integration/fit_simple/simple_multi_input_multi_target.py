@@ -51,7 +51,7 @@ class Network(nn.Module):
 model = Network()
 trainer = ModuleTrainer(model)
 
-trainer.compile(loss='nll_loss',
+trainer.compile(criterion='nll_loss',
                 optimizer='adadelta')
 
 trainer.fit([x_train, x_train, x_train], 
@@ -71,7 +71,7 @@ print(eval_loss)
 model = Network()
 trainer = ModuleTrainer(model)
 
-trainer.compile(loss=['nll_loss', 'nll_loss', 'nll_loss'],
+trainer.compile(criterion=['nll_loss', 'nll_loss', 'nll_loss'],
                 optimizer='adadelta')
 
 trainer.fit([x_train, x_train, x_train], 
@@ -86,7 +86,7 @@ try:
     model = Network()
     trainer = ModuleTrainer(model)
 
-    trainer.compile(loss=['nll_loss', 'nll_loss'],
+    trainer.compile(criterion=['nll_loss', 'nll_loss'],
                     optimizer='adadelta')
 
     trainer.fit([x_train, x_train, x_train], 

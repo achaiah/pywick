@@ -80,12 +80,13 @@ class BatchDataset(Dataset):
         elif self.policy == 'skip-last':
             return int(math.floor(float(len(self.dataset) / self.batchsize)))
         elif self.policy == 'divisible-only':
-            assert len(self.dataset) % self.batchsize == 0, \
-                'dataset size is not divisible by batch size'
+            if len(self.dataset) % self.batchsize != 0:
+                raise AssertionError('dataset size is not divisible by batch size')
             return len(self.dataset) / self.batchsize
         else:
-            assert False, 'invalid policy (include-last | skip-last | \
-                divisible-only expected)'
+            if not False:
+                raise AssertionError('invalid policy (include-last | skip-last | \
+                divisible-only expected)')
 
     def __getitem__(self, idx):
         super(BatchDataset, self).__getitem__(idx)

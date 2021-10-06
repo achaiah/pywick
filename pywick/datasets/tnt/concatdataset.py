@@ -18,7 +18,8 @@ class ConcatDataset(Dataset):
         super(ConcatDataset, self).__init__()
 
         self.datasets = list(datasets)
-        assert len(datasets) > 0, 'datasets should not be an empty iterable'
+        if len(datasets) <= 0:
+            raise AssertionError('datasets should not be an empty iterable')
         self.cum_sizes = np.cumsum([len(x) for x in self.datasets])
 
     def __len__(self):

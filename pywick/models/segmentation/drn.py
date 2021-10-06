@@ -180,7 +180,8 @@ class DRN(nn.Module):
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1,
                     new_level=True, residual=True):
-        assert dilation == 1 or dilation % 2 == 0
+        if not (dilation == 1 or dilation % 2 == 0):
+            raise AssertionError
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
@@ -189,7 +190,7 @@ class DRN(nn.Module):
                 BatchNorm(planes * block.expansion),
             )
 
-        layers = list()
+        layers = []
         layers.append(block(
             self.inplanes, planes, stride, downsample,
             dilation=(1, 1) if dilation == 1 else (
@@ -215,7 +216,7 @@ class DRN(nn.Module):
         return nn.Sequential(*modules)
 
     def forward(self, x):
-        y = list()
+        y = []
 
         if self.arch == 'C':
             x = self.conv1(x)

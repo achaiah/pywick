@@ -1,7 +1,7 @@
 import random
 import collections
 
-class GridSearch(object):
+class GridSearch:
     """
     Simple GridSearch to apply to a generic function
 
@@ -60,7 +60,7 @@ class GridSearch(object):
 
         # get all keys
         keys = available_args.keys()
-        keys_to_remove = list()
+        keys_to_remove = []
 
         for i, key in enumerate(keys):
             values = available_args.get(key)
@@ -78,11 +78,10 @@ class GridSearch(object):
 
                 available_args[key] = values  # replace values so they can be used in the next iterative call
                 break    # don't do any more iterations after we handled the first key with multiple choices
-            else:
-                input_args[key] = values
-                keys_to_remove.append(key)
-                if (i+1) == len(keys):        # we've reached the final item in the available args
-                    self._execute(input_args, dict())
+            input_args[key] = values
+            keys_to_remove.append(key)
+            if (i+1) == len(keys):        # we've reached the final item in the available args
+                self._execute(input_args, {})
 
     def run(self):
         """
@@ -90,5 +89,5 @@ class GridSearch(object):
         :return:
         """
 
-        input_args = dict()
+        input_args = {}
         self._execute(input_args, self.args)

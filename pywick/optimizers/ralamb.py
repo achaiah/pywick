@@ -12,9 +12,6 @@ class Ralamb(Optimizer):
         self.buffer = [[None, None, None] for ind in range(10)]
         super(Ralamb, self).__init__(params, defaults)
 
-    def __setstate__(self, state):
-        super(Ralamb, self).__setstate__(state)
-
     def step(self, closure=None):
 
         loss = None
@@ -83,7 +80,7 @@ class Ralamb(Optimizer):
 
                 radam_norm = radam_step.pow(2).sum().sqrt()
                 weight_norm = p.data.pow(2).sum().sqrt().clamp(0, 10)
-                if weight_norm == 0 or radam_norm == 0:
+                if 0 in (weight_norm, radam_norm):
                     trust_ratio = 1
                 else:
                     trust_ratio = weight_norm / radam_norm

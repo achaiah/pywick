@@ -1,0 +1,80 @@
+{
+  "train": {
+    "lr": 0.001,
+    "momentum": 0.9,
+    "weight_decay": 0.0001,
+    "auto_balance_dataset": false,
+    "batch_size": 32,
+    "dataroots": [
+      "/data/17flowers"
+    ],
+    "gpu_ids": [
+      0
+    ],
+    "input_size": 224,
+    "mean_std": [
+      [
+        0.485,
+        0.456,
+        0.406
+      ],
+      [
+        0.229,
+        0.224,
+        0.225
+      ]
+    ],
+    "model_spec": "resnet50",
+    "num_epochs": 15,
+    "optimizer": {
+      "name": "SGD",
+      "params": {
+        "lr": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 0.0001
+      }
+    },
+    "output_root": "/jobs/17flowers",
+    "random_seed": 1337,
+    "save_callback": {
+      "name": "ModelCheckpoint",
+      "params": {
+        "do_minimize": true,
+        "max_saves": 5,
+        "monitored_log_key": "val_loss",
+        "save_best_only": false,
+        "save_interval": 1,
+        "save_dir": "/jobs/17flowers",
+        "custom_func": null,
+        "verbose": false
+      }
+    },
+    "scheduler": {
+      "name": "OnceCycleLRScheduler",
+      "params": {
+        "epochs": 15,
+        "max_lr": 0.05,
+        "pct_start": 0.2
+      }
+    },
+    "train_val_ratio": 0.9,
+    "use_apex": false,
+    "use_gpu": true,
+    "val_root": null,
+    "workers": 6
+  },
+  "eval": {
+    "batch_size": 1,
+    "CUDA_VISIBLE_DEVICES": "0",
+    "dataroots": "/data/eval",
+    "eval_chkpt": "/data/models/best.pth",
+    "gpu_id": [
+      0
+    ],
+    "has_grnd_truth": true,
+    "jobroot": "/jobs/eval_output",
+    "topK": 5,
+    "use_gpu": false,
+    "workers": 1
+  }
+}

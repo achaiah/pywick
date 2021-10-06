@@ -131,7 +131,8 @@ class Encoding(nn.Module):
 
     def forward(self, X):
         # input X is a 4D tensor
-        assert (X.size(1) == self.D)
+        if (X.size(1) != self.D):
+            raise AssertionError
         B, D = X.size(0), self.D
         if X.dim() == 3:
             # BxDxN -> BxNxD
@@ -177,8 +178,8 @@ class Mean(nn.Module):
         self.dim = dim
         self.keep_dim = keep_dim
 
-    def forward(self, input):
-        return input.mean(self.dim, self.keep_dim)
+    def forward(self, input_):
+        return input_.mean(self.dim, self.keep_dim)
 
 
 def get_encnet(num_classes=1, backbone='resnet50', pretrained=True, **kwargs):

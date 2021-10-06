@@ -52,7 +52,7 @@ class PerturbLayerFirst(nn.Module):  # (2) Felix added this
         if filter_size == 1:
             padding = 0
             bias = True
-        elif filter_size == 3 or filter_size == 5:
+        elif filter_size in (3, 5):
             padding = 1
             bias = False
         elif filter_size == 7:
@@ -139,7 +139,7 @@ class PerturbLayer(nn.Module):
         if filter_size == 1:
             padding = 0
             bias = True
-        elif filter_size == 3 or filter_size == 5:
+        elif filter_size in (3, 5):
             padding = 1
             bias = False
         elif filter_size == 7:

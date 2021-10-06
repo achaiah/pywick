@@ -2,14 +2,24 @@
 
 import copy
 import math
-from typing import Optional
+from typing import Optional, Tuple, Dict, Any, Callable, Union, Iterable
 
 import torch
 from torch.optim.optimizer import Optimizer
 
-from .madgrad import OptFloat, OptLossClosure, Params
+from torch import Tensor
 
-__all__ = ('A2GradUni', 'A2GradInc', 'A2GradExp')
+Params = Union[Iterable[Tensor], Iterable[Dict[str, Any]]]
+
+LossClosure = Callable[[], float]
+OptLossClosure = Optional[LossClosure]
+Betas2 = Tuple[float, float]
+State = Dict[str, Any]
+OptFloat = Optional[float]
+Nus2 = Tuple[float, float]
+
+
+__all__ = ('A2GradUni', 'A2GradInc', 'A2GradExp', 'Betas2', 'OptFloat', 'OptLossClosure', 'Params', 'State', 'Nus2')
 
 
 class A2GradUni(Optimizer):

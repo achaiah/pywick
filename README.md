@@ -23,28 +23,32 @@ going to be overkill. However, if you want to get lost in the world of neural ne
 for months on end then this is probably the right place for you :)
 
 Among other things Pywick includes:
-- State of the art normalization, activation, loss functions and
-  optimizers not included in the standard Pytorch library (Addsign, Eve, Lookahead, Radam, Ralamb, RangerLARS etc).
-- A high-level module for training with callbacks, constraints, metrics,
-  conditions and regularizers.
-- Dozens of popular object classification and semantic segmentation models.
+- State of the art normalization, activation, loss functions and optimizers not included in the standard Pytorch library (AdaBelief, Addsign, Apollo, Eve, Lookahead, Radam, Ralamb, RangerLARS etc).
+- A high-level module for training with callbacks, constraints, metrics, conditions and regularizers.
+- Hundreds of popular object classification and semantic segmentation models!
 - Comprehensive data loading, augmentation, transforms, and sampling capability.
 - Utility tensor functions.
 - Useful meters.
 - Basic GridSearch (exhaustive and random).
 
 ## Docs
-Hey, [check this out](https://pywick.readthedocs.io/en/latest/), we now
-have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a
-work in progress though so apologies for anything that's broken.
+Hey, [check this out](https://pywick.readthedocs.io/en/latest/), we now have [docs](https://pywick.readthedocs.io/en/latest/)! They're still a work in progress though so apologies for anything that's broken.
 
 ## What's New (highlights)
+
+### v0.6.0 - We thought ya might like YAML!
+So you're saying you like **configuration files**? You're saying you like **examples** too? Well, we've got you covered! Huge release today with a configuration-based training example! All you have to do is:
+  - Get your favorite dataset (or download [17 flowers](https://www.robots.ox.ac.uk/~vgg/data/flowers/17/) to get started and `pywick/examples/17flowers_split.py` to convert)
+  - Adjust the `configs/train_classifier.yaml` file to fit your workspace
+  - Then simply run: `python3 train_classifier.py configs/train_classifier.yaml` and watch it train!
+
+### Older Notes
 - **May 6, 2021**
   - Many SoTA classification and segmentation models added: Swin-Transformer variants, NFNet variants (L0, L1), Halo nets, Lambda nets, ECA variants, Rexnet + others
   - Many new loss functions added: RecallLoss, SoftInvDiceLoss, OhemBCEDicePenalizeBorderLoss, RMIBCEDicePenalizeBorderLoss + others
   - Bug fixes
 - **Jun. 15, 2020**
-  - 200+ models added from [rwightman's](https://github.com/rwightman/pytorch-image-models) repo via `torch.hub`! See docs for all the variants!
+  - 700+ models added from [rwightman's](https://github.com/rwightman/pytorch-image-models) repo via `torch.hub`! See docs for all the variants!
   - Some minor bug fixes
 - **Jan. 20, 2020**
   - New release: 0.5.6 (minor fix from 0.5.5 for pypi)
@@ -63,74 +67,23 @@ work in progress though so apologies for anything that's broken.
     - General bug fixes and code improvements 
 
 ## Install
-Pywick requires **pytorch >= 1.0**
+Pywick requires **pytorch >= 1.4**
 
 `pip install pywick`
 
 or specific version from git:
 
-`pip install git+https://github.com/achaiah/pywick.git@v0.5.6`
+`pip install git+https://github.com/achaiah/pywick.git@v0.6.0`
 
 ## ModuleTrainer
-The `ModuleTrainer` class provides a high-level training interface which abstracts
-away the training loop while providing callbacks, constraints, initializers, regularizers,
+The `ModuleTrainer` class provides a high-level training interface which abstracts away the training loop while providing callbacks, constraints, initializers, regularizers,
 and more.
 
-Example:
-```python
-from pywick.modules import ModuleTrainer
-from pywick.initializers import XavierUniform
-from pywick.metrics import CategoricalAccuracySingleInput
-import torch.nn as nn
-import torch.functional as F
+See the `train_classifier.py` example for a pretty complete configuration example. To get up and running with your own data quickly simply edit the `configs/train_classifier.yaml` file with your desired parameters and dataset location(s).
 
-# Define your model EXACTLY as normal
-class Network(nn.Module):
-    def __init__(self):
-        super(Network, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
-        self.fc1 = nn.Linear(1600, 128)
-        self.fc2 = nn.Linear(128, 10)
+Note: <i>Dataset needs to be organized for classification where each directory name is the name of a class and contains all images pertaining to that class</i>
 
-    def forward(self, x):
-        x = F.relu(F.max_pool2d(self.conv1(x), 2))
-        x = F.relu(F.max_pool2d(self.conv2(x), 2))
-        x = x.view(-1, 1600)
-        x = F.relu(self.fc1(x))
-        x = F.dropout(x, training=self.training)
-        x = self.fc2(x)
-        return F.log_softmax(x)
-
-model = Network()
-trainer = ModuleTrainer(model)   # optionally supply cuda_devices as a parameter
-
-initializers = [XavierUniform(bias=False, module_filter='fc*')]
-
-# initialize metrics with top1 and top5 
-metrics = [CategoricalAccuracySingleInput(top_k=1), CategoricalAccuracySingleInput(top_k=5)]
-
-trainer.compile(loss='cross_entropy',
-                # callbacks=callbacks,          # define your callbacks here (e.g. model saver, LR scheduler)
-                # regularizers=regularizers,    # define regularizers
-                # constraints=constraints,      # define constraints
-                optimizer='sgd',
-                initializers=initializers,
-                metrics=metrics)
-
-trainer.fit_loader(train_dataset_loader, 
-            val_loader=val_dataset_loader,
-            num_epoch=20,
-            verbose=1)
-```
-You also have access to the standard evaluation and prediction functions:
-
-```python
-loss = trainer.evaluate(x_train, y_train)
-y_pred = trainer.predict(x_train)
-```
-PyWick provides a wide range of <b>callbacks</b>, generally mimicking the interface
-found in `Keras`:
+PyWick provides a wide range of <b>callbacks</b>, generally mimicking the interface found in `Keras`:
 
 - `CSVLogger` - Logs epoch-level metrics to a CSV file
 - [`CyclicLRScheduler`](https://github.com/bckenstler/CLR) - Cycles through min-max learning rate
@@ -141,9 +94,7 @@ found in `Keras`:
 - `ModelCheckpoint` - Comprehensive model saver
 - `ReduceLROnPlateau` - Reduces learning rate (LR) when a plateau has been reached
 - `SimpleModelCheckpoint` - Simple model saver
-- Additionally, a `TensorboardLogger` is incredibly easy to implement
-  via the [TensorboardX](https://github.com/lanpa/tensorboardX) (now
-  part of pytorch 1.1 release!)
+- Additionally, a `TensorboardLogger` is incredibly easy to implement via tensorboardX (now part of pytorch 1.1 release!)
 
 
 ```python
@@ -168,7 +119,7 @@ and <b>constraints</b>:
 Both regularizers and constraints can be selectively applied on layers using regular expressions and the `module_filter`
 argument. Constraints can be explicit (hard) constraints applied at an arbitrary batch or
 epoch frequency, or they can be implicit (soft) constraints similar to regularizers
-where the the constraint deviation is added as a penalty to the total model loss.
+where the constraint deviation is added as a penalty to the total model loss.
 
 ```python
 from pywick.constraints import MaxNorm, NonNeg
@@ -239,6 +190,7 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
 - [**TResNet: High Performance GPU-Dedicated Architecture**](https://arxiv.org/abs/2003.13630)
 - [**Wide Resnet**](https://arxiv.org/abs/1605.07146)
 - [**XCeption**](https://arxiv.org/pdf/1610.02357.pdf)
+- All the newest classification models (200+) from [rwightman's repo](https://github.com/rwightman/pytorch-image-models) ECA-NFNet, GERNet, RegNet, SKResnext, SWIN-Transformer, VIT etc.)
 
 ## Image Segmentation Models
 - **BiSeNet** ([Bilateral Segmentation Network for Real-time Semantic Segmentation](https://arxiv.org/abs/1808.00897))
@@ -254,6 +206,7 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
     and OptDenseNet respectively ([Fully convolutional networks for semantic segmentation](http://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Long_Fully_Convolutional_Networks_2015_CVPR_paper.pdf))
 - **FRRN** ([Full Resolution Residual Networks for Semantic Segmentation in Street Scenes](https://arxiv.org/abs/1611.08323))
 - **FusionNet** ([FusionNet in Tensorflow by Hyungjoo Andrew Cho](https://github.com/NySunShine/fusion-net))
+- **GALDNet** 
 - **GCN** ([Large Kernel Matters](https://arxiv.org/pdf/1703.02719))
 - **LinkNet** ([Link-Net](https://codeac29.github.io/projects/linknet/))
 - **OCNet** ([Object Context Network for Scene Parsing](https://arxiv.org/abs/1809.00916))

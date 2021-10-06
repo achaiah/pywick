@@ -8,7 +8,7 @@ import numpy as np
 import random
 
 
-class Scramble(object):
+class Scramble:
     """
     Create blocks of an image and scramble them
     """
@@ -17,6 +17,7 @@ class Scramble(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             size = _input.size()
             img_height = size[1]
@@ -39,7 +40,7 @@ class Scramble(object):
         return outputs if idx >= 1 else outputs[0]
  
 
-class RandomChoiceScramble(object):
+class RandomChoiceScramble:
 
     def __init__(self, blocksizes):
         self.blocksizes = blocksizes
@@ -101,7 +102,7 @@ def _butterworth_filter(rows, cols, thresh, order):
     return f
 
 
-class Blur(object):
+class Blur:
     """
     Blur an image with a Butterworth filter with a frequency
     cutoff matching local block size
@@ -122,6 +123,7 @@ class Blur(object):
         inputs should have values between 0 and 255
         """
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             rows = _input.size(1)
             cols = _input.size(2)
@@ -137,7 +139,7 @@ class Blur(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class RandomChoiceBlur(object):
+class RandomChoiceBlur:
 
     def __init__(self, thresholds, order=5):
         """

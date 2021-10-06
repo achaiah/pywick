@@ -79,8 +79,10 @@ class Bottleneck(nn.Module):
         self.dilation = dilation
         self.stride = stride
 
-    def _sum_each(self, x, y):
-        assert(len(x) == len(y))
+    @staticmethod
+    def _sum_each(x, y):
+        if (len(x) != len(y)):
+            raise AssertionError
         z = []
         for i in range(len(x)):
             z.append(x[i]+y[i])
@@ -175,7 +177,7 @@ class DilatedResNet(nn.Module):
             )
 
         layers = []
-        if dilation == 1 or dilation == 2:
+        if dilation in (1, 2):
             layers.append(block(self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         elif dilation == 4:

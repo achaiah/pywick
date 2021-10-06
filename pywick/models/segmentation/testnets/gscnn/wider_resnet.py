@@ -48,11 +48,8 @@ def bnrelu(channels):
 
 class GlobalAvgPool2d(nn.Module):
 
-    def __init__(self):
-        """Global average pooling over the input's spatial dimensions"""
-        super(GlobalAvgPool2d, self).__init__()
-
-    def forward(self, inputs):
+    @staticmethod
+    def forward(inputs):
         in_size = inputs.size()
         return inputs.view((in_size[0], in_size[1], -1)).mean(dim=2)
 
@@ -104,7 +101,7 @@ class IdentityResidualBlock(nn.Module):
 
 
         # Check parameters for inconsistencies
-        if len(channels) != 2 and len(channels) != 3:
+        if len(channels) not in (2, 3):
             raise ValueError("channels must contain either two or three values")
         if len(channels) == 2 and groups != 1:
             raise ValueError("groups > 1 are only valid if len(channels) == 3")
@@ -176,8 +173,6 @@ class IdentityResidualBlock(nn.Module):
         return out
 
 
-
-
 class WiderResNet(nn.Module):
 
     def __init__(self,
@@ -194,7 +189,7 @@ class WiderResNet(nn.Module):
         norm_act : callable
             Function to create normalization / activation Module.
         classes : int
-            If not `0` also include global average pooling and \
+            If not `0` also include global average pooling and
             a fully-connected layer with `classes` outputs at the end
             of the network.
         """
@@ -266,7 +261,7 @@ class WiderResNetA2(nn.Module):
                  **_):
         """Wider ResNet with pre-activation (identity mapping) blocks
 
-        This variant uses down-sampling by max-pooling in the first two blocks and \
+        This variant uses down-sampling by max-pooling in the first two blocks and
          by strided convolution in the others.
 
         Parameters
@@ -277,11 +272,10 @@ class WiderResNetA2(nn.Module):
             Function to create normalization / activation Module.
         classes : int
             If not `0` also include global average pooling and a fully-connected layer
-            \with `classes` outputs at the end
-            of the network.
+            with `classes` outputs at the end of the network.
         dilation : bool
             If `True` apply dilation to the last three modules and change the
-            \down-sampling factor from 32 to 8.
+            down-sampling factor from 32 to 8.
         """
         super(WiderResNetA2, self).__init__()
         self.dist_bn = dist_bn

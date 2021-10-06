@@ -8,7 +8,7 @@ def merge_dicts(*dict_args):
         result.update(dictionary)
     return result
 
-class Pipeline(object):
+class Pipeline:
     """
     Defines a pipeline for operating on data. Output of first function will be passed to the second and so forth.
 
@@ -25,12 +25,12 @@ class Pipeline(object):
         self.func_args = func_args
         self.output = None
 
-    def call(self, input):
+    def call(self, input_):
         """Apply the functions in current Pipeline to an input.
 
-        :param input: The input to process with the Pipeline.
+        :param input_: The input to process with the Pipeline.
         """
-        out = input
+        out = input_
         for pipe in self.pipes:
             if pipe.__name__ in self.func_args:     # if additional arguments present
                 all_args = self.func_args[pipe.__name__]

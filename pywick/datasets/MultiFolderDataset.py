@@ -108,7 +108,7 @@ class MultiFolderDataset(FolderDataset):
             else:
                 self.classes, self.class_to_idx = _find_classes(roots)
 
-            data_list = list()
+            data_list = []
             for root in roots:
                 datai, _ = _finds_inputs_and_targets(root, class_mode=class_mode, class_to_idx=self.class_to_idx, input_regex=input_regex,
                                                      rel_target_root=rel_target_root, target_prefix=target_prefix, target_postfix=target_postfix,
@@ -119,8 +119,7 @@ class MultiFolderDataset(FolderDataset):
 
             if len(self.data) == 0:
                 raise (RuntimeError('Found 0 data items in subfolders of: {}'.format(roots)))
-            else:
-                print('Found %i data items' % len(self.data))
+            print('Found %i data items' % len(self.data))
 
             self.roots = [os.path.expanduser(x) for x in roots]
             self.transform = transform

@@ -298,8 +298,8 @@ class InceptionResNetV2(nn.Module):
         self.avgpool_1a = nn.AvgPool2d(8, count_include_pad=False)
         self.last_linear = nn.Linear(1536, num_classes)
 
-    def features(self, input):
-        x = self.conv2d_1a(input)
+    def features(self, input_):
+        x = self.conv2d_1a(input_)
         x = self.conv2d_2a(x)
         x = self.conv2d_2b(x)
         x = self.maxpool_3a(x)
@@ -322,8 +322,8 @@ class InceptionResNetV2(nn.Module):
         x = self.last_linear(x) 
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
@@ -333,8 +333,8 @@ def inceptionresnetv2(num_classes=1001, pretrained='imagenet'):
     """
     if pretrained:
         settings = pretrained_settings['inceptionresnetv2'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        if num_classes != settings['num_classes']:
+            raise AssertionError("num_classes should be {}, but is {}".format(settings['num_classes'], num_classes))
 
         # both 'imagenet'&'imagenet+background' are loaded from same parameters
         model = InceptionResNetV2(num_classes=1001)

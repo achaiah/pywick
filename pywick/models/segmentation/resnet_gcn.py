@@ -17,7 +17,7 @@ def initialize_weights(method='kaiming', *models):
     for model in models:
         for module in model.modules():
 
-            if isinstance(module, nn.Conv2d) or isinstance(module, nn.ConvTranspose2d) or isinstance(module, nn.Linear):
+            if isinstance(module, (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)):
                 if method == 'kaiming':
                     init.kaiming_normal_(module.weight.data, np.sqrt(2.0))
                 elif method == 'xavier':
@@ -127,5 +127,6 @@ class ResnetGCN(nn.Module):
 
 
 
-    def _do_upsample(self, num_classes=1, kernel_size=2, stride=2):
+    @staticmethod
+    def _do_upsample(num_classes=1, kernel_size=2, stride=2):
         return nn.ConvTranspose2d(num_classes, num_classes, kernel_size=kernel_size, stride=stride)

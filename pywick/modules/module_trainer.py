@@ -27,9 +27,9 @@ from ..misc import ExecType, is_tuple_or_list
 from tqdm import tqdm
 
 
-class ModuleTrainer(object):
+class ModuleTrainer:
 
-    def __init__(self, model, cuda_devices=[]):
+    def __init__(self, model, cuda_devices=None):
         """
         ModelTrainer for high-level training of Pytorch models
 
@@ -47,6 +47,8 @@ class ModuleTrainer(object):
         - metrics
         - callbacks
         """
+        if cuda_devices is None:
+            cuda_devices = []
         if not isinstance(model, nn.Module):
             raise ValueError('model argument must inherit from torch.nn.Module')
         self.model = model
@@ -56,7 +58,7 @@ class ModuleTrainer(object):
         self._loss_multipliers = None
 
         # custom fit helpers
-        self._named_helpers = dict()       # custom trainers that can be initialized during compilation time
+        self._named_helpers = {}       # custom trainers that can be initialized during compilation time
 
         # preconditions
         self._preconditions = []
@@ -113,10 +115,7 @@ class ModuleTrainer(object):
 
     def set_optimizer(self, optimizer, **kwargs):
         if type(optimizer) is type or isinstance(optimizer, str):
-            if 'parameters' in kwargs:
-                parameters = kwargs['parameters']
-            else:
-                parameters = self.model.parameters()
+            parameters = kwargs.get('parameters', self.model.parameters())
 
             optimizer = _validate_optimizer_input(optimizer)
             self._optimizer = optimizer(parameters, **kwargs)
@@ -338,7 +337,8 @@ class ModuleTrainer(object):
                         self._optimizer.zero_grad()
                         output_batch = fit_forward_fn(input_batch)
                         loss = fit_loss_fn(output_batch, target_batch)
-                        assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                        if math.isnan(loss):
+                            raise AssertionError('Assertion failed: Loss is not NaN.')
                         loss.backward()
                         self._optimizer.step()
                         # ---------------------------------------------
@@ -458,7 +458,8 @@ class ModuleTrainer(object):
                         output_batch = fit_forward_fn(input_batch)
 
                         loss = fit_loss_fn(output_batch, target_batch)
-                        assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                        if math.isnan(loss):
+                            raise AssertionError('Assertion failed: Loss is not NaN.')
                         loss.backward()
                         self._optimizer.step()
                         # ---------------------------------------------
@@ -614,7 +615,8 @@ class ModuleTrainer(object):
                 self._optimizer.zero_grad()
                 output_batch = eval_forward_fn(input_batch)
                 loss = eval_loss_fn(output_batch, target_batch)
-                assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                if math.isnan(loss):
+                    raise AssertionError('Assertion failed: Loss is not NaN.')
 
                 if conditions_container:
                     cond_logs = conditions_container(CondType.POST, epoch_num=None, batch_num=batch_idx, net=self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)
@@ -671,7 +673,8 @@ class ModuleTrainer(object):
                 self._optimizer.zero_grad()
                 output_batch = eval_forward_fn(input_batch)
                 loss = eval_loss_fn(output_batch, target_batch)
-                assert not math.isnan(loss), 'Assertion failed: Loss is not NaN.'
+                if math.isnan(loss):
+                    raise AssertionError('Assertion failed: Loss is not NaN.')
 
                 if conditions_container:
                     cond_logs = conditions_container(CondType.POST, epoch_num=None, batch_num=batch_idx, net=self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)
@@ -780,7 +783,7 @@ def _get_helper(trainer, num_inputs, num_targets, helper_name=None):
 
     return helper
 
-class SingleInput_SingleTarget_Helper(object):
+class SingleInput_SingleTarget_Helper:
 
     def __init__(self, loss_multipliers=None):
         '''
@@ -790,30 +793,36 @@ class SingleInput_SingleTarget_Helper(object):
         '''
         self.loss_multipliers = loss_multipliers
 
-    def move_to_device(self, device, inputs, targets):
+    @staticmethod
+    def move_to_device(device, inputs, targets):
         return inputs.to(device), targets.to(device)
 
-    def shuffle_arrays(self, inputs, targets):
+    @staticmethod
+    def shuffle_arrays(inputs, targets):
         rand_indices = th.randperm(len(inputs))
         inputs = inputs[rand_indices]
         targets = targets[rand_indices]
         return inputs, targets
 
-    def grab_batch(self, batch_idx, batch_size, inputs, targets):
+    @staticmethod
+    def grab_batch(batch_idx, batch_size, inputs, targets):
         input_batch = inputs[batch_idx*batch_size:(batch_idx+1)*batch_size]
         target_batch = targets[batch_idx*batch_size:(batch_idx+1)*batch_size]
         return input_batch, target_batch
 
-    def grab_batch_from_loader(self, loader_iter):
+    @staticmethod
+    def grab_batch_from_loader(loader_iter):
         return next(loader_iter)        # input_batch, target_batch
 
-    def apply_transforms(self, tforms, input_batch, target_batch):
+    @staticmethod
+    def apply_transforms(tforms, input_batch, target_batch):
         input_batch = tforms[0](input_batch)
         target_batch = tforms[1](target_batch)
         input_batch, target_batch = tforms[2](input_batch, target_batch)
         return input_batch, target_batch
 
-    def forward_pass(self, input_batch, model):
+    @staticmethod
+    def forward_pass(input_batch, model):
         return model(input_batch)
 
     def get_partial_forward_fn(self, model):
@@ -823,7 +832,8 @@ class SingleInput_SingleTarget_Helper(object):
         total_loss = 0.
         if is_tuple_or_list(output_batch):     # some networks output multiple results (to compute separate losses)
             if self.loss_multipliers:
-                assert len(output_batch) == len(self.loss_multipliers)
+                if len(output_batch) != len(self.loss_multipliers):
+                    raise AssertionError
 
             for i, output in enumerate(output_batch):
                 if self.loss_multipliers:
@@ -839,37 +849,44 @@ class SingleInput_SingleTarget_Helper(object):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class SingleInput_MultiTarget_Helper(object):
+class SingleInput_MultiTarget_Helper:
 
-    def move_to_device(self, device, inputs, targets):
+    @staticmethod
+    def move_to_device(device, inputs, targets):
         return inputs.to(device), [target_.to(device) for target_ in targets]
 
-    def shuffle_arrays(self, inputs, targets):
+    @staticmethod
+    def shuffle_arrays(inputs, targets):
         rand_indices = th.randperm(len(inputs))
         inputs = inputs[rand_indices]
         targets = [target_[rand_indices] for target_ in targets]
         return inputs, targets
 
-    def grab_batch(self, batch_idx, batch_size, inputs, targets):
+    @staticmethod
+    def grab_batch(batch_idx, batch_size, inputs, targets):
         input_batch = inputs[batch_idx*batch_size:(batch_idx+1)*batch_size]
         target_batch = [target_[batch_idx*batch_size:(batch_idx+1)*batch_size] for target_ in targets]
         return input_batch, target_batch
 
-    def grab_batch_from_loader(self, loader_iter):
+    @staticmethod
+    def grab_batch_from_loader(loader_iter):
         return next(loader_iter)        # OLD: # input_batch, [target_ for target_ in target_batch]
 
-    def apply_transforms(self, tforms, input_batch, target_batch):
+    @staticmethod
+    def apply_transforms(tforms, input_batch, target_batch):
         input_batch = tforms[0](input_batch)
         target_batch = [tforms[1](target_) for target_ in target_batch]
         return input_batch, target_batch
 
-    def forward_pass(self, input_batch, model):
+    @staticmethod
+    def forward_pass(input_batch, model):
         return model(input_batch)
 
     def get_partial_forward_fn(self, model):
         return functools.partial(self.forward_pass, model=model)
 
-    def calculate_loss(self, output_batch, target_batch, loss_fn):
+    @staticmethod
+    def calculate_loss(output_batch, target_batch, loss_fn):
         return sum([loss_fn[idx](output_batch[idx], target_batch[idx])
                     for idx in range(len(output_batch))])
 
@@ -877,142 +894,172 @@ class SingleInput_MultiTarget_Helper(object):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class MultiInput_SingleTarget_Helper(object):
-    def move_to_device(self, device, inputs, targets):
+class MultiInput_SingleTarget_Helper:
+
+    @staticmethod
+    def move_to_device(device, inputs, targets):
         return [input_.to(device) for input_ in inputs], targets.to(device)
 
-    def shuffle_arrays(self, inputs, targets):
+    @staticmethod
+    def shuffle_arrays(inputs, targets):
         rand_indices = th.randperm(len(inputs))
         inputs = [input_[rand_indices] for input_ in inputs]
         targets = targets[rand_indices]
         return inputs, targets
 
-    def grab_batch(self, batch_idx, batch_size, inputs, targets):
+    @staticmethod
+    def grab_batch(batch_idx, batch_size, inputs, targets):
         input_batch = [input_[batch_idx*batch_size:(batch_idx+1)*batch_size] for input_ in inputs]
         target_batch = targets[batch_idx*batch_size:(batch_idx+1)*batch_size]
         return input_batch, target_batch
 
-    def grab_batch_from_loader(self, loader_iter):
+    @staticmethod
+    def grab_batch_from_loader(loader_iter):
         return next(loader_iter)        # OLD: # [input_ for input_ in input_batch], target_batch
 
-    def apply_transforms(self, tforms, input_batch, target_batch):
+    @staticmethod
+    def apply_transforms(tforms, input_batch, target_batch):
         input_batch = [tforms[0](input_) for input_ in input_batch]
         target_batch = tforms[1](target_batch)
         return input_batch, target_batch
 
-    def forward_pass(self, input_batch, model):
+    @staticmethod
+    def forward_pass(input_batch, model):
         return model(*input_batch)
 
     def get_partial_forward_fn(self, model):
         return functools.partial(self.forward_pass, model=model)
 
-    def calculate_loss(self, output_batch, target_batch, loss_fn):
+    @staticmethod
+    def calculate_loss(output_batch, target_batch, loss_fn):
         return loss_fn(output_batch, target_batch)
 
     def get_partial_loss_fn(self, loss_fn):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class MultiInput_MultiTarget_Helper(object):
+class MultiInput_MultiTarget_Helper:
 
-    def move_to_device(self, device, inputs, targets):
+    @staticmethod
+    def move_to_device(device, inputs, targets):
         return [input_.to(device) for input_ in inputs], [target_.to(device) for target_ in targets]
 
-    def shuffle_arrays(self, inputs, targets):
+    @staticmethod
+    def shuffle_arrays(inputs, targets):
         rand_indices = th.randperm(len(inputs))
         inputs = [input_[rand_indices] for input_ in inputs]
         targets = [input_[rand_indices] for input_ in inputs]
         return inputs, targets
 
-    def grab_batch(self, batch_idx, batch_size, inputs, targets):
+    @staticmethod
+    def grab_batch(batch_idx, batch_size, inputs, targets):
         input_batch = [input_[batch_idx*batch_size:(batch_idx+1)*batch_size] for input_ in inputs]
         target_batch = [target_[batch_idx*batch_size:(batch_idx+1)*batch_size] for target_ in targets]
         return input_batch, target_batch
 
-    def grab_batch_from_loader(self, loader_iter):
+    @staticmethod
+    def grab_batch_from_loader(loader_iter):
         return next(loader_iter)        # OLD: # [input_ for input_ in input_batch], [target_ for target_ in target_batch]
 
-    def apply_transforms(self, tforms, input_batch, target_batch):
+    @staticmethod
+    def apply_transforms(tforms, input_batch, target_batch):
         input_batch = [tforms[0](input_) for input_ in input_batch]
         target_batch = [tforms[1](target_) for target_ in target_batch]
         return input_batch, target_batch
 
-    def forward_pass(self, input_batch, model):
+    @staticmethod
+    def forward_pass(input_batch, model):
         return model(*input_batch)
 
     def get_partial_forward_fn(self, model):
         return functools.partial(self.forward_pass, model=model)
 
-    def calculate_loss(self, output_batch, target_batch, loss_fn):
+    @staticmethod
+    def calculate_loss(output_batch, target_batch, loss_fn):
         return sum([loss_fn[idx](output_batch[idx], target_batch[idx]) for idx in range(len(output_batch))])
 
     def get_partial_loss_fn(self, loss_fn):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class SingleInput_NoTarget_Helper(object):
-    def move_to_device(self, device, inputs, targets=None):
+class SingleInput_NoTarget_Helper:
+
+    @staticmethod
+    def move_to_device(device, inputs, **_):
         return inputs.to(device), None
 
-    def shuffle_arrays(self, inputs, targets=None):
+    @staticmethod
+    def shuffle_arrays(inputs, **_):
         rand_indices = th.randperm(len(inputs))
         inputs = inputs[rand_indices]
         return inputs, None
 
-    def grab_batch(self, batch_idx, batch_size, inputs, targets=None):
+    @staticmethod
+    def grab_batch(batch_idx, batch_size, inputs, **_):
         input_batch = inputs[batch_idx*batch_size:(batch_idx+1)*batch_size]
         return input_batch, None
 
-    def grab_batch_from_loader(self, loader_iter):
+    @staticmethod
+    def grab_batch_from_loader(loader_iter):
         input_batch = next(loader_iter)
         return input_batch, None
 
-    def apply_transforms(self, tforms, input_batch, target_batch=None):
+    @staticmethod
+    def apply_transforms(tforms, input_batch, **_):
         input_batch = tforms[0](input_batch)
         return input_batch, None
 
-    def forward_pass(self, input_batch, model):
+    @staticmethod
+    def forward_pass(input_batch, model):
         return model(input_batch)
 
     def get_partial_forward_fn(self, model):
         return functools.partial(self.forward_pass, model=model)
 
-    def calculate_loss(self, output_batch, target_batch, loss_fn):
+    @staticmethod
+    def calculate_loss(output_batch, target_batch, loss_fn):
         return loss_fn(output_batch)
 
     def get_partial_loss_fn(self, loss_fn):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class MultiInput_NoTarget_Helper(object):
+class MultiInput_NoTarget_Helper:
 
-    def move_to_device(self, device, inputs, targets=None):
+    @staticmethod
+    def move_to_device(device, inputs, **_):
         return [input_.to(device) for input_ in inputs], None
 
-    def shuffle_arrays(self, inputs, targets=None):
+    @staticmethod
+    def shuffle_arrays(inputs, **_):
         rand_indices = th.randperm(len(inputs))
         inputs = [input_[rand_indices] for input_ in inputs]
         return inputs, None
 
-    def grab_batch(self, batch_idx, batch_size, inputs, targets=None):
+    @staticmethod
+    def grab_batch(batch_idx, batch_size, inputs, **_):
         input_batch = [input_[batch_idx*batch_size:(batch_idx+1)*batch_size] for input_ in inputs]
         return input_batch, None
 
-    def grab_batch_from_loader(self, loader_iter):
+    @staticmethod
+    def grab_batch_from_loader(loader_iter):
         input_batch = next(loader_iter)
         return input_batch, None
 
-    def apply_transforms(self, tforms, input_batch, target_batch=None):
+    @staticmethod
+    def apply_transforms(tforms, input_batch, **_):
         input_batch = [tforms[0](input_) for input_ in input_batch]
         return input_batch, None
 
-    def forward_pass(self, input_batch, model):
+    @staticmethod
+    def forward_pass(input_batch, model):
         return model(*input_batch)
 
     def get_partial_forward_fn(self, model):
         return functools.partial(self.forward_pass, model=model)
 
-    def calculate_loss(self, output_batch, target_batch, loss_fn):
+    @staticmethod
+    def calculate_loss(output_batch, target_batch, loss_fn):
         return loss_fn(output_batch)
 
     def get_partial_loss_fn(self, loss_fn):

@@ -44,7 +44,8 @@ class CSVDataset(BaseDataset):
                  target_transform=None,
                  co_transform=None,
                  apply_transforms_individually=False):
-        assert(input_cols is not None)
+        if (input_cols is None):
+            raise AssertionError
 
         self.input_cols = _process_cols_argument(input_cols)
         self.target_cols = _process_cols_argument(target_cols)

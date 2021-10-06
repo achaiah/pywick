@@ -13,7 +13,7 @@ class CondType(Enum):
     PRE = auto()
     POST = auto()
 
-class ConditionsContainer(object):
+class ConditionsContainer:
     '''
     This container maintains metadata about the execution environment in which the conditions are performed
 
@@ -80,7 +80,7 @@ class ConditionsContainer(object):
                 logs[self.prefix + condition._name] = logs_out
         return logs
 
-class Condition(object):
+class Condition:
     """
     Default class from which all other Condition implementations inherit.
     """
@@ -118,7 +118,8 @@ class SegmentationInputAsserts(Condition):
     '''
 
     def __call__(self, exec_type, epoch_num, batch_num, net=None, inputs=None, outputs=None, labels=None):
-        assert inputs.size()[2:] == labels.size()[1:]
+        if inputs.size()[2:] != labels.size()[1:]:
+            raise AssertionError
 
     def reset(self):
         pass
@@ -140,8 +141,10 @@ class SegmentationOutputAsserts(Condition):
                 outs, aux = outputs
         else:
             outs = outputs
-        assert outs.size()[2:] == labels.size()[1:]
-        assert outs.size()[1] == self.num_classes
+        if outs.size()[2:] != labels.size()[1:]:
+            raise AssertionError
+        if outs.size()[1] != self.num_classes:
+            raise AssertionError
 
     def reset(self):
         pass

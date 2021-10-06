@@ -71,7 +71,8 @@ class MyIdentity(nn.Module):
         self.axis = axis
         self.offset = offset
 
-    def forward(self, x, ref):
+    @staticmethod
+    def forward(x, ref):
         """
 
         :param x: input layer
@@ -124,7 +125,9 @@ class _AtrousSpatialPyramidPoolingModule(nn.Module):
       Final 1x1 conv
     '''
 
-    def __init__(self, in_dim, reduction_dim=256, output_stride=16, rates=[6, 12, 18]):
+    def __init__(self, in_dim, reduction_dim=256, output_stride=16, rates=None):
+        if rates is None:
+            rates = [6, 12, 18]
         super(_AtrousSpatialPyramidPoolingModule, self).__init__()
 
         # Check if we are using distributed BN and use the nn from encoding.nn
@@ -160,7 +163,6 @@ class _AtrousSpatialPyramidPoolingModule(nn.Module):
         self.edge_conv = nn.Sequential(
             nn.Conv2d(1, reduction_dim, kernel_size=1, bias=False),
             Norm2d(reduction_dim), nn.ReLU(inplace=True))
-         
 
     def forward(self, x, edge):
         x_size = x.size()
@@ -196,7 +198,7 @@ class GSCNN(nn.Module):
                   (1024, 2048, 4096)]
     '''
 
-    def __init__(self, num_classes, trunk=None, is_cuda=True, aux=False, **_):
+    def __init__(self, num_classes, is_cuda=True, aux=False, **_):
         
         super(GSCNN, self).__init__()
         # self.criterion = criterion
@@ -219,7 +221,6 @@ class GSCNN(nn.Module):
         self.pool2 = wide_resnet.pool2
         self.pool3 = wide_resnet.pool3
         self.interpolate = F.interpolate
-        del wide_resnet
 
         self.dsn1 = nn.Conv2d(64, 1, 1)
         self.dsn3 = nn.Conv2d(256, 1, 1)
@@ -258,7 +259,7 @@ class GSCNN(nn.Module):
         self.sigmoid = nn.Sigmoid()
         initialize_weights(self.final_seg)
 
-    def forward(self, inp, gts=None):
+    def forward(self, inp):
 
         x_size = inp.size() 
 

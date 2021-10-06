@@ -129,7 +129,7 @@ class OneCycleLR(torch.optim.lr_scheduler.StepLR):
         # Validate total_steps
         if total_steps is None and epochs is None and steps_per_epoch is None:
             raise ValueError("You must define either total_steps OR (epochs AND steps_per_epoch)")
-        elif total_steps is not None:
+        if total_steps is not None:
             if total_steps <= 0 or not isinstance(total_steps, int):
                 raise ValueError("Expected non-negative integer total_steps, but got {}".format(total_steps))
             self.total_steps = total_steps
@@ -149,7 +149,7 @@ class OneCycleLR(torch.optim.lr_scheduler.StepLR):
         # Validate anneal_strategy
         if anneal_strategy not in ['cos', 'linear']:
             raise ValueError("anneal_strategy must by one of 'cos' or 'linear', instead got {}".format(anneal_strategy))
-        elif anneal_strategy == 'cos':
+        if anneal_strategy == 'cos':
             self.anneal_func = self._annealing_cos
         elif anneal_strategy == 'linear':
             self.anneal_func = self._annealing_linear
@@ -182,7 +182,8 @@ class OneCycleLR(torch.optim.lr_scheduler.StepLR):
 
         super(OneCycleLR, self).__init__(optimizer=optimizer, step_size=1, last_epoch=last_epoch)
 
-    def _format_param(self, name, optimizer, param):
+    @staticmethod
+    def _format_param(name, optimizer, param):
         """Return correctly formatted lr/momentum for each param group."""
         if isinstance(param, (list, tuple)):
             if len(param) != len(optimizer.param_groups):
@@ -192,12 +193,14 @@ class OneCycleLR(torch.optim.lr_scheduler.StepLR):
         else:
             return [param] * len(optimizer.param_groups)
 
-    def _annealing_cos(self, start, end, pct):
+    @staticmethod
+    def _annealing_cos(start, end, pct):
         "Cosine anneal from `start` to `end` as pct goes from 0.0 to 1.0."
         cos_out = math.cos(math.pi * pct) + 1
         return end + (start - end) / 2.0 * cos_out
 
-    def _annealing_linear(self, start, end, pct):
+    @staticmethod
+    def _annealing_linear(start, end, pct):
         "Linearly anneal from `start` to `end` as pct goes from 0.0 to 1.0."
         return (end - start) * pct + start
 

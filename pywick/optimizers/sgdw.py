@@ -23,7 +23,7 @@ class SGDW(Optimizer):
     Example:
         >>> optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
         >>> optimizer.zero_grad()
-        >>> loss_fn(model(input), target).backward()
+        >>> loss_fn(model(input_), target).backward()
         >>> optimizer.step()
 
     .. note::

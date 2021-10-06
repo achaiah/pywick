@@ -26,7 +26,7 @@ def _validate_initializer_string(init):
         raise ValueError('Invalid loss input')
 
 
-class InitializerContainer(object):
+class InitializerContainer:
 
     def __init__(self, initializers):
         self._initializers = initializers
@@ -36,7 +36,7 @@ class InitializerContainer(object):
             model.apply(initializer)
 
 
-class Initializer(object):
+class Initializer:
     """
     Blank Initializer class from which all other Initializers must inherit
     """

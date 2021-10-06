@@ -7,7 +7,7 @@ import numpy as np
 import torch as th
 
 
-class Compose(object):
+class Compose:
     """
     Composes (chains) several transforms together.
 
@@ -24,7 +24,7 @@ class Compose(object):
         return inputs
 
 
-class RandomChoiceCompose(object):
+class RandomChoiceCompose:
     """
     Randomly choose to apply one transform from a collection of transforms
 
@@ -44,19 +44,20 @@ class RandomChoiceCompose(object):
         return outputs
 
 
-class ToTensor(object):
+class ToTensor:
     """
     Converts a numpy array to torch.Tensor
     """
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = th.from_numpy(_input)
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
 
-class ToFile(object):
+class ToFile:
     """
     Saves an image to file. Useful as a pass-through transform
     when wanting to observe how augmentation affects the data
@@ -80,7 +81,7 @@ class ToFile(object):
         return inputs
 
 
-class ToNumpyType(object):
+class ToNumpyType:
     """
     Converts an object to a specific numpy type (with the idea to be passed to ToTensor() next)
 
@@ -90,14 +91,13 @@ class ToNumpyType(object):
     def __init__(self, type):
         self.type = type
 
-    def __call__(self, input):
-        if isinstance(input, list):     # handle a simple list
-            return np.array(input, dtype=self.type)
-        else:                           # handle ndarray (that is of a different type than desired)
-            return input.astype(self.type)
+    def __call__(self, input_):
+        if isinstance(input_, list):     # handle a simple list
+            return np.array(input_, dtype=self.type)
+        return input_.astype(self.type)
 
 
-class ChannelsLast(object):
+class ChannelsLast:
     """
     Transposes a tensor so that the channel dim is last
     `HWC` and `DHWC` are aliases for this transform.
@@ -115,9 +115,10 @@ class ChannelsLast(object):
             # check if channels are already last
             if inputs[0].size(-1) < inputs[0].size(0):
                 return inputs
-        plist = list(range(1,ndim))+[0]
+        plist = list(range(1, ndim))+[0]
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.permute(*plist)
             outputs.append(_input)
@@ -127,7 +128,7 @@ HWC = ChannelsLast
 DHWC = ChannelsLast
 
 
-class ChannelsFirst(object):
+class ChannelsFirst:
     """
     Transposes a tensor so that the channel dim is first.
     `CHW` and `CDHW` are aliases for this transform.
@@ -148,6 +149,7 @@ class ChannelsFirst(object):
         plist = [ndim-1] + list(range(0,ndim-1))
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.permute(*plist)
             outputs.append(_input)
@@ -157,7 +159,7 @@ CHW = ChannelsFirst
 CDHW = ChannelsFirst
 
 
-class TypeCast(object):
+class TypeCast:
     """
     Cast a torch.Tensor to a different type
     param dtype: (string or torch.*Tensor literal or list) of such
@@ -206,13 +208,14 @@ class TypeCast(object):
             dtypes = self.dtype
         
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.type(dtypes[idx])
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
 
-class AddChannel(object):
+class AddChannel:
     """Adds a dummy channel to an image, also known as expanding an axis or unsqueezing a dim
     This will make an image of size (28, 28) to now be
     of size (1, 28, 28), for example.
@@ -224,6 +227,7 @@ class AddChannel(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.unsqueeze(self.axis)
             outputs.append(_input)
@@ -233,7 +237,7 @@ ExpandAxis = AddChannel
 Unsqueeze = AddChannel
 
 
-class Transpose(object):
+class Transpose:
     """
     Swaps two dimensions of a tensor
 
@@ -250,13 +254,14 @@ class Transpose(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = th.transpose(_input, self.dim1, self.dim2)
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
 
-class RangeNormalize(object):
+class RangeNormalize:
     """
     Given min_val: (R, G, B) and max_val: (R,G,B),
     will normalize each channel of the th.*Tensor to
@@ -293,6 +298,7 @@ class RangeNormalize(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _min_val = _input.min()
             _max_val = _input.max()
@@ -303,19 +309,20 @@ class RangeNormalize(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class StdNormalize(object):
+class StdNormalize:
     """
     Normalize torch tensor to have zero mean and unit std deviation
     """
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.sub(_input.mean()).div(_input.std())
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
 
-class Slice2D(object):
+class Slice2D:
     """
     Take a random 2D slice from a 3D image along
     a given axis. This image should not have a 4th channel dim.
@@ -334,34 +341,32 @@ class Slice2D(object):
 
     def __call__(self, x, y=None):
         while True:
-            keep_slice  = random.randint(0,x.size(self.axis)-1)
+            keep_slice = random.randint(0, x.size(self.axis) - 1)
             if self.axis == 0:
-                slice_x = x[keep_slice,:,:]
+                slice_x = x[keep_slice, :, :]
                 if y is not None:
-                    slice_y = y[keep_slice,:,:]
+                    slice_y = y[keep_slice, :, :]
             elif self.axis == 1:
-                slice_x = x[:,keep_slice,:]
+                slice_x = x[:, keep_slice, :]
                 if y is not None:
-                    slice_y = y[:,keep_slice,:]
+                    slice_y = y[:, keep_slice, :]
             elif self.axis == 2:
-                slice_x = x[:,:,keep_slice]
+                slice_x = x[:, :, keep_slice]
                 if y is not None:
-                    slice_y = y[:,:,keep_slice]
+                    slice_y = y[:, :, keep_slice]
 
             if not self.reject_zeros:
                 break
-            else:
-                if y is not None and th.sum(slice_y) > 0:
-                        break
-                elif th.sum(slice_x) > 0:
-                        break
+            if y is not None and th.sum(slice_y) > 0:
+                break
+            if th.sum(slice_x) > 0:
+                break
         if y is not None:
             return slice_x, slice_y
-        else:
-            return slice_x
+        return slice_x
 
 
-class RandomCrop(object):
+class RandomCrop:
     """
     Randomly crop a torch tensor
 
@@ -375,13 +380,14 @@ class RandomCrop(object):
         h_idx = random.randint(0,inputs[0].size(1)-self.size[0])
         w_idx = random.randint(0,inputs[1].size(2)-self.size[1])
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input[:, h_idx:(h_idx+self.size[0]),w_idx:(w_idx+self.size[1])]
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
 
-class SpecialCrop(object):
+class SpecialCrop:
     """
     Perform a special crop - one of the four corners or center crop
 
@@ -435,11 +441,10 @@ class SpecialCrop(object):
         if y is not None:
             y = y[:,indices[0][0]:indices[0][1],indices[1][0]:indices[1][1]]
             return x, y
-        else:
-            return x
+        return x
 
 
-class Pad(object):
+class Pad:
 
     """
     Pads an image to the given size
@@ -462,11 +467,10 @@ class Pad(object):
             y = y.numpy()
             y = np.pad(y, pad_sizes, mode='constant')
             return th.from_numpy(x), th.from_numpy(y)
-        else:
-            return th.from_numpy(x)
+        return th.from_numpy(x)
 
 
-class PadNumpy(object):
+class PadNumpy:
 
     """
     Pads a Numpy image to the given size
@@ -487,11 +491,10 @@ class PadNumpy(object):
         if y is not None:
             y = np.pad(y, pad_sizes, mode='constant')
             return x, y
-        else:
-            return x
+        return x
 
 
-class RandomFlip(object):
+class RandomFlip:
 
     """
     Randomly flip an image horizontally and/or vertically with
@@ -536,17 +539,17 @@ class RandomFlip(object):
         if y is None:
             # must copy because torch doesnt current support neg strides
             return th.from_numpy(x.copy())
-        else:
-            return th.from_numpy(x.copy()),th.from_numpy(y.copy())
+        return th.from_numpy(x.copy()),th.from_numpy(y.copy())
 
 
-class RandomOrder(object):
+class RandomOrder:
     """
     Randomly permute the channels of an image
     """
     def __call__(self, *inputs):
         order = th.randperm(inputs[0].dim())
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.index_select(0, order)
             outputs.append(_input)

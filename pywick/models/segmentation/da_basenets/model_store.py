@@ -1,6 +1,4 @@
 """Model store which provides pretrained models."""
-from __future__ import print_function
-
 import os
 import zipfile
 
@@ -34,8 +32,7 @@ def get_resnet_file(name, root='~/.torch/models'):
         if check_sha1(file_path, sha1_hash):
             return file_path
         else:
-            print('Mismatch in the content of model file {} detected.' +
-                  ' Downloading again.'.format(file_path))
+            print('Mismatch in the content of model file {} detected. Downloading again.'.format(file_path))
     else:
         print('Model file {} is not found. Downloading.'.format(file_path))
 

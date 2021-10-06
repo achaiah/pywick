@@ -14,6 +14,7 @@ class TQDM(Callback):
         every SuperModule if verbose > 0
         """
         self.progbar = None
+        self.train_logs = None
         super(TQDM, self).__init__()
 
     def __enter__(self):
@@ -24,7 +25,7 @@ class TQDM(Callback):
         if self.progbar is not None:
             self.progbar.close()
 
-    def on_train_begin(self, logs):
+    def on_train_begin(self, logs=None):
         self.train_logs = logs
 
     def on_epoch_begin(self, epoch, logs=None):

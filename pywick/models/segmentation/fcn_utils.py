@@ -17,7 +17,7 @@ def check_mkdir(dir_name):
 def initialize_weights(*models):
     for model in models:
         for module in model.modules():
-            if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
+            if isinstance(module, (nn.Conv2d, nn.Linear)):
                 nn.init.kaiming_normal_(module.weight)
                 if module.bias is not None:
                     module.bias.data.zero_()
@@ -81,7 +81,7 @@ def evaluate(predictions, gts, num_classes):
     return acc, acc_cls, mean_iu, fwavacc
 
 
-class AverageMeter(object):
+class AverageMeter:
     def __init__(self):
         self.reset()
 
@@ -98,7 +98,7 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-class PolyLR(object):
+class PolyLR:
     def __init__(self, optimizer, curr_iter, max_iter, lr_decay):
         self.max_iter = float(max_iter)
         self.init_lr_groups = []
@@ -117,7 +117,8 @@ class PolyLR(object):
 class Conv2dDeformable(nn.Module):
     def __init__(self, regular_filter, cuda=True):
         super(Conv2dDeformable, self).__init__()
-        assert isinstance(regular_filter, nn.Conv2d)
+        if not isinstance(regular_filter, nn.Conv2d):
+            raise AssertionError
         self.regular_filter = regular_filter
         self.offset_filter = nn.Conv2d(regular_filter.in_channels, 2 * regular_filter.in_channels, kernel_size=3,
                                        padding=1, bias=False)

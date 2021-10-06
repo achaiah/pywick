@@ -22,6 +22,14 @@ DANet
     :undoc-members:
     :exclude-members: forward
 
+EmaNet
+--------------------------------------------------
+
+.. automodule:: pywick.models.segmentation.emanet
+    :members:
+    :undoc-members:
+    :exclude-members: forward
+
 DenseASPP
 --------------------------------------------------
 
@@ -124,6 +132,14 @@ FusionNet
     :members: FusionNet
     :undoc-members:
     :exclude-members: features, forward, logits
+
+GALDNet
+-------------------------------------
+
+.. automodule:: pywick.models.segmentation.galdnet
+    :members:
+    :undoc-members:
+    :exclude-members: forward
 
 GCN
 -------------------------------------

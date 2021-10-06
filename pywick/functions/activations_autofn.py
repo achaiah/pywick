@@ -1,7 +1,7 @@
 # Source: https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/activations/activations_autofn.py (Apache 2.0)
 
 import torch
-from torch import nn as nn
+from torch import nn
 from torch.nn import functional as F
 
 
@@ -36,7 +36,8 @@ class SwishAuto(nn.Module):
         super(SwishAuto, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return SwishAutoFn.apply(x)
 
 
@@ -69,6 +70,7 @@ class MishAuto(nn.Module):
         super(MishAuto, self).__init__()
         self.inplace = inplace
 
-    def forward(self, x):
+    @staticmethod
+    def forward(x):
         return MishAutoFn.apply(x)
 

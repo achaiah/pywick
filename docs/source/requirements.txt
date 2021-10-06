@@ -1,4 +1,20 @@
-hickle
+albumentations
+dill
+#hickle
+h5py
+# inplace_abn
+numpy
+opencv-python-headless
+pandas
 pillow
+prodict
+pycm
+pyyaml
+scipy
+requests
+scikit-image
 six
+tabulate
+tini
 tqdm
+yacs

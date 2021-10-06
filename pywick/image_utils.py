@@ -30,12 +30,12 @@ def draw_dice_on_image(label, prob, threshold=125, is_0_255=False):
     results[miss] = np.array([255,255,255])
     results[hit]  = np.array([19,138,249])
     results[fp]   = np.array([246,249,16])
-    results = results.reshape(H,W,3)
+    results = results.reshape((H, W, 3))
 
     return results
 
 
-def draw_mask_on_image(image, mask, bg_color=(19, 138, 249), mask_color=[255, 255, 0], threshold=125, foreground_alpha=[1.0, 1.0, 0.5], is_0_255=False):
+def draw_mask_on_image(image, mask, bg_color=(19, 138, 249), mask_color=None, threshold=125, foreground_alpha=None, is_0_255=False):
     '''
 
     Draws a mask on top of the original image. This is pretty CPU intensive so may want to revise for production environment
@@ -52,6 +52,10 @@ def draw_mask_on_image(image, mask, bg_color=(19, 138, 249), mask_color=[255, 25
     :return: numpy array containing composite image [RGB]
 
     '''
+    if mask_color is None:
+        mask_color = [255, 255, 0]
+    if foreground_alpha is None:
+        foreground_alpha = [1.0, 1.0, 0.5]
     if not is_0_255:
         image = image * 255
         mask = mask * 255
@@ -60,7 +64,8 @@ def draw_mask_on_image(image, mask, bg_color=(19, 138, 249), mask_color=[255, 25
 
     H, W, _ = image.shape
 
-    assert (H,W) == mask.shape, "image size does not equal mask size!"
+    if (H,W) != mask.shape:
+        raise AssertionError("image size does not equal mask size!")
 
     results = np.zeros((H, W, 3), np.uint8)  # create new image and fill with zeros
     results[...] = bg_color     # fill entire image with bg_color at first

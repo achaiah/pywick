@@ -47,7 +47,6 @@ class EarlyStopping(Callback):
                     self.trainer._stop_training = True
                 self.wait += 1
 
-    def on_train_end(self, logs):
+    def on_train_end(self, logs=None):
         if self.stopped_epoch > 0:
-            print('\nTerminated Training for Early Stopping at Epoch %04i' %
-                  (self.stopped_epoch))
+            print(f'\nTerminated Training for Early Stopping at Epoch: {self.stopped_epoch}')

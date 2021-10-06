@@ -147,16 +147,14 @@ class _DenseLayer(nn.Module):
                  efficient=False):
         super(_DenseLayer, self).__init__()
         # Add SELayer at here, like SE-PRE block in original paper illustrates
-        self.add_module("selayer", SELayer(channel=num_input_features)),
+        self.add_module("selayer", SELayer(channel=num_input_features))
 
-        self.add_module('norm1', nn.BatchNorm2d(num_input_features)),
-        self.add_module('relu1', nn.ReLU(inplace=True)),
-        self.add_module('conv1', nn.Conv2d(num_input_features, bn_size *
-                                           growth_rate, kernel_size=1, stride=1, bias=False)),
-        self.add_module('norm2', nn.BatchNorm2d(bn_size * growth_rate)),
-        self.add_module('relu2', nn.ReLU(inplace=True)),
-        self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate,
-                                           kernel_size=3, stride=1, padding=1, bias=False)),
+        self.add_module('norm1', nn.BatchNorm2d(num_input_features))
+        self.add_module('relu1', nn.ReLU(inplace=True))
+        self.add_module('conv1', nn.Conv2d(num_input_features, bn_size * growth_rate, kernel_size=1, stride=1, bias=False))
+        self.add_module('norm2', nn.BatchNorm2d(bn_size * growth_rate))
+        self.add_module('relu2', nn.ReLU(inplace=True))
+        self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate, kernel_size=3, stride=1, padding=1, bias=False))
         self.drop_rate = drop_rate
         self.efficient = efficient
 
@@ -241,7 +239,8 @@ class DenseNet(nn.Module):
                  num_classes=4096, efficient=True):
 
         super(DenseNet, self).__init__()
-        assert 0 < compression <= 1, 'compression of densenet should be between 0 and 1'
+        if not 0 < compression <= 1:
+            raise AssertionError('compression of densenet should be between 0 and 1')
 
         # First convolution
         self.features = nn.Sequential(OrderedDict([

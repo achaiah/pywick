@@ -55,7 +55,7 @@ class Network(nn.Module):
 model = Network()
 trainer = ModuleTrainer(model)
 
-trainer.compile(loss='nll_loss',
+trainer.compile(criterion='nll_loss',
                 optimizer='adadelta')
 
 trainer.fit_loader(train_loader,

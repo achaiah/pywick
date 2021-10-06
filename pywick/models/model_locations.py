@@ -27,7 +27,6 @@ model_urls = {
     'fbresnet152': cadeneroot + 'fbresnet152-2e20f6b4.pth',
     'inception_v3': torchroot + 'inception_v3_google-1a9a5a14.pth',
     'inceptionv4': cadeneroot + 'inceptionv4-8e4777a0.pth',
-    'bninception': cadeneroot + 'bn_inception-52deb4733.pth',
     'inceptionresnetv2': cadeneroot + 'inceptionresnetv2-520b38e4.pth',
     'nasnetalarge': cadeneroot + 'nasnetalarge-a1897284.pth',
     'nasnetamobile': cadeneroot + 'nasnetamobile-7e03cead.pth',

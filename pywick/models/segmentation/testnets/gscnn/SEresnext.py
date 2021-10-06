@@ -357,9 +357,9 @@ class SENet(nn.Module):
 
 
 def initialize_pretrained_model(model, num_classes, settings):
-    assert num_classes == settings['num_classes'], \
-        'num_classes should be {}, but is {}'.format(
-            settings['num_classes'], num_classes)
+    if num_classes != settings['num_classes']:
+        raise AssertionError('num_classes should be {}, but is {}'.format(
+                settings['num_classes'], num_classes))
     weights = model_zoo.load_url(settings['url'])
     model.load_state_dict(weights)
     model.input_space = settings['input_space']

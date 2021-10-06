@@ -30,25 +30,9 @@ Source License
 # --------------------------------------------------------
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-import copy
-import six
-import os.path as osp
-
-from ast import literal_eval
-import numpy as np
-import yaml
 import torch
-import torch.nn as nn
-from torch.nn import init
-
 
 from .utils.AttrDict import AttrDict
-
 
 __C = AttrDict()
 # Consumers can get config by:
@@ -69,6 +53,7 @@ __C.MODEL = AttrDict()
 __C.MODEL.BN = 'regularnorm'
 __C.MODEL.BNFUNC = torch.nn.BatchNorm2d
 __C.MODEL.BIGMEMORY = False
+
 
 def assert_and_infer_cfg(args, make_immutable=True):
     """Call this function in your script after you have finished setting all cfg

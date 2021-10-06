@@ -39,7 +39,7 @@ def DeepLabV3_ResNet101_MSC(n_classes, output_stride):
     elif output_stride == 8:
         pyramids = [12, 24, 36]
     else:
-        NotImplementedError
+        pass
 
     return MSC(
         scale=DeepLabV3(

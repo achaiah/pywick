@@ -2,7 +2,7 @@
 
 import math
 
-class _SignInternalDecay(object):
+class _SignInternalDecay:
     """Base class for internal decays for PowerSign and AddSign optimizers.
 
     Arguments:
@@ -28,8 +28,6 @@ class LinearInternalDecay(_SignInternalDecay):
     .. _Neural Optimizer Search with Reinforcement Learning:
         https://arxiv.org/abs/1709.07417
     """
-    def __init__(self, T_max):
-        super(LinearInternalDecay, self).__init__(T_max)
 
     def __call__(self, step):
         """Returns a linear decay at the current training step:

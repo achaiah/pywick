@@ -1,4 +1,4 @@
-__version__ = '0.6.0'
+__version__ = '0.6.5'
 __author__ = 'Achaiah'
 __description__ = 'High-level batteries-included neural network training library for Pytorch'
 
@@ -19,5 +19,6 @@ from pywick import (
     optimizers,
     regularizers,
     samplers,
-    transforms
+    transforms,
+    utils
 )

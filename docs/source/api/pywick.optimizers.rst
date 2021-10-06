@@ -5,6 +5,34 @@ Optimizers
     :members:
     :undoc-members:
 
+A2Grad
+--------------------------------
+
+.. automodule:: pywick.optimizers.a2grad
+    :members: A2GradUni, A2GradInc, A2GradExp
+    :undoc-members:
+
+AdaBelief
+--------------------------------
+
+.. automodule:: pywick.optimizers.adabelief
+    :members: AdaBelief
+    :undoc-members:
+
+AdaHessian
+--------------------------------
+
+.. automodule:: pywick.optimizers.adahessian
+    :members: Adahessian
+    :undoc-members:
+
+AdamP
+--------------------------------
+
+.. automodule:: pywick.optimizers.adamp
+    :members: AdamP
+    :undoc-members:
+
 AdamW
 --------------------------------
 
@@ -17,6 +45,20 @@ AddSign
 
 .. automodule:: pywick.optimizers.addsign
     :members: AddSign
+    :undoc-members:
+
+Apollo
+--------------------------------
+
+.. automodule:: pywick.optimizers.apollo
+    :members: Apollo
+    :undoc-members:
+
+Lars
+----------------------------
+
+.. automodule:: pywick.optimizers.lars
+    :members: Lars
     :undoc-members:
 
 Eve
@@ -33,6 +75,20 @@ Lookahead
     :members: Lookahead
     :undoc-members:
 
+LookaheadSGD
+------------------------------
+
+.. automodule:: pywick.optimizers.lookaheadsgd
+    :members:
+    :undoc-members:
+
+MADGrad
+------------------------------
+
+.. automodule:: pywick.optimizers.madgrad
+    :members: MADGRAD
+    :undoc-members:
+
 Nadam
 ------------------------------
 
@@ -45,6 +101,13 @@ PowerSign
 
 .. automodule:: pywick.optimizers.powersign
     :members: PowerSign
+    :undoc-members:
+
+QHAdam
+------------------------------
+
+.. automodule:: pywick.optimizers.qhadam
+    :members: QHAdam
     :undoc-members:
 
 RAdam

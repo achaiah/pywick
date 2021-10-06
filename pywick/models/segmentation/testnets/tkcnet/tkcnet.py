@@ -5,7 +5,6 @@
 # Email: wutianyi@ict.ac.cn
 # Copyright (c) 2018
 ###########################################################################
-from __future__ import division
 import torch
 import torch.nn as nn
 from torch.nn.functional import upsample
@@ -13,6 +12,7 @@ from .base import BaseNet
 
 
 __all__ = ['TKCNet', 'get_tkcnet', 'TKCNet_Resnet101']
+
 
 class TKCNet(BaseNet):
     """Tree-structured Kronecker Convolutional Networks for Semantic Segmentation, 
@@ -69,7 +69,8 @@ class TFAHead(nn.Module):
                                         nn.ReLU())
         self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(inter_channels, out_channels, 1))
     
-    def _make_level(self, inChannel, outChannel, r1, r2, norm_layer):
+    @staticmethod
+    def _make_level(inChannel, outChannel, r1, r2, norm_layer):
         avg_agg = nn.AvgPool2d(r2, stride =1, padding= r2 // 2)
         conv = nn.Sequential( nn.Conv2d(inChannel, outChannel, kernel_size= 3, stride= 1, padding = r1, dilation = r1 ),
                               norm_layer(outChannel),

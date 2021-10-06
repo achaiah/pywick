@@ -295,15 +295,15 @@ class InceptionV4(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
 
-def inceptionv4(pretrained='imagenet'):
+def inceptionv4(num_classes=10, pretrained='imagenet'):
     # both 'imagenet'&'imagenet+background' are loaded from same parameters
-    model = InceptionV4(num_classes=1001)
+    model = InceptionV4(num_classes=num_classes)
     if pretrained:
         settings = pretrained_settings['inceptionv4'][pretrained]
         model.load_state_dict(model_zoo.load_url(settings['url']))
@@ -332,12 +332,16 @@ python -m pretrainedmodels.inceptionv4
 ```
 '''
 if __name__ == '__main__':
-    assert inceptionv4(num_classes=10, pretrained=None)
+    if not inceptionv4(num_classes=10, pretrained=None):
+        raise AssertionError
     print('success')
-    assert inceptionv4(num_classes=1000, pretrained='imagenet')
+    if not inceptionv4(num_classes=1000, pretrained='imagenet'):
+        raise AssertionError
     print('success')
-    assert inceptionv4(num_classes=1001, pretrained='imagenet+background')
+    if not inceptionv4(num_classes=1001, pretrained='imagenet+background'):
+        raise AssertionError
     print('success')
 
     # fail
-    assert inceptionv4(num_classes=1001, pretrained='imagenet')
+    if not inceptionv4(num_classes=1001, pretrained='imagenet'):
+        raise AssertionError

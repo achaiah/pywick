@@ -1,40 +1,37 @@
-from __future__ import print_function, division, absolute_import
 import torch.nn as nn
 from functools import reduce
 
 class LambdaBase(nn.Sequential):
-    def __init__(self, *args):
-        super(LambdaBase, self).__init__(*args)
 
-    def forward_prepare(self, input):
+    def forward_prepare(self, input_):
         output = []
         for module in self._modules.values():
-            output.append(module(input))
-        return output if output else input
+            output.append(module(input_))
+        return output if output else input_
 
 class Lambda(LambdaBase):
     def __init__(self, *args):
         super(Lambda, self).__init__(*args)
         self.lambda_func = identity
 
-    def forward(self, input):
-        return self.lambda_func(self.forward_prepare(input))
+    def forward(self, input_):
+        return self.lambda_func(self.forward_prepare(input_))
 
 class LambdaMap(LambdaBase):
     def __init__(self, *args):
         super(LambdaMap, self).__init__(*args)
         self.lambda_func = identity
 
-    def forward(self, input):
-        return list(map(self.lambda_func,self.forward_prepare(input)))
+    def forward(self, input_):
+        return list(map(self.lambda_func, self.forward_prepare(input_)))
 
 class LambdaReduce(LambdaBase):
     def __init__(self, *args):
         super(LambdaReduce, self).__init__(*args)
         self.lambda_func = add
 
-    def forward(self, input):
-        return reduce(self.lambda_func,self.forward_prepare(input))
+    def forward(self, input_):
+        return reduce(self.lambda_func, self.forward_prepare(input_))
 
 def identity(x): return x
 

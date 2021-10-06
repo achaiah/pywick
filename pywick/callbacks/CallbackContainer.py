@@ -6,7 +6,7 @@ def _get_current_time():
     return time_s, datetime.datetime.fromtimestamp(time_s).strftime("%B %d, %Y - %I:%M%p")
 
 
-class CallbackContainer(object):
+class CallbackContainer:
     """
     Container holding a list of callbacks.
     """
@@ -15,8 +15,7 @@ class CallbackContainer(object):
         self.initial_epoch = -1
         self.final_epoch = -1
         self.has_val_data = False
-        callbacks = callbacks or []
-        self.callbacks = [c for c in callbacks]
+        self.callbacks = callbacks or []
         self.queue_length = queue_length
 
     def append(self, callback):

@@ -35,13 +35,12 @@ def pil_loader(path, color_space=''):
             return Image.open(path).convert('RGBA')
         elif color_space.lower() == 'l':
             return Image.open(path).convert('L')
-        elif color_space.lower() == '1' or color_space.lower() == 'binary':
+        elif color_space.lower() in ('1', 'binary'):
             return Image.open(path).convert('1')
         else:
             return Image.open(path)
     except OSError:
-        print("!!!  Could not read path: " + path)
-        exit(2)
+        raise Exception("!!!  Could not read path: " + path)
 
 
 def pil_loader_rgb(path):
@@ -118,10 +117,10 @@ def _multi_arg_pass_through(*x):
 
 
 def _find_classes(dirs):
-    classes = list()
-    for dir in dirs:
-        dir = os.path.expanduser(dir)
-        loc_classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
+    classes = []
+    for dir_ in dirs:
+        dir_ = os.path.expanduser(dir_)
+        loc_classes = [d for d in os.listdir(dir_) if os.path.isdir(os.path.join(dir_, d))]
         for cls in loc_classes:
             if cls not in classes:
                 classes.append(cls)
@@ -164,7 +163,7 @@ def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='
         The list must contain paths relative to the root parameter\n
         each line may include the filename and additional comma-separated metadata, in which case the first item will be considered the path itself and the rest will be ignored
 
-    :return: partition1 (list of (input, target)), partition2 (list of (input, target))
+    :return: partition1 (list of (input_, target)), partition2 (list of (input_, target))
     """
     if class_mode not in ('image', 'label', 'path'):
         raise ValueError('class_mode must be one of: {label, image, path}')
@@ -226,7 +225,8 @@ def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='
     if class_mode is None:
         return trainlist_inputs, vallist_inputs
     else:
-        assert len(trainlist_inputs) == len(trainlist_targets) and len(vallist_inputs) == len(vallist_targets)
+        if not (len(trainlist_inputs) == len(trainlist_targets) and len(vallist_inputs) == len(vallist_targets)):
+            raise AssertionError
         print("Total processed: %i    Train-list: %i items   Val-list: %i items    Exclusion-list: %i items" % (icount, len(trainlist_inputs), len(vallist_inputs), len(exclusion_list)))
         return list(zip(trainlist_inputs, trainlist_targets)), list(zip(vallist_inputs, vallist_targets))
 
@@ -271,9 +271,66 @@ def get_dataset_mean_std(data_set, img_size=256, output_div=255.0):
     return total.mean(1) / output_div, total.std(1) / output_div        # return channel-wise mean for the entire dataset
 
 
+def adjust_dset_length(dataset, num_batches: int, num_devices: int, batch_size: int):
+    """
+    To properly distribute computation across devices (typically GPUs) we need to meet two criteria:
+        1. batch size on each device must be > 1
+        2. dataset must be evenly partitioned across devices in specified batches
+
+    :param dataset:         Dataset to trim
+    :param num_batches:     Number of batches that dset will be partitioned into
+    :param num_devices:     Number of devices dset will be distributed onto
+    :param batch_size:      Size of individual batch
+    :return:
+    """
+
+    # We need to trim the dataset if it cannot be split evenly among num_devices with batch_size batches.
+    # Formula is:
+    #               num_batches = DataLen / (num_devices * batch_size)
+    #               remainderLen = DataLen - (num_batches * num_devices * batch_size)
+    #               if remainderLen / num_devices < 2
+    #                   remove remainderLen items
+    #               else if (remainderLen / num_devices) % 2 != 0
+    #                   remove remainderLen - ((remainderLen // num_devices) * num_devices)
+    #                   remainderLen = DataLen - (num_batches * num_devices * batch_size)
+    #                   if remainderLen / num_devices < 2
+    #                       remove remainderLen items
+
+    remainder_len = len(dataset) - (num_batches * num_devices * batch_size)
+    if remainder_len * 1. / num_devices < 2:
+        num_remove = remainder_len
+        for _ in range(num_remove):
+            last_el = dataset.data.pop()
+            print(f"  ==> WARN: Data element removed: {last_el}.")
+        print(
+            f"  ==> WARN: Length of training set ({len(dataset)}) did not fit onto num Devices: {num_devices}. Removing {num_remove} data elements to avoid training issues with BatchNorm")
+        print(f"New dataset length is: {len(dataset)}")
+        print('| -------------- |')
+
+    elif (remainder_len / num_devices) % 2 != 0:
+        num_remove = remainder_len - ((remainder_len // num_devices) * num_devices)
+        for _ in range(num_remove):
+            last_el = dataset.data.pop()
+            print(f"  ==> WARN: Data element removed: {last_el}.")
+        print(
+            f"  ==> WARN: Length of training set ({len(dataset)}) did not fit onto num Devices: {num_devices}. Removing {num_remove} data elements to avoid training issues with BatchNorm")
+        print(f"New dataset length is: {len(dataset)}")
+
+        remainder_len = len(dataset) - (num_batches * num_devices * batch_size)
+        if remainder_len * 1. / num_devices < 2:
+            num_remove = remainder_len
+            for _ in range(num_remove):
+                last_el = dataset.data.pop()
+                print(f"  ==> WARN: Data element removed: {last_el}.")
+            print(
+                f"  ==> WARN: Length of training set ({len(dataset)}) did not fit onto GPUs with len: {num_devices}. Removing {num_remove} data elements to avoid training issues with BatchNorm")
+            print(f"New dataset length is: {len(dataset)}")
+
+        print('| -------------- |')
+
+
 if __name__ == "__main__":
     from pywick.datasets.FolderDataset import FolderDataset
-    from pywick.datasets.data_utils import pil_loader_rgb
 
     dataset = FolderDataset(root='/home/users/youruser/images', class_mode='label', default_loader=pil_loader_rgb)
     mean, std = get_dataset_mean_std(dataset)

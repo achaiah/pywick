@@ -24,7 +24,6 @@ Francois Chollet
 #
 # The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
 
-from __future__ import print_function, division, absolute_import
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
@@ -165,8 +164,8 @@ class Xception(nn.Module):
         #         m.bias.data.zero_()
         # #-----------------------------
 
-    def features(self, input):
-        x = self.conv1(input)
+    def features(self, input_):
+        x = self.conv1(input_)
         x = self.bn1(x)
         x = self.relu1(x)
 
@@ -203,8 +202,8 @@ class Xception(nn.Module):
         x = self.last_linear(x)
         return x
 
-    def forward(self, input):
-        x = self.features(input)
+    def forward(self, input_):
+        x = self.features(input_)
         x = self.logits(x)
         return x
 
