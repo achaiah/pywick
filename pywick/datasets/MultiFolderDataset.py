@@ -119,8 +119,7 @@ class MultiFolderDataset(FolderDataset):
 
             if len(self.data) == 0:
                 raise (RuntimeError('Found 0 data items in subfolders of: {}'.format(roots)))
-            else:
-                print('Found %i data items' % len(self.data))
+            print('Found %i data items' % len(self.data))
 
             self.roots = [os.path.expanduser(x) for x in roots]
             self.transform = transform
