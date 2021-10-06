@@ -19,8 +19,7 @@ class ClonedFolderDataset(FolderDataset):
 
         if len(data) == 0:
             raise (RuntimeError('No data provided'))
-        else:
-            print('Initializing with %i data items' % len(data))
+        print('Initializing with %i data items' % len(data))
 
         self.data = data
 
