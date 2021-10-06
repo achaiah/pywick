@@ -13,7 +13,7 @@ class CondType(Enum):
     PRE = auto()
     POST = auto()
 
-class ConditionsContainer(object):
+class ConditionsContainer:
     '''
     This container maintains metadata about the execution environment in which the conditions are performed
 
@@ -80,7 +80,7 @@ class ConditionsContainer(object):
                 logs[self.prefix + condition._name] = logs_out
         return logs
 
-class Condition(object):
+class Condition:
     """
     Default class from which all other Condition implementations inherit.
     """

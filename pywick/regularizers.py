@@ -4,7 +4,7 @@ from fnmatch import fnmatch
 
 from .callbacks import Callback
 
-class RegularizerContainer(object):
+class RegularizerContainer:
 
     def __init__(self, regularizers):
         self.regularizers = regularizers
@@ -47,7 +47,7 @@ class RegularizerCallback(Callback):
         self.container.reset()
 
 
-class Regularizer(object):
+class Regularizer:
 
     def reset(self):
         raise NotImplementedError('subclass must implement this method')

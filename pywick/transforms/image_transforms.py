@@ -15,7 +15,7 @@ import numpy as np
 from ..utils import th_random_choice
 
 
-class DeNormalize(object):
+class DeNormalize:
     """
     Denormalizes a tensor using provided mean, std
     """
@@ -29,7 +29,7 @@ class DeNormalize(object):
         return tensor
 
 
-class MaskToSqueezedTensor(object):
+class MaskToSqueezedTensor:
     """
     Removes empty dimensions from the mask and converts to a torch.float32 tensor.
     Typically used with B/W masks to remove the "channel" dimension
@@ -44,7 +44,7 @@ class MaskToSqueezedTensor(object):
         return self.to_tensor(img).squeeze()
 
 
-class MaskPixelsToMap(object):
+class MaskPixelsToMap:
     """
     Replaces the pixel values in range [0-255] with class values from supplied value_map.
 
@@ -68,7 +68,7 @@ class MaskPixelsToMap(object):
         return mask.astype(np.uint8)    # make sure it's in UINT8 format
 
 
-class MaskToTensor(object):
+class MaskToTensor:
     """
     Converts a PIL, numpy or CV image to a torch.long representation
     """
@@ -76,7 +76,7 @@ class MaskToTensor(object):
         return th.from_numpy(np.array(img, dtype=np.int32)).long()
 
 
-class MaskToFloatTensor(object):
+class MaskToFloatTensor:
     """
     Converts a PIL, numpy or CV image to a torch.float32 representation
     """
@@ -108,7 +108,7 @@ def _blend(img1, img2, alpha):
     return img1.mul(alpha).add(1 - alpha, img2)
 
 
-class Grayscale(object):
+class Grayscale:
 
     def __init__(self, keep_channels=False):
         """
@@ -136,7 +136,7 @@ class Grayscale(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class RandomGrayscale(object):
+class RandomGrayscale:
 
     def __init__(self, p=0.5):
         """
@@ -159,7 +159,7 @@ class RandomGrayscale(object):
 # ----------------------------------------------------
 # ----------------------------------------------------
 
-class Gamma(object):
+class Gamma:
 
     def __init__(self, value):
         """
@@ -186,7 +186,7 @@ class Gamma(object):
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
-class RandomGamma(object):
+class RandomGamma:
 
     def __init__(self, min_val, max_val):
         """
@@ -216,7 +216,7 @@ class RandomGamma(object):
         outputs = Gamma(value)(*inputs)
         return outputs
 
-class RandomChoiceGamma(object):
+class RandomChoiceGamma:
 
     def __init__(self, values, p=None):
         """
@@ -251,7 +251,7 @@ class RandomChoiceGamma(object):
 # ----------------------------------------------------
 # ----------------------------------------------------
 
-class Brightness(object):
+class Brightness:
     def __init__(self, value):
         """
         Alter the Brightness of an image
@@ -275,7 +275,7 @@ class Brightness(object):
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
-class RandomBrightness(object):
+class RandomBrightness:
 
     def __init__(self, min_val, max_val):
         """
@@ -296,7 +296,7 @@ class RandomBrightness(object):
         outputs = Brightness(value)(*inputs)
         return outputs
 
-class RandomChoiceBrightness(object):
+class RandomChoiceBrightness:
 
     def __init__(self, values, p=None):
         """
@@ -322,7 +322,7 @@ class RandomChoiceBrightness(object):
 # ----------------------------------------------------
 # ----------------------------------------------------
 
-class Saturation(object):
+class Saturation:
 
     def __init__(self, value):
         """
@@ -349,7 +349,7 @@ class Saturation(object):
             outputs.append(_in)
         return outputs if idx >= 1 else outputs[0]
 
-class RandomSaturation(object):
+class RandomSaturation:
 
     def __init__(self, min_val, max_val):
         """
@@ -370,7 +370,7 @@ class RandomSaturation(object):
         outputs = Saturation(value)(*inputs)
         return outputs
 
-class RandomChoiceSaturation(object):
+class RandomChoiceSaturation:
 
     def __init__(self, values, p=None):
         """
@@ -397,7 +397,7 @@ class RandomChoiceSaturation(object):
 # ----------------------------------------------------
 # ----------------------------------------------------
 
-class Contrast(object):
+class Contrast:
     """
 
     """
@@ -431,7 +431,7 @@ class Contrast(object):
             outputs.append(_input)
         return outputs if idx >= 1 else outputs[0]
 
-class RandomContrast(object):
+class RandomContrast:
 
     def __init__(self, min_val, max_val):
         """
@@ -452,7 +452,7 @@ class RandomContrast(object):
         outputs = Contrast(value)(*inputs)
         return outputs
 
-class RandomChoiceContrast(object):
+class RandomChoiceContrast:
 
     def __init__(self, values, p=None):
         """

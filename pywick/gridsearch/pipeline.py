@@ -8,7 +8,7 @@ def merge_dicts(*dict_args):
         result.update(dictionary)
     return result
 
-class Pipeline(object):
+class Pipeline:
     """
     Defines a pipeline for operating on data. Output of first function will be passed to the second and so forth.
 

@@ -6,7 +6,7 @@ def _get_current_time():
     return time_s, datetime.datetime.fromtimestamp(time_s).strftime("%B %d, %Y - %I:%M%p")
 
 
-class CallbackContainer(object):
+class CallbackContainer:
     """
     Container holding a list of callbacks.
     """

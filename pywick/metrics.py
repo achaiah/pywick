@@ -7,7 +7,7 @@ from .losses import lovaszloss, hingeloss, dice_coeff
 def is_iterable(x):
     return isinstance(x, (tuple, list))
 
-class MetricContainer(object):
+class MetricContainer:
     def __init__(self, metrics, prefix=''):
         self.metrics = metrics
         self.helper = None
@@ -29,7 +29,7 @@ class MetricContainer(object):
                 logs[self.prefix + metric._name] = metric_out
         return logs
 
-class Metric(object):
+class Metric:
 
     def __call__(self, inputs, y_pred, y_true, is_val):
         '''
