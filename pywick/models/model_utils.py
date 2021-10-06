@@ -261,7 +261,7 @@ def get_supported_models(type: ModelType):
         pt_excludes = []
         for importer, modname, ispkg in pkgutil.walk_packages(path=torch_models.__path__, prefix=torch_models.__name__+".", onerror=lambda x: None):
             pt_excludes.append(modname.split('.')[-1])
-        pt_names = [x for x in torch_models.__dict__.keys() if '__' not in x and x not in pt_excludes]  # includes directory and filenames
+        pt_names = [x for x in torch_models.__dict__ if '__' not in x and x not in pt_excludes]  # includes directory and filenames
 
         torch_hub_names = torch.hub.list(rwightman_repo, force_reload=True)
 

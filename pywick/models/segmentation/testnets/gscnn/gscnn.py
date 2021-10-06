@@ -221,7 +221,6 @@ class GSCNN(nn.Module):
         self.pool2 = wide_resnet.pool2
         self.pool3 = wide_resnet.pool3
         self.interpolate = F.interpolate
-        del wide_resnet
 
         self.dsn1 = nn.Conv2d(64, 1, 1)
         self.dsn3 = nn.Conv2d(256, 1, 1)

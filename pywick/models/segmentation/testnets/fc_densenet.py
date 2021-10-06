@@ -45,7 +45,7 @@ class FCDenseNet(Module):
 
         if type(down_dense_growth_rates) is int:
             down_dense_growth_rates = (down_dense_growth_rates,) * 5
-        if down_dense_bottleneck_ratios is None or type(down_dense_bottleneck_ratios) == int:
+        if down_dense_bottleneck_ratios is None or type(down_dense_bottleneck_ratios) is int:
             down_dense_bottleneck_ratios = (down_dense_bottleneck_ratios,) * 5
         if type(down_dense_num_layers) is int:
             down_dense_num_layers = (down_dense_num_layers,) * 5
@@ -54,7 +54,7 @@ class FCDenseNet(Module):
 
         if type(up_dense_growth_rates) is int:
             up_dense_growth_rates = (up_dense_growth_rates,) * 5
-        if up_dense_bottleneck_ratios is None or type(up_dense_bottleneck_ratios) == int:
+        if up_dense_bottleneck_ratios is None or type(up_dense_bottleneck_ratios) is int:
             up_dense_bottleneck_ratios = (up_dense_bottleneck_ratios,) * 5
         if type(up_dense_num_layers) is int:
             up_dense_num_layers = (up_dense_num_layers,) * 5

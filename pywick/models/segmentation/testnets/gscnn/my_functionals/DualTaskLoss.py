@@ -93,7 +93,6 @@ class DualTaskLoss(nn.Module):
     def __init__(self, cuda=False):
         super(DualTaskLoss, self).__init__()
         self._cuda = cuda
-        return
 
     def forward(self, input_logits, gts, ignore_pixel=255):
         """

@@ -49,11 +49,11 @@ class Apollo(Optimizer):
             raise ValueError('Invalid epsilon value: {}'.format(eps))
         if not 0.0 <= beta < 1.0:
             raise ValueError('Invalid beta parameter: {}'.format(beta))
-        if not 0.0 <= weight_decay:
+        if 0.0 > weight_decay:
             raise ValueError(
                 'Invalid weight_decay value: {}'.format(weight_decay)
             )
-        if not 0.0 <= warmup:
+        if 0.0 > warmup:
             raise ValueError('Invalid warmup updates: {}'.format(warmup))
         if not 0.0 <= init_lr <= 1.0:
             raise ValueError(

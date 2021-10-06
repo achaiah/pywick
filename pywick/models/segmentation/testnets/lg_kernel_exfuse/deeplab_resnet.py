@@ -403,18 +403,10 @@ class ModelBuilder():
         pretrained = True if len(weights) == 0 else False
         if arch == 'resnet34':
             raise NotImplementedError
-            orig_resnet = resnet.__dict__['resnet34'](pretrained=pretrained)
-            net_encoder = Resnet(orig_resnet)
         elif arch == 'resnet34_dilated8':
             raise NotImplementedError
-            orig_resnet = resnet.__dict__['resnet34'](pretrained=pretrained)
-            net_encoder = ResnetDilated(orig_resnet,
-                                        dilate_scale=8)
         elif arch == 'resnet34_dilated16':
             raise NotImplementedError
-            orig_resnet = resnet.__dict__['resnet34'](pretrained=pretrained)
-            net_encoder = ResnetDilated(orig_resnet,
-                                        dilate_scale=16)
         elif arch == 'resnet50':
             orig_resnet = resnet.resnet50(**kwargs)
             net_encoder = Resnet(orig_resnet)
