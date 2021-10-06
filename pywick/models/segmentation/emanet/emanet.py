@@ -117,7 +117,7 @@ class ResNet(nn.Module):
         if grids is None:
             grids = [1] * blocks
 
-        if dilation == 1 or dilation == 2:
+        if dilation in (1, 2):
             layers.append(block(self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample,
                                 previous_dilation=dilation))

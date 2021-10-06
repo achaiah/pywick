@@ -2704,7 +2704,7 @@ class HausdorffDTLoss(nn.Module):
         """
         labels = labels.unsqueeze(1)
 
-        assert logits.dim() == 4 or logits.dim() == 5, "Only 2D and 3D supported"
+        assert logits.dim() in (4, 5), "Only 2D and 3D supported"
         assert (logits.dim() == labels.dim()), "Prediction and target need to be of same dimension"
 
         # this is necessary for binary loss
@@ -2802,7 +2802,7 @@ class HausdorffERLoss(nn.Module):
         target: (b, 1, x, y, z) or (b, 1, x, y)
         """
         target = target.unsqueeze(1)
-        assert pred.dim() == 4 or pred.dim() == 5, "Only 2D and 3D supported"
+        assert pred.dim() in (4, 5), "Only 2D and 3D supported"
         assert (pred.dim() == target.dim()), "Prediction and target need to be of same dimension"
 
         pred = torch.sigmoid(pred)

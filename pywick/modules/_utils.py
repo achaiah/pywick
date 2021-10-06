@@ -53,7 +53,7 @@ def _standardize_user_data(inputs, targets=None):
 
 def _validate_metric_input(metric):
     if isinstance(metric, str):
-        if metric.upper() == 'CATEGORICAL_ACCURACY' or metric.upper() == 'ACCURACY':
+        if metric.upper() in ('CATEGORICAL_ACCURACY', 'ACCURACY'):
             return CategoricalAccuracy()
         elif metric.upper() == 'BINARY_ACCURACY':
             return BinaryAccuracy()
