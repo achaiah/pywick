@@ -61,10 +61,7 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
                 mxnet_key += key_add
             else:
                 # middle blocks
-                if model.b and 'c1x1_c' in k[2]:
-                    bc_block = True  # b-variant split c-block special treatment
-                else:
-                    bc_block = False
+                bc_block = bool(model.b and 'c1x1_c' in k[2])
                 ck = k[1].split('_')
                 mxnet_key += ck[0] + '_x__' + ck[1] + '_'
                 ck = k[2].split('_')
