@@ -123,6 +123,7 @@ class Affine(object):
             interp = self.interp
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             input_tf = th_affine2d(_input, self.tform_matrix, mode=interp[idx])
             outputs.append(input_tf)
@@ -172,6 +173,7 @@ class AffineCompose(object):
             interp = self.interp
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             input_tf = th_affine2d(_input,
                                    tform_matrix,
@@ -310,6 +312,7 @@ class Rotate(object):
             return rotation_matrix
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             input_tf = th_affine2d(_input, rotation_matrix, mode=interp[idx], center=True)
             outputs.append(input_tf)
@@ -471,6 +474,7 @@ class Translate(object):
             return translation_matrix
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             input_tf = th_affine2d(_input, translation_matrix, mode=interp[idx], center=True)
             outputs.append(input_tf)
@@ -587,6 +591,7 @@ class Shear(object):
             return shear_matrix
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             input_tf = th_affine2d(_input, shear_matrix, mode=interp[idx], center=True)
             outputs.append(input_tf)
@@ -770,6 +775,7 @@ class Zoom(object):
             return zoom_matrix
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             input_tf = th_affine2d(_input, zoom_matrix, mode=interp[idx], center=True)
             outputs.append(input_tf)

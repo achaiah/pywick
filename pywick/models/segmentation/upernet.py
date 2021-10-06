@@ -36,13 +36,13 @@ def summary(model, input_shape, batch_size=-1, intputshow=True):
     """
 
     def register_hook(module):
-        def hook(module, input, output=None):
+        def hook(module, i_input, output=None):
             class_name = str(module.__class__).split(".")[-1].split("'")[0]
             module_idx = len(summary)
 
             m_key = "%s-%i" % (class_name, module_idx + 1)
             summary[m_key] = OrderedDict()
-            summary[m_key]["input_shape"] = list(input[0].size())
+            summary[m_key]["input_shape"] = list(i_input[0].size())
             summary[m_key]["input_shape"][0] = batch_size
 
             params = 0
@@ -132,7 +132,7 @@ class BaseModel(nn.Module):
         super(BaseModel, self).__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def forward(self):
+    def forward(self, x):
         raise NotImplementedError
 
     def summary(self):

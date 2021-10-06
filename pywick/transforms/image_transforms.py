@@ -128,6 +128,7 @@ class Grayscale(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input_dst = _input[0]*0.299 + _input[1]*0.587 + _input[2]*0.114
             _input_gs = _input_dst.repeat(self.channels,1,1)
@@ -179,6 +180,7 @@ class Gamma(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = th.pow(_input, self.value)
             outputs.append(_input)
@@ -267,6 +269,7 @@ class Brightness(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = th.clamp(_input.float().add(self.value).type(_input.type()), 0, 1)
             outputs.append(_input)
@@ -338,6 +341,7 @@ class Saturation(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _in_gs = Grayscale(keep_channels=True)(_input)
             alpha = 1.0 + self.value
@@ -419,6 +423,7 @@ class Contrast(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             channel_means = _input.mean(1, keepdim=True).mean(2, keepdim=True)
             channel_means = channel_means.expand_as(_input)

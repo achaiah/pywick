@@ -50,6 +50,7 @@ class ToTensor(object):
     """
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = th.from_numpy(_input)
             outputs.append(_input)
@@ -90,10 +91,10 @@ class ToNumpyType(object):
     def __init__(self, type):
         self.type = type
 
-    def __call__(self, input):
-        if isinstance(input, list):     # handle a simple list
-            return np.array(input, dtype=self.type)
-        return input.astype(self.type)
+    def __call__(self, i_input):
+        if isinstance(i_input, list):     # handle a simple list
+            return np.array(i_input, dtype=self.type)
+        return i_input.astype(self.type)
 
 
 class ChannelsLast(object):
@@ -114,9 +115,10 @@ class ChannelsLast(object):
             # check if channels are already last
             if inputs[0].size(-1) < inputs[0].size(0):
                 return inputs
-        plist = list(range(1,ndim))+[0]
+        plist = list(range(1, ndim))+[0]
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.permute(*plist)
             outputs.append(_input)
@@ -147,6 +149,7 @@ class ChannelsFirst(object):
         plist = [ndim-1] + list(range(0,ndim-1))
 
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.permute(*plist)
             outputs.append(_input)
@@ -205,6 +208,7 @@ class TypeCast(object):
             dtypes = self.dtype
         
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.type(dtypes[idx])
             outputs.append(_input)
@@ -223,6 +227,7 @@ class AddChannel(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.unsqueeze(self.axis)
             outputs.append(_input)
@@ -249,6 +254,7 @@ class Transpose(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = th.transpose(_input, self.dim1, self.dim2)
             outputs.append(_input)
@@ -292,6 +298,7 @@ class RangeNormalize(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _min_val = _input.min()
             _max_val = _input.max()
@@ -308,6 +315,7 @@ class StdNormalize(object):
     """
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.sub(_input.mean()).div(_input.std())
             outputs.append(_input)
@@ -373,6 +381,7 @@ class RandomCrop(object):
         h_idx = random.randint(0,inputs[0].size(1)-self.size[0])
         w_idx = random.randint(0,inputs[1].size(2)-self.size[1])
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input[:, h_idx:(h_idx+self.size[0]),w_idx:(w_idx+self.size[1])]
             outputs.append(_input)
@@ -541,6 +550,7 @@ class RandomOrder(object):
     def __call__(self, *inputs):
         order = th.randperm(inputs[0].dim())
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             _input = _input.index_select(0, order)
             outputs.append(_input)

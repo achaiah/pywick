@@ -64,8 +64,8 @@ class GatedSpatialConv2d(_ConvNd):
 
 
 class Conv2dPad(nn.Conv2d):
-    def forward(self, input):
-        return conv2d_same_myF(input,self.weight,self.groups)
+    def forward(self, i_input):
+        return conv2d_same_myF(i_input, self.weight, self.groups)
 
 class HighFrequencyGatedSpatialConv2d(_ConvNd):
     def __init__(self, in_channels, out_channels, kernel_size=1, stride=1,

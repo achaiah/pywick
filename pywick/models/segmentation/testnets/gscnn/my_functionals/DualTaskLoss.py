@@ -35,8 +35,8 @@ import torch.nn.functional as F
 import numpy as np
 from .custom_functional import compute_grad_mag
 
-def perturbate_input_(input, n_elements=200):
-    N, C, H, W = input.shape
+def perturbate_input_(i_input, n_elements=200):
+    N, C, H, W = i_input.shape
     if N != 1:
         raise AssertionError
     c_ = np.random.random_integers(0, C - 1, n_elements)
@@ -45,8 +45,8 @@ def perturbate_input_(input, n_elements=200):
     for c_idx in c_:
         for h_idx in h_:
             for w_idx in w_:
-                input[0, c_idx, h_idx, w_idx] = 1
-    return input
+                i_input[0, c_idx, h_idx, w_idx] = 1
+    return i_input
 
 def _sample_gumbel(shape, eps=1e-10):
     """

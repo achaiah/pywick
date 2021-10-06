@@ -189,7 +189,7 @@ if __name__ == "__main__":
     # Create a configuration object to run this experiment
     with open(config_path, 'r') as f:
         if config_path.endswith('.yml') or config_path.endswith('.yaml'):
-            config = ExpConfig.from_dict(yaml.load(f)['train'])  # loads the 'train' configuration from yaml
+            config = ExpConfig.from_dict(yaml.safe_load(f)['train'])  # loads the 'train' configuration from yaml
         elif config_path.endswith('.json'):
             config = ExpConfig.from_dict(json.load(f)['train'])  # loads the 'train' configuration from json
         else:

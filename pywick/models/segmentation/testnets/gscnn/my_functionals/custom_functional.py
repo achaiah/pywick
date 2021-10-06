@@ -19,8 +19,8 @@ def calc_pad_same(in_siz, out_siz, stride, ksize):
     return (out_siz - 1) * stride + ksize - in_siz
 
 
-def conv2d_same(input, kernel, groups,bias=None,stride=1,padding=0,dilation=1):
-    n, c, h, w = input.shape
+def conv2d_same(i_input, kernel, groups, bias=None, stride=1, padding=0, dilation=1):
+    n, c, h, w = i_input.shape
     kout, ki_c_g, kh, kw = kernel.shape
     pw = calc_pad_same(w, w, 1, kw)
     ph = calc_pad_same(h, h, 1, kh)
@@ -29,15 +29,15 @@ def conv2d_same(input, kernel, groups,bias=None,stride=1,padding=0,dilation=1):
     ph_t = ph // 2
     ph_b = ph - ph_t
 
-    input_ = F.pad(input, (pw_l, pw_r, ph_t, ph_b))
+    input_ = F.pad(i_input, (pw_l, pw_r, ph_t, ph_b))
     result = F.conv2d(input_, kernel, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups)
-    if result.shape != input.shape:
+    if result.shape != i_input.shape:
         raise AssertionError
     return result
 
 
-def gradient_central_diff(input, cuda):
-    return input, input
+def gradient_central_diff(i_input, cuda):
+    return i_input, i_input
     kernel = [[1, 0, -1]]
     kernel_t = 0.5 * torch.Tensor(kernel) * -1.  # pytorch implements correlation instead of conv
     if type(cuda) is int:
@@ -46,10 +46,10 @@ def gradient_central_diff(input, cuda):
     else:
         if cuda is True:
             kernel_t = kernel_t.cuda()
-    n, c, h, w = input.shape
+    n, c, h, w = i_input.shape
 
-    x = conv2d_same(input, kernel_t.unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]), c)
-    y = conv2d_same(input, kernel_t.t().unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]), c)
+    x = conv2d_same(i_input, kernel_t.unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]), c)
+    y = conv2d_same(i_input, kernel_t.t().unsqueeze(0).unsqueeze(0).repeat([c, 1, 1, 1]), c)
     return x, y
 
 
@@ -64,35 +64,35 @@ def compute_single_sided_diferences(o_x, o_y, input):
     return o_x, o_y
 
 
-def numerical_gradients_2d(input, cuda=False):
+def numerical_gradients_2d(i_input, cuda=False):
     """
     numerical gradients implementation over batches using torch group conv operator.
     the single sided differences are re-computed later.
     it matches np.gradient(image) with the difference than here output=x,y for an image while there output=y,x
-    :param input: N,C,H,W
+    :param i_input: N,C,H,W
     :param cuda: whether or not use cuda
     :return: X,Y
     """
-    n, c, h, w = input.shape
+    n, c, h, w = i_input.shape
     if not (h > 1 and w > 1):
         raise AssertionError
-    x, y = gradient_central_diff(input, cuda)
+    x, y = gradient_central_diff(i_input, cuda)
     return x, y
 
 
-def convTri(input, r, cuda=False):
+def convTri(i_input, r, cuda=False):
     """
     Convolves an image by a 2D triangle filter (the 1D triangle filter f is
     [1:r r+1 r:-1:1]/(r+1)^2, the 2D version is simply conv2(f,f'))
-    :param input:
+    :param i_input:
     :param r: integer filter radius
     :param cuda: move the kernel to gpu
     :return:
     """
     if (r <= 1):
         raise ValueError()
-    n, c, h, w = input.shape
-    return input
+    n, c, h, w = i_input.shape
+    return i_input
     f = list(range(1, r + 1)) + [r + 1] + list(reversed(range(1, r + 1)))
     kernel = torch.Tensor([f]) / (r + 1) ** 2
     if type(cuda) is int:
@@ -103,9 +103,9 @@ def convTri(input, r, cuda=False):
             kernel = kernel.cuda()
 
     # padding w
-    input_ = F.pad(input, (1, 1, 0, 0), mode='replicate')
+    input_ = F.pad(i_input, (1, 1, 0, 0), mode='replicate')
     input_ = F.pad(input_, (r, r, 0, 0), mode='reflect')
-    input_ = [input_[:, :, :, :r], input, input_[:, :, :, -r:]]
+    input_ = [input_[:, :, :, :r], i_input, input_[:, :, :, -r:]]
     input_ = torch.cat(input_, 3)
     t = input_
 

@@ -17,6 +17,7 @@ class Scramble(object):
 
     def __call__(self, *inputs):
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             size = _input.size()
             img_height = size[1]
@@ -122,6 +123,7 @@ class Blur(object):
         inputs should have values between 0 and 255
         """
         outputs = []
+        idx = None
         for idx, _input in enumerate(inputs):
             rows = _input.size(1)
             cols = _input.size(2)

@@ -198,7 +198,7 @@ class GSCNN(nn.Module):
                   (1024, 2048, 4096)]
     '''
 
-    def __init__(self, num_classes, trunk=None, is_cuda=True, aux=False, **_):
+    def __init__(self, num_classes, is_cuda=True, aux=False, **_):
         
         super(GSCNN, self).__init__()
         # self.criterion = criterion
@@ -260,7 +260,7 @@ class GSCNN(nn.Module):
         self.sigmoid = nn.Sigmoid()
         initialize_weights(self.final_seg)
 
-    def forward(self, inp, gts=None):
+    def forward(self, inp):
 
         x_size = inp.size() 
 

@@ -118,9 +118,9 @@ def _multi_arg_pass_through(*x):
 
 def _find_classes(dirs):
     classes = []
-    for dir in dirs:
-        dir = os.path.expanduser(dir)
-        loc_classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
+    for dir_ in dirs:
+        dir_ = os.path.expanduser(dir_)
+        loc_classes = [d for d in os.listdir(dir_) if os.path.isdir(os.path.join(dir_, d))]
         for cls in loc_classes:
             if cls not in classes:
                 classes.append(cls)
@@ -163,7 +163,7 @@ def _finds_inputs_and_targets(root, class_mode, class_to_idx=None, input_regex='
         The list must contain paths relative to the root parameter\n
         each line may include the filename and additional comma-separated metadata, in which case the first item will be considered the path itself and the rest will be ignored
 
-    :return: partition1 (list of (input, target)), partition2 (list of (input, target))
+    :return: partition1 (list of (i_input, target)), partition2 (list of (i_input, target))
     """
     if class_mode not in ('image', 'label', 'path'):
         raise ValueError('class_mode must be one of: {label, image, path}')
@@ -331,7 +331,6 @@ def adjust_dset_length(dataset, num_batches: int, num_devices: int, batch_size: 
 
 if __name__ == "__main__":
     from pywick.datasets.FolderDataset import FolderDataset
-    from pywick.datasets.data_utils import pil_loader_rgb
 
     dataset = FolderDataset(root='/home/users/youruser/images', class_mode='label', default_loader=pil_loader_rgb)
     mean, std = get_dataset_mean_std(dataset)

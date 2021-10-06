@@ -20,12 +20,12 @@ model_urls = {
 }
 
 def define_model(params):
-    def conv2d(input, params, base, stride=1, pad=0):
-        return F.conv2d(input, params[base + '.weight'],
+    def conv2d(i_input, params, base, stride=1, pad=0):
+        return F.conv2d(i_input, params[base + '.weight'],
                         params[base + '.bias'], stride, pad)
 
-    def group(input, params, base, stride, n):
-        o = input
+    def group(i_input, params, base, stride, n):
+        o = i_input
         for i in range(0,n):
             b_base = ('%s.block%d.conv') % (base, i)
             x = o
@@ -45,8 +45,8 @@ def define_model(params):
     blocks = [sum([re.match('group%d.block\d+.conv0.weight'%j, k) is not None
                    for k in params.keys()]) for j in range(4)]
 
-    def f(input, params, pooling_classif=True):
-        o = F.conv2d(input, params['conv0.weight'], params['conv0.bias'], 2, 3)
+    def f(i_input, params, pooling_classif=True):
+        o = F.conv2d(i_input, params['conv0.weight'], params['conv0.bias'], 2, 3)
         o = F.relu(o)
         o = F.max_pool2d(o, 3, 2, 1)
         o_g0 = group(o, params, 'group0', 1, blocks[0])

@@ -327,10 +327,10 @@ class InceptionResNetV2(nn.Module):
         return x
 
 
-def inceptionresnetv2(pretrained='imagenet'):
+def inceptionresnetv2(num_classes=10, pretrained='imagenet'):
 
     # both 'imagenet'&'imagenet+background' are loaded from same parameters
-    model = InceptionResNetV2(num_classes=1001)
+    model = InceptionResNetV2(num_classes=num_classes)
 
     if pretrained:
         settings = pretrained_settings['inceptionresnetv2'][pretrained]

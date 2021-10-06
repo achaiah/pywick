@@ -51,7 +51,7 @@ class Network(nn.Module):
 model = Network()
 trainer = ModuleTrainer(model)
 
-trainer.compile(loss='unconstrained_sum',
+trainer.compile(criterion='unconstrained_sum',
                 optimizer='adadelta')
 
 trainer.fit([x_train, x_train, x_train],

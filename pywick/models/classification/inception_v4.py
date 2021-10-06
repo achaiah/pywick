@@ -301,9 +301,9 @@ class InceptionV4(nn.Module):
         return x
 
 
-def inceptionv4(pretrained='imagenet'):
+def inceptionv4(num_classes=10, pretrained='imagenet'):
     # both 'imagenet'&'imagenet+background' are loaded from same parameters
-    model = InceptionV4(num_classes=1001)
+    model = InceptionV4(num_classes=num_classes)
     if pretrained:
         settings = pretrained_settings['inceptionv4'][pretrained]
         model.load_state_dict(model_zoo.load_url(settings['url']))

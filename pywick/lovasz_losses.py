@@ -130,16 +130,16 @@ def flatten_binary_scores(scores, labels, ignore=None):
 class LovaszBinaryLoss(torch.nn.modules.Module):
 
     @staticmethod
-    def forward(input, target):
-        return lovasz_hinge(input, target)
+    def forward(i_input, target):
+        return lovasz_hinge(i_input, target)
 
 
 class StableBCELoss(torch.nn.modules.Module):
 
     @staticmethod
-    def forward(input, target):
-        neg_abs = - input.abs()
-        loss = input.clamp(min=0) - input * target + (1 + neg_abs.exp()).log()
+    def forward(i_input, target):
+        neg_abs = - i_input.abs()
+        loss = i_input.clamp(min=0) - i_input * target + (1 + neg_abs.exp()).log()
         return loss.mean()
 
 

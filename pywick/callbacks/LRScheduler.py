@@ -30,6 +30,7 @@ class LRScheduler(Callback):
         super(LRScheduler, self).__init__()
 
     def schedule_from_dict(self, epoch, logs=None):
+        learn_rate = None
         for epoch_bound, learn_rate in self.schedule_dict.items():
             # epoch_bound is in units of "epochs"
             if not self.fractional_bounds:
