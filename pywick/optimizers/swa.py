@@ -289,7 +289,7 @@ class SWA(Optimizer):
             b = input.size(0)
 
             momentum = b / float(n + b)
-            for module in momenta.keys():
+            for module in momenta:
                 module.momentum = momentum
 
             if device is not None:
