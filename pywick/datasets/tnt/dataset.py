@@ -5,7 +5,7 @@ from pywick.datasets.multipartitiondataset import MultiPartitionDataset
 from torch.utils.data import DataLoader
 
 
-class Dataset(object):
+class Dataset:
     def __init__(self):
         pass
 

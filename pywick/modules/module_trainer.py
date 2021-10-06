@@ -27,7 +27,7 @@ from ..misc import ExecType, is_tuple_or_list
 from tqdm import tqdm
 
 
-class ModuleTrainer(object):
+class ModuleTrainer:
 
     def __init__(self, model, cuda_devices=None):
         """
@@ -783,7 +783,7 @@ def _get_helper(trainer, num_inputs, num_targets, helper_name=None):
 
     return helper
 
-class SingleInput_SingleTarget_Helper(object):
+class SingleInput_SingleTarget_Helper:
 
     def __init__(self, loss_multipliers=None):
         '''
@@ -849,7 +849,7 @@ class SingleInput_SingleTarget_Helper(object):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class SingleInput_MultiTarget_Helper(object):
+class SingleInput_MultiTarget_Helper:
 
     @staticmethod
     def move_to_device(device, inputs, targets):
@@ -894,7 +894,7 @@ class SingleInput_MultiTarget_Helper(object):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class MultiInput_SingleTarget_Helper(object):
+class MultiInput_SingleTarget_Helper:
 
     @staticmethod
     def move_to_device(device, inputs, targets):
@@ -938,7 +938,7 @@ class MultiInput_SingleTarget_Helper(object):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class MultiInput_MultiTarget_Helper(object):
+class MultiInput_MultiTarget_Helper:
 
     @staticmethod
     def move_to_device(device, inputs, targets):
@@ -982,7 +982,7 @@ class MultiInput_MultiTarget_Helper(object):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class SingleInput_NoTarget_Helper(object):
+class SingleInput_NoTarget_Helper:
 
     @staticmethod
     def move_to_device(device, inputs, **_):
@@ -1024,7 +1024,7 @@ class SingleInput_NoTarget_Helper(object):
         return functools.partial(self.calculate_loss, loss_fn=loss_fn)
 
 
-class MultiInput_NoTarget_Helper(object):
+class MultiInput_NoTarget_Helper:
 
     @staticmethod
     def move_to_device(device, inputs, **_):

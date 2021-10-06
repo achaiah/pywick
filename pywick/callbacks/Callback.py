@@ -1,4 +1,4 @@
-class Callback(object):
+class Callback:
     """
     Abstract base class used to build new callbacks. Extend this class to build your own callbacks and overwrite functions
     that you want to monitor. Functions will be called automatically from the trainer once per relevant training event

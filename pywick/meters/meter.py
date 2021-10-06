@@ -1,5 +1,5 @@
 
-class Meter(object):
+class Meter:
     """
     Abstract meter class from which all other meters inherit
     """

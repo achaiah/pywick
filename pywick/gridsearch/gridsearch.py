@@ -1,7 +1,7 @@
 import random
 import collections
 
-class GridSearch(object):
+class GridSearch:
     """
     Simple GridSearch to apply to a generic function
 

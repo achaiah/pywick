@@ -117,8 +117,7 @@ class FolderDataset(UsefulDataset):
 
         if len(data) == 0:
             raise (RuntimeError('Found 0 data items in subfolders of: %s' % root))
-        else:
-            print('Found %i data items' % len(data))
+        print('Found %i data items' % len(data))
 
         self.root = os.path.expanduser(root)
         self.data = data

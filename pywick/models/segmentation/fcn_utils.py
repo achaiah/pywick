@@ -81,7 +81,7 @@ def evaluate(predictions, gts, num_classes):
     return acc, acc_cls, mean_iu, fwavacc
 
 
-class AverageMeter(object):
+class AverageMeter:
     def __init__(self):
         self.reset()
 
@@ -98,7 +98,7 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-class PolyLR(object):
+class PolyLR:
     def __init__(self, optimizer, curr_iter, max_iter, lr_decay):
         self.max_iter = float(max_iter)
         self.init_lr_groups = []

@@ -2,7 +2,7 @@
 
 import math
 
-class _SignInternalDecay(object):
+class _SignInternalDecay:
     """Base class for internal decays for PowerSign and AddSign optimizers.
 
     Arguments:
