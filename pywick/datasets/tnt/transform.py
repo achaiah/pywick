@@ -49,4 +49,4 @@ def makebatch(merge=None):
                        if canmerge(field) else field)
         ])
 
-    return lambda samples: makebatch(samples)
+    return makebatch
