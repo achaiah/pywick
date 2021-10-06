@@ -52,7 +52,8 @@ def create_model(model_name, num_classes=1000, pretrained=False, **kwargs):
     elif model_name == 'inception_v3':
         model = inception_v3(num_classes=num_classes, pretrained=pretrained, transform_input=False, **kwargs)
     else:
-        assert False, "Unknown model architecture (%s)" % model_name
+        if not False:
+            raise AssertionError("Unknown model architecture (%s)" % model_name)
     return model
 
 

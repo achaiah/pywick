@@ -43,7 +43,8 @@ class MixnetDecoder:
         Raises:
         ValueError: if the strides option is not correctly specified.
         """
-        assert isinstance(block_string, str)
+        if not isinstance(block_string, str):
+            raise AssertionError
 
         ops = block_string.split('_')
         options = {}
@@ -113,7 +114,8 @@ class MixnetDecoder:
         Returns:
         A list of namedtuples to represent Mixnet blocks arguments.
         """
-        assert isinstance(string_list, list)
+        if not isinstance(string_list, list):
+            raise AssertionError
         blocks_args = []
         for block_string in string_list:
             blocks_args.append(MixnetDecoder._decode_block_string(block_string, depth_multiplier, depth_divisor, min_depth))

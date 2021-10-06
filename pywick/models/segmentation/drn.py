@@ -180,7 +180,8 @@ class DRN(nn.Module):
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1,
                     new_level=True, residual=True):
-        assert dilation == 1 or dilation % 2 == 0
+        if not (dilation == 1 or dilation % 2 == 0):
+            raise AssertionError
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(

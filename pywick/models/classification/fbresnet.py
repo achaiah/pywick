@@ -224,8 +224,8 @@ def fbresnet152(num_classes=1000, pretrained='imagenet'):
     model = FBResNet(Bottleneck, [3, 8, 36, 3], num_classes=num_classes)
     if pretrained is not None:
         settings = pretrained_settings['fbresnet152'][pretrained]
-        assert num_classes == settings['num_classes'], \
-            "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
+        if num_classes != settings['num_classes']:
+            raise AssertionError("num_classes should be {}, but is {}".format(settings['num_classes'], num_classes))
         model.load_state_dict(model_zoo.load_url(settings['url']))
         model.input_space = settings['input_space']
         model.input_size = settings['input_size']

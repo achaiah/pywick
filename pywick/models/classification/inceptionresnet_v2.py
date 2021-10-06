@@ -361,12 +361,16 @@ python -m pretrainedmodels.inceptionresnetv2
 ```
 '''
 if __name__ == '__main__':
-    assert inceptionresnetv2(num_classes=10, pretrained=None)
+    if not inceptionresnetv2(num_classes=10, pretrained=None):
+        raise AssertionError
     print('success')
-    assert inceptionresnetv2(num_classes=1000, pretrained='imagenet')
+    if not inceptionresnetv2(num_classes=1000, pretrained='imagenet'):
+        raise AssertionError
     print('success')
-    assert inceptionresnetv2(num_classes=1001, pretrained='imagenet+background')
+    if not inceptionresnetv2(num_classes=1001, pretrained='imagenet+background'):
+        raise AssertionError
     print('success')
 
     # fail
-    assert inceptionresnetv2(num_classes=1001, pretrained='imagenet')
+    if not inceptionresnetv2(num_classes=1001, pretrained='imagenet'):
+        raise AssertionError

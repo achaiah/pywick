@@ -26,7 +26,8 @@ def _convert_bn(k):
         aux = True
         add = 'moving_var'
     else:
-        assert False, 'Unknown key: %s' % k
+        if not False:
+            raise AssertionError('Unknown key: %s' % k)
     return aux, add
 
 
@@ -48,12 +49,14 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
                     aux, key_add = _convert_bn(k[3])
                     mxnet_key += key_add
                 else:
-                    assert k[3] == 'weight'
+                    if k[3] != 'weight':
+                        raise AssertionError
                     mxnet_key += 'conv_' + k[3]
             elif k[1] == 'conv5_bn_ac':
                 # bn + ac at end of features block
                 mxnet_key += 'conv5_x_x__relu-sp__bn_'
-                assert k[2] == 'bn'
+                if k[2] != 'bn':
+                    raise AssertionError
                 aux, key_add = _convert_bn(k[3])
                 mxnet_key += key_add
             else:
@@ -75,7 +78,8 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
                     mxnet_key += key_add
                 else:
                     ki = 3 if bc_block else 4
-                    assert k[ki] == 'weight'
+                    if k[ki] != 'weight':
+                        raise AssertionError
                     mxnet_key += 'conv_' + k[ki]
         elif k[0] == 'classifier':
             if 'fc6-1k_weight' in mxnet_weights:
@@ -84,7 +88,8 @@ def convert_from_mxnet(model, checkpoint_prefix, debug=False):
                 mxnet_key += 'fc6_'
             mxnet_key += k[1]
         else:
-            assert False, 'Unexpected token'
+            if not False:
+                raise AssertionError('Unexpected token')
 
         if debug:
             print(mxnet_key, '=> ', state_key, end=' ')

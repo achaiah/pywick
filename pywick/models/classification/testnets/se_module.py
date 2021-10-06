@@ -5,7 +5,8 @@ from torch import nn
 
 class SELayer(nn.Module):
     def __init__(self, channel, reduction=16):
-        assert channel > reduction, "Make sure your input channel bigger than reduction which equals to {}".format(reduction)
+        if channel <= reduction:
+            raise AssertionError("Make sure your input channel bigger than reduction which equals to {}".format(reduction))
         super(SELayer, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Sequential(

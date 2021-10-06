@@ -238,7 +238,8 @@ class FPN_fuse(nn.Module):
         if feature_channels is None:
             feature_channels = [256, 512, 1024, 2048]
         super(FPN_fuse, self).__init__()
-        assert feature_channels[0] == fpn_out
+        if feature_channels[0] != fpn_out:
+            raise AssertionError
         self.conv1x1 = nn.ModuleList([nn.Conv2d(ft_size, fpn_out, kernel_size=1)
                                     for ft_size in feature_channels[1:]])
         self.smooth_conv =  nn.ModuleList([nn.Conv2d(fpn_out, fpn_out, kernel_size=3, padding=1)]

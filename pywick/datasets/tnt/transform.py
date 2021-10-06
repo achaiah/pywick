@@ -4,9 +4,11 @@ from pywick.datasets.tnt.table import mergetensor
 
 
 def compose(transforms):
-    assert isinstance(transforms, list)
+    if not isinstance(transforms, list):
+        raise AssertionError
     for tr in transforms:
-        assert callable(tr), 'list of functions expected'
+        if not callable(tr):
+            raise AssertionError('list of functions expected')
 
     def composition(z):
         for tr in transforms:

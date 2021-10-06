@@ -345,12 +345,15 @@ def diff_states(dict_canonical, dict_subset):
     # for every pretrained model
     not_in_1 = [n for n in names1 if n not in names2]
     not_in_2 = [n for n in names2 if n not in names1]
-    assert len(not_in_1) == 0
-    assert len(not_in_2) == 0
+    if len(not_in_1) != 0:
+        raise AssertionError
+    if len(not_in_2) != 0:
+        raise AssertionError
 
     for name, v1 in dict_canonical.items():
         v2 = dict_subset[name]
-        assert hasattr(v2, 'size')
+        if not hasattr(v2, 'size'):
+            raise AssertionError
         if v1.size() != v2.size():
             yield (name, v1)
 

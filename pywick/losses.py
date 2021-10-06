@@ -331,7 +331,8 @@ def dice_coefficient(logit, label, isCuda=True):
     A = A.clone()
     B = B.clone()
 
-    assert len(A) == len(B)
+    if len(A) != len(B):
+        raise AssertionError
 
     for i in list(range(len(A))):
         if A[i] > 0.5:
@@ -579,7 +580,8 @@ class FocalLoss2(nn.Module):
         if self.alpha is None:
             self.alpha = torch.ones(self.num_class, 1)
         elif isinstance(self.alpha, (list, np.ndarray)):
-            assert len(self.alpha) == self.num_class
+            if len(self.alpha) != self.num_class:
+                raise AssertionError
             self.alpha = torch.FloatTensor(alpha).view(self.num_class, 1)
             self.alpha = self.alpha / self.alpha.sum()
         elif isinstance(self.alpha, float):
@@ -943,11 +945,15 @@ class ComboBCEDiceLoss(nn.Module):
     def forward(self, outputs, labels, **_):
         # inputs and targets are assumed to be BxCxWxH (batch, color, width, height)
         outputs = outputs.squeeze()       # necessary in case we're dealing with binary segmentation (color dim of 1)
-        assert len(outputs.shape) == len(labels.shape)
+        if len(outputs.shape) != len(labels.shape):
+            raise AssertionError
         # assert that B, W and H are the same
-        assert outputs.size(-0) == labels.size(-0)
-        assert outputs.size(-1) == labels.size(-1)
-        assert outputs.size(-2) == labels.size(-2)
+        if outputs.size(-0) != labels.size(-0):
+            raise AssertionError
+        if outputs.size(-1) != labels.size(-1):
+            raise AssertionError
+        if outputs.size(-2) != labels.size(-2):
+            raise AssertionError
 
         bce_loss = self.bce_logits_loss(outputs, labels)
 
@@ -1019,17 +1025,24 @@ class ComboSemsegLossWeighted(nn.Module):
 
     def forward(self, logits, labels, weights, **_):
         # logits and labels are assumed to be BxCxWxH
-        assert len(logits.shape) == len(labels.shape)
+        if len(logits.shape) != len(labels.shape):
+            raise AssertionError
         # assert that B, W and H are the same
-        assert logits.size(0) == labels.size(0)
-        assert logits.size(2) == labels.size(2)
-        assert logits.size(3) == labels.size(3)
+        if logits.size(0) != labels.size(0):
+            raise AssertionError
+        if logits.size(2) != labels.size(2):
+            raise AssertionError
+        if logits.size(3) != labels.size(3):
+            raise AssertionError
 
         # weights are assumed to be BxWxH
         # assert that B, W and H are the are the same for target and mask
-        assert logits.size(0) == weights.size(0)
-        assert logits.size(2) == weights.size(1)
-        assert logits.size(3) == weights.size(2)
+        if logits.size(0) != weights.size(0):
+            raise AssertionError
+        if logits.size(2) != weights.size(1):
+            raise AssertionError
+        if logits.size(3) != weights.size(2):
+            raise AssertionError
 
         if self.use_weight_mask:
             bce_loss = F.binary_cross_entropy_with_logits(input=logits,
@@ -1473,7 +1486,8 @@ class MultiTverskyLoss(nn.Module):
         num_class = inputs.size(1)
         weight_losses = 0.0
         if self.weights is not None:
-            assert len(self.weights) == num_class, 'number of classes should be equal to length of weights '
+            if len(self.weights) != num_class:
+                raise AssertionError('number of classes should be equal to length of weights ')
             weights = self.weights
         else:
             weights = [1.0 / num_class] * num_class
@@ -1545,7 +1559,8 @@ class LovaszSoftmax(nn.Module):
 
     @staticmethod
     def prob_flatten(input, target):
-        assert input.dim() in [4, 5]
+        if input.dim() not in [4, 5]:
+            raise AssertionError
         num_class = input.size(1)
         if input.dim() == 4:
             input = input.permute(0, 2, 3, 1).contiguous()
@@ -1754,16 +1769,21 @@ def one_hot(t: Tensor, axis=1) -> bool:
 
 def numpy_haussdorf(pred: np.ndarray, target: np.ndarray) -> float:
     from scipy.spatial.distance import directed_hausdorff
-    assert len(pred.shape) == 2
-    assert pred.shape == target.shape
+    if len(pred.shape) != 2:
+        raise AssertionError
+    if pred.shape != target.shape:
+        raise AssertionError
 
     return max(directed_hausdorff(pred, target)[0], directed_hausdorff(target, pred)[0])
 
 
 def haussdorf(preds: Tensor, target: Tensor) -> Tensor:
-    assert preds.shape == target.shape
-    assert one_hot(preds)
-    assert one_hot(target)
+    if preds.shape != target.shape:
+        raise AssertionError
+    if not one_hot(preds):
+        raise AssertionError
+    if not one_hot(target):
+        raise AssertionError
 
     B, C, _, _ = preds.shape
 
@@ -2015,7 +2035,8 @@ class AngularPenaltySMLoss(nn.Module):
         '''
         super(AngularPenaltySMLoss, self).__init__()
         loss_type = loss_type.lower()
-        assert loss_type in ['arcface', 'sphereface', 'cosface']
+        if loss_type not in ['arcface', 'sphereface', 'cosface']:
+            raise AssertionError
         if loss_type == 'arcface':
             self.s = 64.0 if not s else s
             self.m = 0.5 if not m else m
@@ -2035,9 +2056,12 @@ class AngularPenaltySMLoss(nn.Module):
         '''
         input shape (N, in_features)
         '''
-        assert len(x) == len(labels)
-        assert torch.min(labels) >= 0
-        assert torch.max(labels) < self.out_features
+        if len(x) != len(labels):
+            raise AssertionError
+        if torch.min(labels) < 0:
+            raise AssertionError
+        if torch.max(labels) >= self.out_features:
+            raise AssertionError
 
         for W in self.fc.parameters():
             W = F.normalize(W, p=2, dim=1)
@@ -2174,13 +2198,16 @@ class RMILoss(nn.Module):
 
         self.num_classes = num_classes
         # radius choices
-        assert rmi_radius in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        if rmi_radius not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+            raise AssertionError
         self.rmi_radius = rmi_radius
-        assert rmi_pool_way in [0, 1, 2, 3]
+        if rmi_pool_way not in [0, 1, 2, 3]:
+            raise AssertionError
         self.rmi_pool_way = rmi_pool_way
 
         # set the pool_size = rmi_pool_stride
-        assert rmi_pool_size == rmi_pool_stride
+        if rmi_pool_size != rmi_pool_stride:
+            raise AssertionError
         self.rmi_pool_size = rmi_pool_size
         self.rmi_pool_stride = rmi_pool_stride
         self.weight_lambda = loss_weight_lambda
@@ -2287,7 +2314,8 @@ class RMILoss(nn.Module):
             labels_4D 	:	[N, C, H, W], dtype=float32
             probs_4D 	:	[N, C, H, W], dtype=float32
         """
-        assert labels_4D.size() == probs_4D.size()
+        if labels_4D.size() != probs_4D.size():
+            raise AssertionError
 
         p, s = self.rmi_pool_size, self.rmi_pool_stride
         if self.rmi_pool_stride > 1:
@@ -2492,7 +2520,8 @@ class RMILossAlt(nn.Module):
             RMI loss
         """
 
-        assert input.shape == target.shape
+        if input.shape != target.shape:
+            raise AssertionError
         vector_size = self.radius * self.radius
 
         # Get region vectors
@@ -2704,8 +2733,10 @@ class HausdorffDTLoss(nn.Module):
         """
         labels = labels.unsqueeze(1)
 
-        assert logits.dim() in (4, 5), "Only 2D and 3D supported"
-        assert (logits.dim() == labels.dim()), "Prediction and target need to be of same dimension"
+        if logits.dim() not in (4, 5):
+            raise AssertionError("Only 2D and 3D supported")
+        if (logits.dim() != labels.dim()):
+            raise AssertionError("Prediction and target need to be of same dimension")
 
         # this is necessary for binary loss
         logits = torch.sigmoid(logits)
@@ -2802,8 +2833,10 @@ class HausdorffERLoss(nn.Module):
         target: (b, 1, x, y, z) or (b, 1, x, y)
         """
         target = target.unsqueeze(1)
-        assert pred.dim() in (4, 5), "Only 2D and 3D supported"
-        assert (pred.dim() == target.dim()), "Prediction and target need to be of same dimension"
+        if pred.dim() not in (4, 5):
+            raise AssertionError("Only 2D and 3D supported")
+        if (pred.dim() != target.dim()):
+            raise AssertionError("Prediction and target need to be of same dimension")
 
         pred = torch.sigmoid(pred)
 

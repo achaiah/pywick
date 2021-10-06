@@ -97,9 +97,10 @@ class _ResBlock(nn.Sequential):
         if mg is None:
             mg = [1 for _ in range(n_layers)]
         else:
-            assert n_layers == len(mg), "{} values expected, but got: mg={}".format(
-                n_layers, mg
-            )
+            if n_layers != len(mg):
+                raise AssertionError("{} values expected, but got: mg={}".format(
+                    n_layers, mg
+                ))
 
         self.add_module(
             "block1",

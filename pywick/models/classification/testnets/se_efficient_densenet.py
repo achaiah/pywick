@@ -241,7 +241,8 @@ class DenseNet(nn.Module):
                  num_classes=4096, efficient=True):
 
         super(DenseNet, self).__init__()
-        assert 0 < compression <= 1, 'compression of densenet should be between 0 and 1'
+        if not 0 < compression <= 1:
+            raise AssertionError('compression of densenet should be between 0 and 1')
 
         # First convolution
         self.features = nn.Sequential(OrderedDict([

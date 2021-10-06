@@ -131,7 +131,8 @@ class Encoding(nn.Module):
 
     def forward(self, X):
         # input X is a 4D tensor
-        assert (X.size(1) == self.D)
+        if (X.size(1) != self.D):
+            raise AssertionError
         B, D = X.size(0), self.D
         if X.dim() == 3:
             # BxDxN -> BxNxD

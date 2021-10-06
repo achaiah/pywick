@@ -64,7 +64,8 @@ def draw_mask_on_image(image, mask, bg_color=(19, 138, 249), mask_color=None, th
 
     H, W, _ = image.shape
 
-    assert (H,W) == mask.shape, "image size does not equal mask size!"
+    if (H,W) != mask.shape:
+        raise AssertionError("image size does not equal mask size!")
 
     results = np.zeros((H, W, 3), np.uint8)  # create new image and fill with zeros
     results[...] = bg_color     # fill entire image with bg_color at first
