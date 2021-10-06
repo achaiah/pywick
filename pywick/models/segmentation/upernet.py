@@ -206,7 +206,7 @@ class ResNet(nn.Module):
 
         if output_stride == 8:
             for n, m in self.layer3.named_modules():
-                if 'conv1' in n and (backbone == 'resnet34' or backbone == 'resnet18'):
+                if 'conv1' in n and backbone in ('resnet34', 'resnet18'):
                     m.dilation, m.padding, m.stride = (d3,d3), (d3,d3), (s3,s3)
                 elif 'conv2' in n:
                     m.dilation, m.padding, m.stride = (d3,d3), (d3,d3), (s3,s3)
@@ -214,7 +214,7 @@ class ResNet(nn.Module):
                     m.stride = (s3, s3)
 
         for n, m in self.layer4.named_modules():
-            if 'conv1' in n and (backbone == 'resnet34' or backbone == 'resnet18'):
+            if 'conv1' in n and backbone in ('resnet34', 'resnet18'):
                 m.dilation, m.padding, m.stride = (d4,d4), (d4,d4), (s4,s4)
             elif 'conv2' in n:
                 m.dilation, m.padding, m.stride = (d4,d4), (d4,d4), (s4,s4)
@@ -268,7 +268,7 @@ class UperNet(BaseModel):
     def __init__(self, num_classes, in_channels=3, backbone='resnet101', pretrained=True, fpn_out=256, freeze_bn=False, freeze_backbone=False, **_):
         super(UperNet, self).__init__()
 
-        if backbone == 'resnet34' or backbone == 'resnet18':
+        if backbone in ('resnet34', 'resnet18'):
             feature_channels = [64, 128, 256, 512]
         else:
             feature_channels = [256, 512, 1024, 2048]

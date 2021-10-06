@@ -101,7 +101,7 @@ class IdentityResidualBlock(nn.Module):
 
 
         # Check parameters for inconsistencies
-        if len(channels) != 2 and len(channels) != 3:
+        if len(channels) not in (2, 3):
             raise ValueError("channels must contain either two or three values")
         if len(channels) == 2 and groups != 1:
             raise ValueError("groups > 1 are only valid if len(channels) == 3")

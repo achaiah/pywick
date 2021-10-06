@@ -176,7 +176,7 @@ class DilatedResNet(nn.Module):
             )
 
         layers = []
-        if dilation == 1 or dilation == 2:
+        if dilation in (1, 2):
             layers.append(block(self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         elif dilation == 4:

@@ -35,7 +35,7 @@ def pil_loader(path, color_space=''):
             return Image.open(path).convert('RGBA')
         elif color_space.lower() == 'l':
             return Image.open(path).convert('L')
-        elif color_space.lower() == '1' or color_space.lower() == 'binary':
+        elif color_space.lower() in ('1', 'binary'):
             return Image.open(path).convert('1')
         else:
             return Image.open(path)
