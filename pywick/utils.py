@@ -403,23 +403,23 @@ def th_random_choice(a, n_samples=1, replace=True, p=None):
         selection = selection[0]
     return selection
 
-
-def save_transform(file, transform):
-    """
-    Save a transform object
-    """
-    with open(file, 'wb') as output_file:
-        pickler = pickle.Pickler(output_file, -1)
-        pickler.dump(transform)
-
-
-def load_transform(file):
-    """
-    Load a transform object
-    """
-    with open(file, 'rb') as input_file:
-        transform = pickle.load(input_file)
-    return transform
+## REMOVED due to security concerns with pickle
+# def save_transform(file, transform):
+#     """
+#     Save a transform object
+#     """
+#     with open(file, 'wb') as output_file:
+#         pickler = pickle.Pickler(output_file, -1)
+#         pickler.dump(transform)
+#
+#
+# def load_transform(file):
+#     """
+#     Load a transform object
+#     """
+#     with open(file, 'rb') as input_file:
+#         transform = pickle.load(input_file)
+#     return transform
     
 
 from pywick.callbacks import *

@@ -11,7 +11,7 @@ except ImportError:
     from urllib.request import urlretrieve
 
 
-__all__ = ['ResNeXt', 'resnext101'] # support resnext 101
+__all__ = ['ResNeXt', 'resnext101']  # support resnext 101
 
 # can not used for now
 model_urls = {
