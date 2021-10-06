@@ -107,7 +107,7 @@ class InvertedResidual(nn.Module):
         assert stride in [1, 2]
         self.use_res_connect = stride == 1 and in_channels == out_channels
 
-        layers = list()
+        layers = []
         inter_channels = int(round(in_channels * expand_ratio))
         if expand_ratio != 1:
             # pw

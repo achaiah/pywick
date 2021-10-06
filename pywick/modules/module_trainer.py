@@ -58,7 +58,7 @@ class ModuleTrainer(object):
         self._loss_multipliers = None
 
         # custom fit helpers
-        self._named_helpers = dict()       # custom trainers that can be initialized during compilation time
+        self._named_helpers = {}       # custom trainers that can be initialized during compilation time
 
         # preconditions
         self._preconditions = []

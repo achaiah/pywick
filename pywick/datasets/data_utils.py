@@ -117,7 +117,7 @@ def _multi_arg_pass_through(*x):
 
 
 def _find_classes(dirs):
-    classes = list()
+    classes = []
     for dir in dirs:
         dir = os.path.expanduser(dir)
         loc_classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
