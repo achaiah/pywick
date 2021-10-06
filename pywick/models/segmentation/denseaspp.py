@@ -76,12 +76,12 @@ class _DenseASPPConv(nn.Sequential):
     def __init__(self, in_channels, inter_channels, out_channels, atrous_rate,
                  drop_rate=0.1, norm_layer=nn.BatchNorm2d, norm_kwargs=None):
         super(_DenseASPPConv, self).__init__()
-        self.add_module('conv1', nn.Conv2d(in_channels, inter_channels, 1)),
-        self.add_module('bn1', norm_layer(inter_channels, **({} if norm_kwargs is None else norm_kwargs))),
-        self.add_module('relu1', nn.ReLU(True)),
-        self.add_module('conv2', nn.Conv2d(inter_channels, out_channels, 3, dilation=atrous_rate, padding=atrous_rate)),
-        self.add_module('bn2', norm_layer(out_channels, **({} if norm_kwargs is None else norm_kwargs))),
-        self.add_module('relu2', nn.ReLU(True)),
+        self.add_module('conv1', nn.Conv2d(in_channels, inter_channels, 1))
+        self.add_module('bn1', norm_layer(inter_channels, **({} if norm_kwargs is None else norm_kwargs)))
+        self.add_module('relu1', nn.ReLU(True))
+        self.add_module('conv2', nn.Conv2d(inter_channels, out_channels, 3, dilation=atrous_rate, padding=atrous_rate))
+        self.add_module('bn2', norm_layer(out_channels, **({} if norm_kwargs is None else norm_kwargs)))
+        self.add_module('relu2', nn.ReLU(True))
         self.drop_rate = drop_rate
 
     def forward(self, x):

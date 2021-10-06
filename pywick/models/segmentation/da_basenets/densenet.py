@@ -20,12 +20,12 @@ model_urls = {
 class _DenseLayer(nn.Sequential):
     def __init__(self, num_input_features, growth_rate, bn_size, drop_rate, dilation=1, norm_layer=nn.BatchNorm2d):
         super(_DenseLayer, self).__init__()
-        self.add_module('norm1', norm_layer(num_input_features)),
-        self.add_module('relu1', nn.ReLU(True)),
-        self.add_module('conv1', nn.Conv2d(num_input_features, bn_size * growth_rate, 1, 1, bias=False)),
-        self.add_module('norm2', norm_layer(bn_size * growth_rate)),
-        self.add_module('relu2', nn.ReLU(True)),
-        self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate, 3, 1, dilation, dilation, bias=False)),
+        self.add_module('norm1', norm_layer(num_input_features))
+        self.add_module('relu1', nn.ReLU(True))
+        self.add_module('conv1', nn.Conv2d(num_input_features, bn_size * growth_rate, 1, 1, bias=False))
+        self.add_module('norm2', norm_layer(bn_size * growth_rate))
+        self.add_module('relu2', nn.ReLU(True))
+        self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate, 3, 1, dilation, dilation, bias=False))
         self.drop_rate = drop_rate
 
     def forward(self, x):

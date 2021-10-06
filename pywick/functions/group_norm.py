@@ -64,7 +64,8 @@ class _GroupNorm(_BatchNorm):
         super(_GroupNorm, self).__init__(int(num_features/num_groups), eps,
                                          momentum, affine)
 
-    def _check_input_dim(self, input):
+    @staticmethod
+    def _check_input_dim(input):
         return NotImplemented
 
     def forward(self, input):
