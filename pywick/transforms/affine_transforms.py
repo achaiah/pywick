@@ -10,7 +10,7 @@ import torch as th
 from ..utils import th_affine2d, th_random_choice
 
 
-class RandomAffine(object):
+class RandomAffine:
 
     def __init__(self, 
                  rotation_range=None, 
@@ -92,7 +92,7 @@ class RandomAffine(object):
         return outputs
 
 
-class Affine(object):
+class Affine:
 
     def __init__(self, 
                  tform_matrix,
@@ -130,7 +130,7 @@ class Affine(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class AffineCompose(object):
+class AffineCompose:
 
     def __init__(self, 
                  transforms,
@@ -182,7 +182,7 @@ class AffineCompose(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class RandomRotate(object):
+class RandomRotate:
 
     def __init__(self, 
                  rotation_range,
@@ -220,7 +220,7 @@ class RandomRotate(object):
         return outputs
 
 
-class RandomChoiceRotate(object):
+class RandomChoiceRotate:
 
     def __init__(self, 
                  values,
@@ -270,7 +270,7 @@ class RandomChoiceRotate(object):
         return outputs
 
 
-class Rotate(object):
+class Rotate:
 
     def __init__(self, 
                  value,
@@ -319,7 +319,7 @@ class Rotate(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class RandomTranslate(object):
+class RandomTranslate:
 
     def __init__(self, 
                  translation_range,
@@ -371,7 +371,7 @@ class RandomTranslate(object):
         return outputs
 
 
-class RandomChoiceTranslate(object):
+class RandomChoiceTranslate:
 
     def __init__(self,
                  values,
@@ -425,7 +425,7 @@ class RandomChoiceTranslate(object):
         return outputs
 
 
-class Translate(object):
+class Translate:
 
     def __init__(self, 
                  value, 
@@ -481,7 +481,7 @@ class Translate(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class RandomShear(object):
+class RandomShear:
 
     def __init__(self, 
                  shear_range,
@@ -517,7 +517,7 @@ class RandomShear(object):
         return outputs
 
 
-class RandomChoiceShear(object):
+class RandomChoiceShear:
 
     def __init__(self,
                  values,
@@ -567,7 +567,7 @@ class RandomChoiceShear(object):
         return outputs
 
 
-class Shear(object):
+class Shear:
 
     def __init__(self,
                  value,
@@ -598,7 +598,7 @@ class Shear(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class RandomSquareZoom(object):
+class RandomSquareZoom:
 
     def __init__(self,
                  zoom_range,
@@ -636,7 +636,7 @@ class RandomSquareZoom(object):
             return Zoom([zx, zy], lazy=True)(inputs[0])
         return Zoom([zx, zy], interp=self.interp)(*inputs)
 
-class RandomZoom(object):
+class RandomZoom:
 
     def __init__(self, 
                  zoom_range,
@@ -680,7 +680,7 @@ class RandomZoom(object):
         return Zoom([zx, zy],  interp=self.interp)(*inputs)
 
 
-class RandomChoiceZoom(object):
+class RandomChoiceZoom:
 
     def __init__(self, 
                  values,
@@ -730,7 +730,7 @@ class RandomChoiceZoom(object):
         return Zoom([zx, zy], interp=self.interp)(*inputs)
 
 
-class Zoom(object):
+class Zoom:
 
     def __init__(self,
                  value,

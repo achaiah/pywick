@@ -4,7 +4,7 @@ from torchvision import transforms
 from .data_utils import is_tuple_or_list
 
 
-class BaseDataset(object):
+class BaseDataset:
     """An abstract class representing a Dataset.
 
     All other datasets should subclass it. All subclasses should override

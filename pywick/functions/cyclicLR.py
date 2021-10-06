@@ -9,7 +9,7 @@ from torch.optim.optimizer import Optimizer
 import numpy as np
 
 
-class CyclicLR(object):
+class CyclicLR:
     """Sets the learning rate of each parameter group according to
     cyclical learning rate policy (CLR). The policy cycles the learning
     rate between two boundaries with a constant frequency, as detailed in

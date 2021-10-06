@@ -57,7 +57,7 @@ def create_model(model_name, num_classes=1000, pretrained=False, **kwargs):
     return model
 
 
-class LeNormalize(object):
+class LeNormalize:
     """Normalize to -1..1 in Google Inception style
     """
     def __call__(self, tensor):

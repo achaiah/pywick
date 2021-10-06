@@ -7,7 +7,7 @@ import numpy as np
 import torch as th
 
 
-class Compose(object):
+class Compose:
     """
     Composes (chains) several transforms together.
 
@@ -24,7 +24,7 @@ class Compose(object):
         return inputs
 
 
-class RandomChoiceCompose(object):
+class RandomChoiceCompose:
     """
     Randomly choose to apply one transform from a collection of transforms
 
@@ -44,7 +44,7 @@ class RandomChoiceCompose(object):
         return outputs
 
 
-class ToTensor(object):
+class ToTensor:
     """
     Converts a numpy array to torch.Tensor
     """
@@ -57,7 +57,7 @@ class ToTensor(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class ToFile(object):
+class ToFile:
     """
     Saves an image to file. Useful as a pass-through transform
     when wanting to observe how augmentation affects the data
@@ -81,7 +81,7 @@ class ToFile(object):
         return inputs
 
 
-class ToNumpyType(object):
+class ToNumpyType:
     """
     Converts an object to a specific numpy type (with the idea to be passed to ToTensor() next)
 
@@ -97,7 +97,7 @@ class ToNumpyType(object):
         return i_input.astype(self.type)
 
 
-class ChannelsLast(object):
+class ChannelsLast:
     """
     Transposes a tensor so that the channel dim is last
     `HWC` and `DHWC` are aliases for this transform.
@@ -128,7 +128,7 @@ HWC = ChannelsLast
 DHWC = ChannelsLast
 
 
-class ChannelsFirst(object):
+class ChannelsFirst:
     """
     Transposes a tensor so that the channel dim is first.
     `CHW` and `CDHW` are aliases for this transform.
@@ -159,7 +159,7 @@ CHW = ChannelsFirst
 CDHW = ChannelsFirst
 
 
-class TypeCast(object):
+class TypeCast:
     """
     Cast a torch.Tensor to a different type
     param dtype: (string or torch.*Tensor literal or list) of such
@@ -215,7 +215,7 @@ class TypeCast(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class AddChannel(object):
+class AddChannel:
     """Adds a dummy channel to an image, also known as expanding an axis or unsqueezing a dim
     This will make an image of size (28, 28) to now be
     of size (1, 28, 28), for example.
@@ -237,7 +237,7 @@ ExpandAxis = AddChannel
 Unsqueeze = AddChannel
 
 
-class Transpose(object):
+class Transpose:
     """
     Swaps two dimensions of a tensor
 
@@ -261,7 +261,7 @@ class Transpose(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class RangeNormalize(object):
+class RangeNormalize:
     """
     Given min_val: (R, G, B) and max_val: (R,G,B),
     will normalize each channel of the th.*Tensor to
@@ -309,7 +309,7 @@ class RangeNormalize(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class StdNormalize(object):
+class StdNormalize:
     """
     Normalize torch tensor to have zero mean and unit std deviation
     """
@@ -322,7 +322,7 @@ class StdNormalize(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class Slice2D(object):
+class Slice2D:
     """
     Take a random 2D slice from a 3D image along
     a given axis. This image should not have a 4th channel dim.
@@ -366,7 +366,7 @@ class Slice2D(object):
         return slice_x
 
 
-class RandomCrop(object):
+class RandomCrop:
     """
     Randomly crop a torch tensor
 
@@ -387,7 +387,7 @@ class RandomCrop(object):
         return outputs if idx >= 1 else outputs[0]
 
 
-class SpecialCrop(object):
+class SpecialCrop:
     """
     Perform a special crop - one of the four corners or center crop
 
@@ -444,7 +444,7 @@ class SpecialCrop(object):
         return x
 
 
-class Pad(object):
+class Pad:
 
     """
     Pads an image to the given size
@@ -470,7 +470,7 @@ class Pad(object):
         return th.from_numpy(x)
 
 
-class PadNumpy(object):
+class PadNumpy:
 
     """
     Pads a Numpy image to the given size
@@ -494,7 +494,7 @@ class PadNumpy(object):
         return x
 
 
-class RandomFlip(object):
+class RandomFlip:
 
     """
     Randomly flip an image horizontally and/or vertically with
@@ -542,7 +542,7 @@ class RandomFlip(object):
         return th.from_numpy(x.copy()),th.from_numpy(y.copy())
 
 
-class RandomOrder(object):
+class RandomOrder:
     """
     Randomly permute the channels of an image
     """

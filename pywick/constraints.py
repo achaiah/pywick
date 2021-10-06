@@ -10,7 +10,7 @@ import torch as th
 from .callbacks import Callback
 
 
-class ConstraintContainer(object):
+class ConstraintContainer:
 
     def __init__(self, constraints):
         self.constraints = constraints
@@ -64,7 +64,7 @@ class ConstraintCallback(Callback):
         self.container.apply_epoch_constraints(epoch_idx)
 
 
-class Constraint(object):
+class Constraint:
     """
     Default class from which all Constraint implementations inherit.
     """
