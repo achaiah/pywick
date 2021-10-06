@@ -172,16 +172,12 @@ class UNetDilated(nn.Module):
         # down4.data.shape              =>  torch.Size([2, 96, 64, 43])
 
         up1 = self.act(self.bn1(self.conv1(torch.cat([self.db1(self.up1(down5)), down4], dim=1))))
-        del down5, down4
 
         up2 = self.act(self.bn2(self.conv2(torch.cat([self.db2(self.up2(up1)), down3], dim=1))))
-        del down3
 
         up3 = self.act(self.bn3(self.conv3(torch.cat([self.db3(self.up3(up2)), down2], dim=1))))
-        del down2
 
         up4 = self.act(self.bn4(self.conv4(torch.cat([self.db4(self.up4(up3)), down1], dim=1))))
-        del down1
 
         up5 = self.up5(up4)
         # up5=self.conv5(up5)
