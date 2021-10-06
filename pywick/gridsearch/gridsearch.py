@@ -78,11 +78,10 @@ class GridSearch(object):
 
                 available_args[key] = values  # replace values so they can be used in the next iterative call
                 break    # don't do any more iterations after we handled the first key with multiple choices
-            else:
-                input_args[key] = values
-                keys_to_remove.append(key)
-                if (i+1) == len(keys):        # we've reached the final item in the available args
-                    self._execute(input_args, {})
+            input_args[key] = values
+            keys_to_remove.append(key)
+            if (i+1) == len(keys):        # we've reached the final item in the available args
+                self._execute(input_args, {})
 
     def run(self):
         """
