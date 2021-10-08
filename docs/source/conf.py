@@ -40,7 +40,7 @@ release = __version__
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.6.5'
+release = '0.6.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -179,9 +179,14 @@ texinfo_documents = [
 
 # Exclude imports
 autodoc_mock_imports = [
+    "albumentations",
     "h5py",
-    "torch",
-    "torchvision",
     "numpy",
-    "pandas"
+    "opencv-python-headless",
+    "pandas",
+    "pycm",
+    "scikit-image",
+    "scipy",
+    "torch",
+    "torchvision"
 ]

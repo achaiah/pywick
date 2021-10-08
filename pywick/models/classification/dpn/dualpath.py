@@ -228,7 +228,7 @@ class DualPathBlock(nn.Module):
             self.key_stride = 2
             self.has_proj = True
         else:
-            if block_type is not 'normal':
+            if block_type != 'normal':
                 raise AssertionError
             self.key_stride = 1
             self.has_proj = False
