@@ -7,7 +7,7 @@
 [![pypi](https://img.shields.io/pypi/v/pywick.svg)](https://pypi.org/project/pywick/)
 [![python compatibility](https://img.shields.io/pypi/pyversions/pywick.svg)](https://pywick.readthedocs.io/en/latest/)
 [![license](https://img.shields.io/pypi/l/pywick.svg)](https://github.com/achaiah/pywick/blob/master/LICENSE.txt)
- 
+[![Documentation Status](https://readthedocs.org/projects/pywick/badge/?version=latest)](https://pywick.readthedocs.io/en/latest/?badge=latest) 
 </div>
 
 #### High-Level Training framework for Pytorch
