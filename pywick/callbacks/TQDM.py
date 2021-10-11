@@ -5,6 +5,9 @@ __all__ = ['TQDM']
 
 
 class TQDM(Callback):
+    """
+    Callback that displays progress bar and useful statistics in terminal
+    """
 
     def __init__(self):
         """

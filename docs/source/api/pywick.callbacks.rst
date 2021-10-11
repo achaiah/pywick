@@ -3,7 +3,6 @@ Callbacks
 
 .. automodule:: pywick.callbacks
     :members:
-    :undoc-members:
     :show-inheritance:
 
 CSVLogger
@@ -11,7 +10,6 @@ CSVLogger
 
 .. automodule:: pywick.callbacks.CSVLogger
     :members:
-    :undoc-members:
     :show-inheritance:
 
 Callback
@@ -19,7 +17,6 @@ Callback
 
 .. automodule:: pywick.callbacks.Callback
     :members:
-    :undoc-members:
     :show-inheritance:
 
 CyclicLRScheduler
@@ -27,7 +24,6 @@ CyclicLRScheduler
 
 .. automodule:: pywick.callbacks.CyclicLRScheduler
     :members:
-    :undoc-members:
     :show-inheritance:
 
 EarlyStopping
@@ -35,7 +31,6 @@ EarlyStopping
 
 .. automodule:: pywick.callbacks.EarlyStopping
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ExperimentLogger
@@ -43,7 +38,6 @@ ExperimentLogger
 
 .. automodule:: pywick.callbacks.ExperimentLogger
     :members:
-    :undoc-members:
     :show-inheritance:
 
 History
@@ -51,7 +45,6 @@ History
 
 .. automodule:: pywick.callbacks.History
     :members:
-    :undoc-members:
     :show-inheritance:
 
 LRScheduler
@@ -59,7 +52,6 @@ LRScheduler
 
 .. automodule:: pywick.callbacks.LRScheduler
     :members:
-    :undoc-members:
     :show-inheritance:
 
 LambdaCallback
@@ -67,7 +59,6 @@ LambdaCallback
 
 .. automodule:: pywick.callbacks.LambdaCallback
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ModelCheckpoint
@@ -75,7 +66,6 @@ ModelCheckpoint
 
 .. automodule:: pywick.callbacks.ModelCheckpoint
     :members:
-    :undoc-members:
     :show-inheritance:
 
 OneCycleLRScheduler
@@ -83,7 +73,6 @@ OneCycleLRScheduler
 
 .. automodule:: pywick.callbacks.OneCycleLRScheduler
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ReduceLROnPlateau
@@ -91,7 +80,6 @@ ReduceLROnPlateau
 
 .. automodule:: pywick.callbacks.ReduceLROnPlateau
     :members:
-    :undoc-members:
     :show-inheritance:
 
 SimpleModelCheckpoint
@@ -99,7 +87,6 @@ SimpleModelCheckpoint
 
 .. automodule:: pywick.callbacks.SimpleModelCheckpoint
     :members:
-    :undoc-members:
     :show-inheritance:
 
 TQDM
@@ -107,6 +94,5 @@ TQDM
 
 .. automodule:: pywick.callbacks.TQDM
     :members:
-    :undoc-members:
     :show-inheritance:
 
