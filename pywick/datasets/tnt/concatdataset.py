@@ -1,4 +1,4 @@
-from pywick.datasets.tnt.dataset import Dataset
+from .dataset import Dataset
 import numpy as np
 
 

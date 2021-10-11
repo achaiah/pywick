@@ -2,6 +2,8 @@ import math
 from pywick.datasets.tnt.dataset import Dataset
 from . import transform
 
+__all__ = ['BatchDataset']
+
 
 class BatchDataset(Dataset):
     """
