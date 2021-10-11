@@ -11,7 +11,6 @@ BaseDataset
 
 .. automodule:: pywick.datasets.BaseDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 CSVDataset
@@ -19,7 +18,6 @@ CSVDataset
 
 .. automodule:: pywick.datasets.CSVDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ClonedFolderDataset
@@ -27,7 +25,6 @@ ClonedFolderDataset
 
 .. automodule:: pywick.datasets.ClonedFolderDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 FolderDataset
@@ -35,7 +32,6 @@ FolderDataset
 
 .. automodule:: pywick.datasets.FolderDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 MultiFolderDataset
@@ -43,7 +39,6 @@ MultiFolderDataset
 
 .. automodule:: pywick.datasets.MultiFolderDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 PredictFolderDataset
@@ -51,7 +46,6 @@ PredictFolderDataset
 
 .. automodule:: pywick.datasets.PredictFolderDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 TensorDataset
@@ -59,7 +53,6 @@ TensorDataset
 
 .. automodule:: pywick.datasets.TensorDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 UsefulDataset
@@ -67,7 +60,6 @@ UsefulDataset
 
 .. automodule:: pywick.datasets.UsefulDataset
     :members:
-    :undoc-members:
     :show-inheritance:
 
 data utilities

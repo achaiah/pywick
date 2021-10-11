@@ -1,4 +1,4 @@
-from pywick.datasets.tnt.dataset import Dataset
+from .dataset import Dataset
 
 
 class ListDataset(Dataset):

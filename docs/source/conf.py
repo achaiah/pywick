@@ -62,7 +62,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['ntemplates']
+# templates_path = ['ntemplates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -105,7 +105,7 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['nstatic']
+# html_static_path = ['nstatic']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -170,7 +170,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'pywick', 'pywick Documentation',
-     author, 'pywick', 'One line description of project.',
+     author, 'pywick', 'High-level Pytorch training framework that aims to get you up and running quickly with state of the art neural networks.',
      'Miscellaneous'),
 ]
 
@@ -182,7 +182,7 @@ autodoc_mock_imports = [
     "albumentations",
     "h5py",
     "numpy",
-    "opencv-python-headless",
+    "cv2",
     "pandas",
     "pycm",
     "scikit-image",

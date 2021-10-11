@@ -1,4 +1,4 @@
-from pywick.datasets.tnt.dataset import Dataset
+from .dataset import Dataset
 
 
 class ResampleDataset(Dataset):
@@ -20,13 +20,13 @@ class ResampleDataset(Dataset):
     Args:
         dataset (Dataset): Dataset to be resampled.
         sampler (function, optional): Function used for sampling. `idx`th
-            sample is returned by `dataset[sampler(dataset, idx)]`. By default
-            `sampler(dataset, idx)` is the identity, simply returning `idx`.
-            `sampler(dataset, idx)` must return an index in the range
-            acceptable for the underlying `dataset`.
+        sample is returned by `dataset[sampler(dataset, idx)]`. By default
+        `sampler(dataset, idx)` is the identity, simply returning `idx`.
+        `sampler(dataset, idx)` must return an index in the range
+        acceptable for the underlying `dataset`.
         size (int, optional): Desired size of the dataset after resampling. By
-            default, the new dataset will have the same size as the underlying
-            one.
+        default, the new dataset will have the same size as the underlying
+        one.
     """
 
     def __init__(self, dataset, sampler=lambda ds, idx: idx, size=None):
