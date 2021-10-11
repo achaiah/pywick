@@ -27,3 +27,5 @@ dist
 
 .idea
 /pywick.egg-info/
+
+pywick/configs/train_classifier_local.yaml
