@@ -170,7 +170,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'pywick', 'pywick Documentation',
-     author, 'pywick', 'One line description of project.',
+     author, 'pywick', 'High-level Pytorch training framework that aims to get you up and running quickly with state of the art neural networks.',
      'Miscellaneous'),
 ]
 
