@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.1-runtime-centos7
+FROM nvidia/cuda:11.3.1-cudnn8-devel-centos8
 
 ENV HOME /home/pywick
 
