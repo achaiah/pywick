@@ -1,6 +1,6 @@
 import csv
 import os
-from collections import Iterable
+from collections.abc import Iterable
 from collections import OrderedDict
 
 import torch
@@ -8,6 +8,7 @@ import torch
 from . import Callback
 
 __all__ = ['CSVLogger']
+
 
 class CSVLogger(Callback):
     """
