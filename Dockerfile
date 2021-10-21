@@ -8,7 +8,7 @@ RUN yum update -y && yum -y install atop bzip2-devel ca-certificates cmake curl 
 RUN yum groupinstall -y "Development Tools"
 
 RUN wget https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tgz
-RUN source /opt/rh/devtoolset-7/enable && tar xvf Python-3.9.5.tgz && cd Python-3.9*/ && ./configure --enable-optimizations && make altinstall && cd .. && rm -rf Python*
+RUN tar xvf Python-3.9.5.tgz && cd Python-3.9*/ && ./configure --enable-optimizations && make altinstall && cd .. && rm -rf Python*
 
 RUN cd /usr/bin && rm python3 pip3 && ln -s /usr/local/bin/python3.9 python && ln -s /usr/local/bin/python3.9 python3 && ln -s /usr/local/bin/pip3.9 pip3 && ln -s /usr/local/bin/pip3.9 pip
 RUN pip install --upgrade pip setuptools wheel
