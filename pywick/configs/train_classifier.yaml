@@ -33,7 +33,7 @@ train:
       save_interval: 1              # save every N epochs
       save_dir: *outroot            # where to save output
       custom_func:                  # name of custom function to execute on key/val dictionary (if any)
-      verbose: False
+      verbose: True
   scheduler:                      # scheduler configuration
     name: OnceCycleLRScheduler    # should match to a name of an imported scheduler (either from callbacks or torch.optim.lr_scheduler)
     params:

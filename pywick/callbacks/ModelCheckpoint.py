@@ -106,7 +106,8 @@ class ModelCheckpoint(Callback):
 
             if (current_loss < self.best_loss and self.save_best_only) or not self.save_best_only or (not self.do_minimize and current_loss > self.best_loss):
                 if current_loss is None:
-                    pass
+                    if self.verbose:
+                        print(f'ModelCheckpoint could not find monitored_log_key (loss variable) in logs: {self.monitored_log_key}')
                 else:
                     # Call custom function (if set) to process things like best-N results etc
                     if self.custom_func is not None:
@@ -149,6 +150,8 @@ class ModelCheckpoint(Callback):
                     if len(self.old_files) >= self.max_saves:
                         try:
                             os.remove(self.old_files[0])
+                            if self.verbose:
+                                print(f'ModelCheckpoint removing old model snapshot: {self.old_files[0]}')
                         except:
                             pass
                         self.old_files = self.old_files[1:]

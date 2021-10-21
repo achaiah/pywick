@@ -13,7 +13,7 @@ if [ -n "$demo" ]; then
   # train on the dataset
   cd /home/pywick/pywick && python train_classifier.py configs/train_classifier.yaml
   echo "keeping container alive ..."
-  nohup tail -f /dev/null &
+  tail -f /dev/null
 
 # otherwise keep the container alive
 else

@@ -39,12 +39,13 @@ Hey, [check this out](https://pywick.readthedocs.io/en/latest/), we now have [do
 ### v0.6.5 - Docker all the things!
 Another great improvement to the framework - docker! You can now run the 17flowers demo right out of the box!
   - Grab our docker image at [docker hub](https://hub.docker.com/repository/docker/achaiah/pywick): `docker pull achaiah/pywick:latest`. Pytorch 1.8 and cuda dependencies are pre-installed.
-  - Run 17flowers demo with: `docker run --rm -it --ipc=host --init -e demo=true achaiah/pywick:latest`
+  - Run 17flowers demo with: `docker run --rm -it --ipc=host -v your_local_out_dir:/jobs/17flowers --init -e demo=true achaiah/pywick:latest`
   - Or run the container in standalone mode so you can use your own data (don't forget to map your local dir to container):
     ```bash
       docker run --rm -it \
       --ipc=host \
-      -v <your_local_data_dir>:<container_dir> \
+      -v <your_local_data_dir>:<container_data_dir> \
+      -v <your_local_out_dir>:<container_out_dir> \
       --init \
       achaiah/pywick:latest
     ```

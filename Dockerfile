@@ -43,7 +43,7 @@ CMD ["/bin/bash", "/home/pywick/entrypoint.sh"]
 #
 # Run 17flowers demo with:
 #   docker run --rm -it --ipc=host --init -e demo=true achaiah/pywick:latest
-# Optionally specify local dir where you want to save output: docker run --rm -it --ipc=host -v my_local_dir:/jobs/17flowers --init -e demo=true achaiah/pywick:latest
+# Optionally specify local dir where you want to save output: docker run --rm -it --ipc=host -v your_local_out_dir:/jobs/17flowers --init -e demo=true achaiah/pywick:latest
 # Run container that just stays up (for your own processes):
-#   docker run --rm -it --ipc=host -v <your_local_data_dir>:<container_dir> --init achaiah/pywick:latest
+#   docker run --rm -it --ipc=host -v <your_local_data_dir>:<container_data_dir> -v <your_local_out_dir>:<container_out_dir> --init achaiah/pywick:latest
 ###########
