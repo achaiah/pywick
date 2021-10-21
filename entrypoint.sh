@@ -12,6 +12,8 @@ if [ -n "$demo" ]; then
   rm -rf jpg && \
   # train on the dataset
   cd /home/pywick/pywick && python train_classifier.py configs/train_classifier.yaml
+  echo "keeping container alive ..."
+  nohup tail -f /dev/null &
 
 # otherwise keep the container alive
 else

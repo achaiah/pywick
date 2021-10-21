@@ -38,8 +38,9 @@ train:
     name: OnceCycleLRScheduler    # should match to a name of an imported scheduler (either from callbacks or torch.optim.lr_scheduler)
     params:
       epochs: *nepochs
+      steps_per_epoch: 2
       max_lr: 0.05
-      pct_start: 0.2
+      pct_start: 0.4
   train_val_ratio: 0.9            # split ratio between training and validation data (if using a single dataset)
   use_apex: False                 # whether to use APEX optimization (not yet implemented)
   use_gpu: True                   # whether to use the GPU for training

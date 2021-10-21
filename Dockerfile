@@ -22,7 +22,7 @@ RUN pip install torch==1.8.2+cu111 torchvision==0.9.2+cu111 torchaudio==0.8.2 -f
 RUN mkdir -p /home && rm -rf $HOME
 RUN cd /home && git clone https://github.com/achaiah/pywick
 # To build from a different branch or tag specify per example below
-#RUN cd $HOME && git checkout WIP
+#RUN cd $HOME && git checkout WIP2
 
 # install requirements
 RUN pip install versioned-hdf5
@@ -43,6 +43,7 @@ CMD ["/bin/bash", "/home/pywick/entrypoint.sh"]
 #
 # Run 17flowers demo with:
 #   docker run --rm -it --ipc=host --init -e demo=true achaiah/pywick:latest
+# Optionally specify local dir where you want to save output: docker run --rm -it --ipc=host -v my_local_dir:/jobs/17flowers --init -e demo=true achaiah/pywick:latest
 # Run container that just stays up (for your own processes):
 #   docker run --rm -it --ipc=host -v <your_local_data_dir>:<container_dir> --init achaiah/pywick:latest
 ###########
