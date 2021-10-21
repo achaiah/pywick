@@ -2,18 +2,15 @@ FROM nvidia/cuda:11.3.1-cudnn8-devel-centos8
 
 ENV HOME /home/pywick
 
+RUN yum install -y epel-release && yum install -y dnf-plugins-core && yum config-manager --set-enabled powertools
 RUN yum update -y && yum -y install atop bzip2-devel ca-certificates cmake curl git grep htop less libffi-devel hdf5-devel libjpeg-devel xz-devel libuuid-devel libXext libSM libXrender make nano openssl-devel sed screen tini vim wget unzip
 
 RUN yum groupinstall -y "Development Tools"
 
-RUN yum install -y centos-release-scl && \
-    yum install -y devtoolset-7-gcc* && \
-    source /opt/rh/devtoolset-7/enable
-
 RUN wget https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tgz
 RUN source /opt/rh/devtoolset-7/enable && tar xvf Python-3.9.5.tgz && cd Python-3.9*/ && ./configure --enable-optimizations && make altinstall && cd .. && rm -rf Python*
 
-RUN cd /usr/bin && rm python && ln -s /usr/local/bin/python3.9 python && ln -s /usr/local/bin/python3.9 python3 && ln -s /usr/local/bin/pip3.9 pip3 && ln -s /usr/local/bin/pip3.9 pip
+RUN cd /usr/bin && rm python3 pip3 && ln -s /usr/local/bin/python3.9 python && ln -s /usr/local/bin/python3.9 python3 && ln -s /usr/local/bin/pip3.9 pip3 && ln -s /usr/local/bin/pip3.9 pip
 RUN pip install --upgrade pip setuptools wheel
 
 ### Pytorch V1.8.2 + CUDA (py3.9_cuda11.1_cudnn7.6.3_0)
