@@ -7,7 +7,7 @@
 [![pypi](https://img.shields.io/pypi/v/pywick.svg)](https://pypi.org/project/pywick/)
 [![python compatibility](https://img.shields.io/pypi/pyversions/pywick.svg)](https://pywick.readthedocs.io/en/latest/)
 [![license](https://img.shields.io/pypi/l/pywick.svg)](https://github.com/achaiah/pywick/blob/master/LICENSE.txt)
-[![Documentation Status](https://readthedocs.org/projects/pywick/badge/?version=latest)](https://pywick.readthedocs.io/en/latest/?badge=latest) 
+ 
 </div>
 
 #### High-Level Training framework for Pytorch
@@ -36,13 +36,26 @@ Hey, [check this out](https://pywick.readthedocs.io/en/latest/), we now have [do
 
 ## What's New (highlights)
 
-### v0.6.0 - We thought ya might like YAML!
-So you're saying you like **configuration files**? You're saying you like **examples** too? Well, we've got you covered! Huge release today with a configuration-based training example! All you have to do is:
-  - Get your favorite dataset (or download [17 flowers](https://www.robots.ox.ac.uk/~vgg/data/flowers/17/) to get started and `pywick/examples/17flowers_split.py` to convert)
-  - Adjust the `configs/train_classifier.yaml` file to fit your workspace
-  - Then simply run: `python3 train_classifier.py configs/train_classifier.yaml` and watch it train!
+### v0.6.5 - Docker all the things!
+Another great improvement to the framework - docker! You can now run the 17flowers demo right out of the box!
+  - Grab our docker image at [docker hub](https://hub.docker.com/repository/docker/achaiah/pywick): `docker pull achaiah/pywick:latest`. Pytorch 1.8 and cuda dependencies are pre-installed.
+  - Run 17flowers demo with: `docker run --rm -it --ipc=host -v your_local_out_dir:/jobs/17flowers --init -e demo=true achaiah/pywick:latest`
+  - Or run the container in standalone mode so you can use your own data (don't forget to map your local dir to container):
+    ```bash
+      docker run --rm -it \
+      --ipc=host \
+      -v <your_local_data_dir>:<container_data_dir> \
+      -v <your_local_out_dir>:<container_out_dir> \
+      --init \
+      achaiah/pywick:latest
+    ```
 
 ### Older Notes
+- **Oct. 11, 2021 - We thought ya might like YAML!**
+  - So you're saying you like **configuration files**? You're saying you like **examples** too? Well, we've got you covered! Huge release today with a configuration-based training example! All you have to do is:
+    - Get your favorite dataset (or download [17 flowers](https://www.robots.ox.ac.uk/~vgg/data/flowers/17/) to get started and `pywick/examples/17flowers_split.py` to convert)
+    - Adjust the `configs/train_classifier.yaml` file to fit your workspace
+    - Then simply run: `python3 train_classifier.py configs/train_classifier.yaml` and watch it train!
 - **May 6, 2021**
   - Many SoTA classification and segmentation models added: Swin-Transformer variants, NFNet variants (L0, L1), Halo nets, Lambda nets, ECA variants, Rexnet + others
   - Many new loss functions added: RecallLoss, SoftInvDiceLoss, OhemBCEDicePenalizeBorderLoss, RMIBCEDicePenalizeBorderLoss + others
@@ -61,10 +74,10 @@ So you're saying you like **configuration files**? You're saying you like **exam
     - spnasnet
   - Additional loss functions
 - **Aug. 1, 2019**
-  -   New segmentation NNs: BiSeNet, DANet, DenseASPP, DUNet, OCNet, PSANet
-    - New Loss Functions: Focal Tversky Loss, OHEM CrossEntropy Loss, various combination losses
-    - Major restructuring and standardization of NN models and loading functionality
-    - General bug fixes and code improvements 
+  - New segmentation NNs: BiSeNet, DANet, DenseASPP, DUNet, OCNet, PSANet
+  - New Loss Functions: Focal Tversky Loss, OHEM CrossEntropy Loss, various combination losses
+  - Major restructuring and standardization of NN models and loading functionality
+  - General bug fixes and code improvements 
 
 ## Install
 Pywick requires **pytorch >= 1.4**
@@ -73,7 +86,7 @@ Pywick requires **pytorch >= 1.4**
 
 or specific version from git:
 
-`pip install git+https://github.com/achaiah/pywick.git@v0.6.0`
+`pip install git+https://github.com/achaiah/pywick.git@v0.6.5`
 
 ## ModuleTrainer
 The `ModuleTrainer` class provides a high-level training interface which abstracts away the training loop while providing callbacks, constraints, initializers, regularizers,
@@ -190,7 +203,7 @@ trainer.fit_loader(loader, val_loader=val_loader, num_epoch=100)
 - [**TResNet: High Performance GPU-Dedicated Architecture**](https://arxiv.org/abs/2003.13630)
 - [**Wide Resnet**](https://arxiv.org/abs/1605.07146)
 - [**XCeption**](https://arxiv.org/pdf/1610.02357.pdf)
-- All the newest classification models (700+) from [rwightman's repo](https://github.com/rwightman/pytorch-image-models) ECA-NFNet, GERNet, RegNet, SKResnext, SWIN-Transformer, VIT etc.)
+- All the newest classification models (200+) from [rwightman's repo](https://github.com/rwightman/pytorch-image-models) ECA-NFNet, GERNet, RegNet, SKResnext, SWIN-Transformer, VIT etc.)
 
 ## Image Segmentation Models
 - **BiSeNet** ([Bilateral Segmentation Network for Real-time Semantic Segmentation](https://arxiv.org/abs/1808.00897))
