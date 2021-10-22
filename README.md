@@ -86,7 +86,7 @@ Pywick requires **pytorch >= 1.4**
 
 or specific version from git:
 
-`pip install git+https://github.com/achaiah/pywick.git@v0.6.1`
+`pip install git+https://github.com/achaiah/pywick.git@v0.6.5`
 
 ## ModuleTrainer
 The `ModuleTrainer` class provides a high-level training interface which abstracts away the training loop while providing callbacks, constraints, initializers, regularizers,
