@@ -23,8 +23,9 @@ class ReduceLROnPlateau(Callback):
         whether to print reduction to console
     """
 
-    def __init__(self, monitor='val_loss', factor=0.1, patience=10, epsilon=0, cooldown=0, min_lr=0, verbose=0):
+    def __init__(self, monitor='val_loss', factor=0.1, patience=10, epsilon=0, cooldown=0, min_lr=0, verbose=0, **kwargs):
 
+        super().__init__(**kwargs)
         self.monitor = monitor
         if factor >= 1.0:
             raise ValueError('ReduceLROnPlateau does not support a factor >= 1.0.')
@@ -38,7 +39,6 @@ class ReduceLROnPlateau(Callback):
         self.wait = 0
         self.best_loss = 1e15
         self._reset()
-        super(ReduceLROnPlateau, self).__init__()
 
     def _reset(self):
         """

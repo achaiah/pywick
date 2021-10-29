@@ -18,7 +18,8 @@ class LRScheduler(Callback):
         the epoch
     """
 
-    def __init__(self, schedule):
+    def __init__(self, schedule, **kwargs):
+        super().__init__(**kwargs)
         if isinstance(schedule, dict):
             schedule = self.schedule_from_dict
             self.schedule_dict = schedule
@@ -27,7 +28,6 @@ class LRScheduler(Callback):
             else:
                 self.fractional_bounds = True
         self.schedule = schedule
-        super(LRScheduler, self).__init__()
 
     def schedule_from_dict(self, epoch, logs=None):
         learn_rate = None

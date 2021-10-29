@@ -85,6 +85,7 @@ def _validate_loss_input(loss):
     else:
         raise ValueError('Invalid loss input')
 
+
 def _validate_optimizer_input(optimizer):
     dir_optim = dir(optim)
     opts = [o.lower() for o in dir_optim]
@@ -99,6 +100,7 @@ def _validate_optimizer_input(optimizer):
     else:
         raise ValueError('Invalid optimizer input')
 
+
 def _validate_initializer_input(initializer):
     if isinstance(initializer, str):
         try:
@@ -111,8 +113,10 @@ def _validate_initializer_input(initializer):
     else:
         raise ValueError('Invalid optimizer input')
 
+
 def _get_current_time():
     return datetime.datetime.now().strftime("%B %d, %Y - %I:%M%p")
+
 
 def _nb_function_args(fn):
     return len(signature(fn).parameters)

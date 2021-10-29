@@ -11,10 +11,9 @@ class History(Callback):
     every SuperModule.
     """
 
-    def __init__(self, trainer):
-        super(History, self).__init__()
+    def __init__(self, trainer, **kwargs):
+        super().__init__(trainer=trainer, **kwargs)
         self.samples_seen = 0.
-        self.trainer = trainer
 
     def on_train_begin(self, logs=None):
         self.epoch_metrics = {

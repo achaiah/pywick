@@ -1,6 +1,7 @@
 import time
 import datetime
 
+
 def _get_current_time():
     time_s = time.time()
     return time_s, datetime.datetime.fromtimestamp(time_s).strftime("%B %d, %Y - %I:%M%p")
@@ -30,30 +31,34 @@ class CallbackContainer:
         for callback in self.callbacks:
             callback.set_trainer(trainer)
 
-    def on_epoch_begin(self, epoch, logs=None):
+    def on_epoch_begin(self, epoch: int, logs=None):
         if self.initial_epoch == -1:
             self.initial_epoch = epoch
         logs = logs or {}
         for callback in self.callbacks:
-            callback.on_epoch_begin(epoch, logs)
+            if callback.is_enabled():
+                callback.on_epoch_begin(epoch, logs)
 
-    def on_epoch_end(self, epoch, logs=None):
+    def on_epoch_end(self, epoch: int, logs=None):
         if self.final_epoch < epoch:
             self.final_epoch = epoch
 
         logs = logs or {}
         for callback in self.callbacks:
-            callback.on_epoch_end(epoch, logs)
+            if callback.is_enabled():
+                callback.on_epoch_end(epoch, logs)
 
     def on_batch_begin(self, batch, logs=None):
         logs = logs or {}
         for callback in self.callbacks:
-            callback.on_batch_begin(batch, logs)
+            if callback.is_enabled():
+                callback.on_batch_begin(batch, logs)
 
-    def on_batch_end(self, batch, logs=None):
+    def on_batch_end(self, batch: int, logs=None):
         logs = logs or {}
         for callback in self.callbacks:
-            callback.on_batch_end(batch, logs)
+            if callback.is_enabled():
+                callback.on_batch_end(batch, logs)
 
     def on_train_begin(self, logs=None):
         self.has_val_data = logs['has_val_data']
@@ -62,7 +67,8 @@ class CallbackContainer:
         logs['start_time'] = self.start_time_date
         logs['start_time_s'] = self.start_time_s
         for callback in self.callbacks:
-            callback.on_train_begin(logs)
+            if callback.is_enabled():
+                callback.on_train_begin(logs)
 
     def on_train_end(self, logs=None):
         logs = logs or {}
@@ -82,4 +88,5 @@ class CallbackContainer:
         logs['stop_time'] = time_date
         logs['stop_time_s'] = time_s
         for callback in self.callbacks:
-            callback.on_train_end(logs)
+            if callback.is_enabled():
+                callback.on_train_end(logs)

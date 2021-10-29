@@ -20,14 +20,14 @@ class EarlyStopping(Callback):
         the counter be reset after each improvment
     """
 
-    def __init__(self, monitor='val_loss', min_delta=0, patience=5):
+    def __init__(self, monitor='val_loss', min_delta=0, patience=5, **kwargs):
+        super().__init__(**kwargs)
         self.monitor = monitor
         self.min_delta = min_delta
         self.patience = patience
         self.wait = 0
         self.best_loss = 1e-15
         self.stopped_epoch = 0
-        super(EarlyStopping, self).__init__()
 
     def on_train_begin(self, logs=None):
         self.wait = 0

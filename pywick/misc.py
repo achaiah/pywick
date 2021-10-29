@@ -2,6 +2,8 @@ from enum import Enum, auto
 import errno
 import random
 import os
+from typing import Any
+
 import numpy as np
 import torch
 
@@ -24,13 +26,16 @@ def trun_n_d(n,d):
     '''
     return int(n*10**d)/10**d
 
-def is_iterable(x):
-    return isinstance(x, (tuple, list))
-def is_tuple_or_list(x):
+
+def is_iterable(x: Any):
     return isinstance(x, (tuple, list))
 
 
-def time_left_str(seconds):
+def is_tuple_or_list(x: Any):
+    return isinstance(x, (tuple, list))
+
+
+def time_left_str(seconds: float):
     '''
     Produces a human-readable string in hh:mm:ss format
     :param seconds:

@@ -12,6 +12,7 @@ from ..misc import trun_n_d
 
 widegap_scale_fn = lambda x: 1/(5**(x*0.0001))
 
+
 class CyclicLRScheduler(Callback):
     """Sets the learning rate of each parameter group according to
     cyclical learning rate policy (CLR). The policy cycles the learning
@@ -86,7 +87,9 @@ class CyclicLRScheduler(Callback):
 
     def __init__(self, optimizer, base_lr=1e-3, max_lr=6e-3,
                  step_size=2000, mode='triangular', gamma=1.,
-                 scale_fn=None, scale_mode='cycle', verbose=True):
+                 scale_fn=None, scale_mode='cycle', verbose=True, **kwargs):
+
+        super().__init__(**kwargs)
 
         if not isinstance(optimizer, Optimizer):
             raise TypeError('{} is not an Optimizer'.format(type(optimizer).__name__))

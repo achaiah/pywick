@@ -8,12 +8,14 @@ from . import Callback
 
 __all__ = ['ExperimentLogger']
 
+
 class ExperimentLogger(Callback):
     """
     Generic logger callback for dumping experiment data. Can be extended for more utility.
     """
 
-    def __init__(self, directory, filename='Experiment_Logger.csv', save_prefix='Model_', separator=',', append=True):
+    def __init__(self, directory, filename='Experiment_Logger.csv', save_prefix='Model_', separator=',', append=True, **kwargs):
+        super().__init__(**kwargs)
 
         self.directory = directory
         self.filename = filename
@@ -24,7 +26,6 @@ class ExperimentLogger(Callback):
         self.writer = None
         self.keys = None
         self.append_header = True
-        super(ExperimentLogger, self).__init__()
 
     def on_train_begin(self, logs=None):
         if self.append:

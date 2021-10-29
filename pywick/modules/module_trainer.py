@@ -5,8 +5,10 @@ ModuleTrainer for high level training on Pytorch models
 import functools
 import math
 from collections import OrderedDict
+from typing import Union, List, Tuple
 
 import torch as th
+import torch.nn
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 
@@ -17,7 +19,7 @@ from ._utils import (_validate_loss_input, _validate_metric_input,
                      _add_regularizer_to_loss_fn)
 
 from ..conditions import ConditionsContainer, CondType
-from ..callbacks import CallbackContainer, History, TQDM
+from ..callbacks import CallbackContainer, History, TQDM, Callback
 from ..regularizers import RegularizerContainer, RegularizerCallback
 from ..initializers import InitializerContainer
 from ..constraints import ConstraintContainer, ConstraintCallback
@@ -29,7 +31,7 @@ from tqdm import tqdm
 
 class ModuleTrainer:
 
-    def __init__(self, model, cuda_devices=None):
+    def __init__(self, model: nn.Module, cuda_devices: List = None):
         """
         ModelTrainer for high-level training of Pytorch models
 
@@ -60,35 +62,38 @@ class ModuleTrainer:
         # custom fit helpers
         self._named_helpers = {}       # custom trainers that can be initialized during compilation time
 
+        # optimizer
+        self._optimizer = None
+
+        # conditions_container
+        self._conditions_container = None
+
         # preconditions
         self._preconditions = []
-        self._has_preconditions = False
 
         # postconditions
         self._postconditions = []
-        self._has_postconditions = False
 
         # callbacks
         self._callbacks = []
 
         # regularizers
         self._regularizers = []
-        self._has_regularizers = False
 
         # initializers
         self._initializers = []
 
         # constraints
         self._constraints = []
-        self._has_constraints = False
 
         # metrics
         self._metrics = []
-        self._has_metrics = False
 
         # transforms
         self._transforms = []
-        self._has_transforms = False
+        self._has_input_transform = False
+        self._has_target_transform = False
+        self._has_co_transform = False
 
         # losses
         self._criterion = None
@@ -102,18 +107,18 @@ class ModuleTrainer:
             cudnn.benchmark = True
             # Handle multiple GPUs. Single gpu gets normal treatment while multi-GPU must be wrapped in DataParallel
             if len(cuda_devices) > 1:
-                self.model = th.nn.DataParallel(self.model, device_ids=cuda_devices)
-        # TODO: This might not be correct. If things break, check here (below line used to be part of the 'if' block above)
+                if type(self.model) != th.nn.DataParallel:
+                    self.model = th.nn.DataParallel(self.model, device_ids=cuda_devices)
         self.model = self.model.to(self.device)
 
-    def set_criterion(self, criterion):
+    def set_criterion(self, criterion: Union[List, Tuple, torch.nn.Module]):
         self._criterion = criterion
         if is_tuple_or_list(criterion):
             self._criterion_fn = [_validate_loss_input(l) for l in criterion]
         else:
             self._criterion_fn = _validate_loss_input(criterion)
 
-    def set_optimizer(self, optimizer, **kwargs):
+    def set_optimizer(self, optimizer: Union[str, torch.optim.Optimizer], **kwargs):
         if type(optimizer) is type or isinstance(optimizer, str):
             parameters = kwargs.get('parameters', self.model.parameters())
 
@@ -122,7 +127,7 @@ class ModuleTrainer:
         else:
             self._optimizer = optimizer
 
-    def set_callbacks(self, callbacks):
+    def set_callbacks(self, callbacks: Union[List, Tuple, Callback]):
         if not is_tuple_or_list(callbacks):
             callbacks = [callbacks]
         self._callbacks = [self.history] + callbacks
@@ -130,7 +135,9 @@ class ModuleTrainer:
     def set_regularizers(self, regularizers):
         regularizers = [regularizers] if not is_tuple_or_list(regularizers) else regularizers
         self._regularizers = regularizers
-        self._has_regularizers = True
+
+    def _has_regularizers(self):
+        return len(self._regularizers) > 0
 
     def set_initializers(self, initializers):
         initializers = [initializers] if not is_tuple_or_list(initializers) else initializers
@@ -139,24 +146,32 @@ class ModuleTrainer:
 
     def set_constraints(self, constraints):
         constraints = [constraints] if not is_tuple_or_list(constraints) else constraints
-        self._has_constraints = True
         self._constraints = constraints
+
+    def _has_constraints(self):
+        return len(self._constraints) > 0
 
     def set_metrics(self, metrics):
         metrics = [metrics] if not is_tuple_or_list(metrics) else metrics
         metrics = [_validate_metric_input(m) for m in metrics]
-        self._has_metrics = True
         self._metrics = metrics
+
+    def _has_metrics(self):
+        return len(self._metrics) > 0
 
     def set_preconditions(self, conditions):
         conditions = [conditions] if not is_tuple_or_list(conditions) else conditions
         self._preconditions = conditions
-        self._has_preconditions = True
+
+    def _has_preconditions(self):
+        return len(self._preconditions) > 0
 
     def set_postconditions(self, conditions):
         conditions = [conditions] if not is_tuple_or_list(conditions) else conditions
         self._postconditions = conditions
-        self._has_postconditions = True
+
+    def _has_postconditions(self):
+        return len(self._postconditions) > 0
 
     def set_transforms(self, transforms):
         if not is_tuple_or_list(transforms):
@@ -170,8 +185,10 @@ class ModuleTrainer:
         self._has_target_transform = transforms[1] is not None
         self._has_co_transform = transforms[2] is not None
 
-        self._has_transforms = True
         self._transforms = transforms
+
+    def _has_transforms(self):
+        return len(self._transforms) > 0
 
     def compile(self,
                 optimizer,
@@ -220,8 +237,6 @@ class ModuleTrainer:
             self.set_regularizers(regularizers)
             self.regularizer_container = RegularizerContainer(self._regularizers)
             self.regularizer_container.register_forward_hooks(self.model)
-        else:
-            self._has_regularizers = False
 
         self.history = History(self)
         self._callbacks = [self.history]
@@ -239,19 +254,13 @@ class ModuleTrainer:
             self.set_constraints(constraints)
             self.constraint_container = ConstraintContainer(self._constraints)
             self.constraint_container.register_constraints(self.model)
-        else:
-            self._has_constraints = False
 
         if metrics is not None:
             self.set_metrics(metrics)
             self.metric_container = MetricContainer(self._metrics)
-        else:
-            self._has_metrics = False
 
         if transforms is not None:
             self.set_transforms(transforms)
-        else:
-            self._has_transforms = False
 
     def fit(self,
             inputs,
@@ -293,12 +302,12 @@ class ModuleTrainer:
             tmp_callbacks = []
             if verbose > 0:
                 tmp_callbacks.append(pbar)
-            if self._has_regularizers:
+            if self._has_regularizers():
                 tmp_callbacks.append(RegularizerCallback(self.regularizer_container))
                 fit_loss_fn = _add_regularizer_to_loss_fn(fit_loss_fn, self.regularizer_container)
-            if self._has_constraints:
+            if self._has_constraints():
                 tmp_callbacks.append(ConstraintCallback(self.constraint_container))
-            if self._has_metrics:
+            if self._has_metrics():
                 self.metric_container.set_helper(fit_helper)
                 tmp_callbacks.append(MetricCallback(self.metric_container))
 
@@ -308,8 +317,8 @@ class ModuleTrainer:
                                                'num_batches': num_batches,
                                                'num_epoch': num_epoch,
                                                'has_val_data': has_val_data,
-                                               'has_regularizers': self._has_regularizers,
-                                               'has_metrics': self._has_metrics})
+                                               'has_regularizers': self._has_regularizers(),
+                                               'has_metrics': self._has_metrics()})
 
             try:
                 for epoch_idx in range(initial_epoch,num_epoch):
@@ -325,12 +334,12 @@ class ModuleTrainer:
 
                         input_batch, target_batch = fit_helper.grab_batch(batch_idx, batch_size, inputs, targets)
 
-                        if self._has_preconditions:
+                        if self._has_preconditions():
                             precond_logs = self._conditions_container(CondType.PRE, epoch_num=epoch_idx, batch_num=batch_idx, net=self.model, input_batch=input_batch, target_batch=target_batch)
                             batch_logs.update(precond_logs)
 
                         input_batch, target_batch = fit_helper.move_to_device(self.device, input_batch, target_batch)
-                        if self._has_transforms:
+                        if self._has_transforms():
                             input_batch, target_batch = fit_helper.apply_transforms(self._transforms, input_batch, target_batch)
 
                         # ---------------------------------------------
@@ -343,12 +352,12 @@ class ModuleTrainer:
                         self._optimizer.step()
                         # ---------------------------------------------
 
-                        if self._has_regularizers:
+                        if self._has_regularizers():
                             batch_logs['reg_loss'] = self.regularizer_container.current_value
-                        if self._has_metrics:
+                        if self._has_metrics():
                             metrics_logs = self.metric_container(input_batch, output_batch, target_batch, is_val=False)
                             batch_logs.update(metrics_logs)
-                        if self._has_postconditions:
+                        if self._has_postconditions():
                             postcond_logs = self._conditions_container(CondType.POST, epoch_idx, batch_idx, self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)
                             batch_logs.update(postcond_logs)
 
@@ -417,12 +426,12 @@ class ModuleTrainer:
             tmp_callbacks = []
             if verbose > 0:
                 tmp_callbacks.append(pbar)
-            if self._has_regularizers:
+            if self._has_regularizers():
                 tmp_callbacks.append(RegularizerCallback(self.regularizer_container))
                 fit_loss_fn = _add_regularizer_to_loss_fn(fit_loss_fn, self.regularizer_container)
-            if self._has_constraints:
+            if self._has_constraints():
                 tmp_callbacks.append(ConstraintCallback(self.constraint_container))
-            if self._has_metrics:
+            if self._has_metrics():
                 self.metric_container.set_helper(fit_helper)
                 tmp_callbacks.append(MetricCallback(self.metric_container))
 
@@ -432,8 +441,8 @@ class ModuleTrainer:
                                                'num_batches': num_batches,
                                                'num_epoch': num_epoch,
                                                'has_val_data': has_val_data,
-                                               'has_regularizers': self._has_regularizers,
-                                               'has_metrics': self._has_metrics})
+                                               'has_regularizers': self._has_regularizers(),
+                                               'has_metrics': self._has_metrics()})
 
             try:
                 for epoch_idx in range(initial_epoch, num_epoch):
@@ -448,7 +457,7 @@ class ModuleTrainer:
 
                         input_batch, target_batch = fit_helper.grab_batch_from_loader(loader_iter)
 
-                        if self._has_preconditions:
+                        if self._has_preconditions():
                             precond_logs = self._conditions_container(CondType.PRE, epoch_num=epoch_idx, batch_num=batch_idx, net=self.model, input_batch=input_batch, target_batch=target_batch)
                             batch_logs.update(precond_logs)
                         input_batch, target_batch = fit_helper.move_to_device(self.device, input_batch, target_batch)
@@ -464,12 +473,12 @@ class ModuleTrainer:
                         self._optimizer.step()
                         # ---------------------------------------------
 
-                        if self._has_regularizers:
+                        if self._has_regularizers():
                             batch_logs['reg_loss'] = self.regularizer_container.current_value
-                        if self._has_postconditions:
+                        if self._has_postconditions():
                             cond_logs = self._conditions_container(CondType.POST, epoch_num=epoch_idx, batch_num=batch_idx, net=self.model, input_batch=input_batch, output_batch=output_batch, target_batch=target_batch)
                             batch_logs.update(cond_logs)
-                        if self._has_metrics:
+                        if self._has_metrics():
                             metrics_logs = self.metric_container(input_batch, output_batch, target_batch, is_val=False)
                             batch_logs.update(metrics_logs)
 
@@ -588,16 +597,16 @@ class ModuleTrainer:
         eval_forward_fn = evaluate_helper.get_partial_forward_fn(self.model)
         eval_logs= {'val_loss': 0.}
 
-        if self._has_metrics:
+        if self._has_metrics():
             metric_container = MetricContainer(self._metrics, prefix='val_')
             metric_container.set_helper(evaluate_helper)
             metric_container.reset()
 
-        if self._has_preconditions or self._has_postconditions:
+        if self._has_preconditions() or self._has_postconditions():
             conditions_container = ConditionsContainer(ExecType.VAL, prefix='val_')
-            if self._has_preconditions:
+            if self._has_preconditions():
                 conditions_container.add_preconditions(self._preconditions)
-            if self._has_postconditions:
+            if self._has_postconditions():
                 conditions_container.add_postconditions(self._postconditions)
             conditions_container.reset()
         else:
@@ -625,7 +634,7 @@ class ModuleTrainer:
                 eval_logs['val_loss'] = (samples_seen*eval_logs['val_loss'] + loss.item()*len(input_batch)) / (samples_seen+len(input_batch))
                 samples_seen += len(input_batch)
 
-                if self._has_metrics:
+                if self._has_metrics():
                     metrics_logs = metric_container(input_batch, output_batch, target_batch, is_val=True)
                     eval_logs.update(metrics_logs)
 
@@ -646,16 +655,16 @@ class ModuleTrainer:
         eval_logs= {'val_loss': 0.}
         loader_iter = iter(loader)
 
-        if self._has_metrics:
+        if self._has_metrics():
             metric_container = MetricContainer(self._metrics, prefix='val_')
             metric_container.set_helper(evaluate_helper)
             metric_container.reset()
 
-        if self._has_preconditions or self._has_postconditions:
+        if self._has_preconditions() or self._has_postconditions():
             conditions_container = ConditionsContainer(ExecType.VAL, prefix='val_')
-            if self._has_preconditions:
+            if self._has_preconditions():
                 conditions_container.add_preconditions(self._preconditions)
-            if self._has_postconditions:
+            if self._has_postconditions():
                 conditions_container.add_postconditions(self._postconditions)
             conditions_container.reset()
         else:
@@ -683,7 +692,7 @@ class ModuleTrainer:
                 samples_seen += len(input_batch)
                 eval_logs['val_loss'] = (samples_seen*eval_logs['val_loss'] + loss.item()*len(input_batch)) / (samples_seen+len(input_batch))
 
-                if self._has_metrics:
+                if self._has_metrics():
                     metrics_logs = metric_container(input_batch, output_batch, target_batch, is_val=True)
                     eval_logs.update(metrics_logs)
 
@@ -738,6 +747,7 @@ class ModuleTrainer:
 
         return summary
 
+
 def _get_helper(trainer, num_inputs, num_targets, helper_name=None):
     '''
     :param trainer:
@@ -782,6 +792,7 @@ def _get_helper(trainer, num_inputs, num_targets, helper_name=None):
         helper = trainer._named_helpers.get(helper_name)
 
     return helper
+
 
 class SingleInput_SingleTarget_Helper:
 

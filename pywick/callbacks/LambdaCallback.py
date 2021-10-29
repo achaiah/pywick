@@ -1,5 +1,6 @@
 from . import Callback
 
+
 class LambdaCallback(Callback):
     """
     Callback for creating simple, custom callbacks on-the-fly.
@@ -13,7 +14,7 @@ class LambdaCallback(Callback):
                  on_train_begin=None,
                  on_train_end=None,
                  **kwargs):
-        super(LambdaCallback, self).__init__()
+        super().__init__(**kwargs)
         self.__dict__.update(kwargs)
         if on_epoch_begin is not None:
             self.on_epoch_begin = on_epoch_begin

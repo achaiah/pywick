@@ -285,8 +285,9 @@ class OnceCycleLRScheduler(Callback):
                  div_factor=25.0,
                  final_div_factor=10000.0,
                  last_epoch=-1,
-                 verbose=True):
-
+                 verbose=True,
+                 **kwargs):
+        super().__init__(**kwargs)
         self.scheduler = OneCycleLR(optimizer=optimizer,
                                     max_lr=max_lr,
                                     total_steps=total_steps,

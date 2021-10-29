@@ -25,7 +25,7 @@ from pywick.initializers import XavierUniform
 from pywick.metrics import CategoricalAccuracySingleInput
 from pywick.models import load_model, ModelType
 from pywick.modules import ModuleTrainer
-from pywick.utils import class_factory
+from pywick.utils import class_factory, load_yaml
 from pywick.samplers import ImbalancedDatasetSampler
 from pywick.transforms import read_cv2_as_rgb
 from pywick.cust_random import set_seed
@@ -189,16 +189,16 @@ if __name__ == "__main__":
     # Create a configuration object to run this experiment
     with open(config_path, 'r') as f:
         if config_path.endswith('.yml') or config_path.endswith('.yaml'):
-            config = ExpConfig.from_dict(yaml.safe_load(f)['train'])  # loads the 'train' configuration from yaml
+            conf = ExpConfig.from_dict(load_yaml(yaml_path=config_path)['train'])  # loads the 'train' configuration from yaml
         elif config_path.endswith('.json'):
-            config = ExpConfig.from_dict(json.load(f)['train'])  # loads the 'train' configuration from json
+            conf = ExpConfig.from_dict(json.load(f)['train'])  # loads the 'train' configuration from json
         else:
             raise Exception(f'Configuration file extension must be either .yaml/.yml or .json')
-        config.verify_properties()  # make sure all properties have been set
-        set_seed(config.random_seed)
+        conf.verify_properties()  # make sure all properties have been set
+        set_seed(conf.random_seed)
 
         # if not config.use_gpu or not torch.cuda.is_available():  # this is a known problem / limitation of the multiprocessing module.
         #     import multiprocessing
         #     multiprocessing.set_start_method('fork')  # must set multiprocessing to 'fork' from 'spawn' because the dataloader fails to pickle lambda
 
-    main(config)
+    main(conf)

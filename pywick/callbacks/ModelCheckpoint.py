@@ -63,7 +63,8 @@ class ModelCheckpoint(Callback):
     """
 
     def __init__(self, run_id, monitored_log_key, save_dir, addl_k_v=None, epoch_log_keys=None, save_interval=5, save_best_only=False, max_saves=5,
-                 custom_func=None, do_minimize=True, verbose=False):
+                 custom_func=None, do_minimize=True, verbose=False, **kwargs):
+        super().__init__(**kwargs)
         if addl_k_v is None:
             addl_k_v = {}
         if epoch_log_keys is None:
@@ -95,7 +96,6 @@ class ModelCheckpoint(Callback):
             self.best_loss = math.inf
         else:
             self.best_loss = -89293.923
-        super().__init__()
 
     def on_epoch_end(self, epoch, logs=None):
         self.last_epoch_logs = logs

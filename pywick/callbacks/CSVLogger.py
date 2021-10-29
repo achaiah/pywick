@@ -19,7 +19,8 @@ class CSVLogger(Callback):
     :param append: (bool) whether to append result to existing file or make new file
     """
 
-    def __init__(self, file, separator=',', append=False):
+    def __init__(self, file, separator=',', append=False, **kwargs):
+        super().__init__(**kwargs)
 
         self.file = file
         self.sep = separator
@@ -27,7 +28,6 @@ class CSVLogger(Callback):
         self.writer = None
         self.keys = None
         self.append_header = True
-        super(CSVLogger, self).__init__()
 
     def on_train_begin(self, logs=None):
         if self.append:

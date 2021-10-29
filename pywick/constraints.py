@@ -54,7 +54,8 @@ class ConstraintContainer:
 
 class ConstraintCallback(Callback):
 
-    def __init__(self, container):
+    def __init__(self, container, **kwargs):
+        super().__init__(**kwargs)
         self.container = container
 
     def on_batch_end(self, batch_idx, logs):

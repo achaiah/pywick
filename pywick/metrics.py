@@ -48,10 +48,13 @@ class Metric:
 
 class MetricCallback(Callback):
 
-    def __init__(self, container):
+    def __init__(self, container, **kwargs):
+        super().__init__(**kwargs)
         self.container = container
+
     def on_epoch_begin(self, epoch_idx, logs):
         self.container.reset()
+
 
 class CategoricalAccuracy(Metric):
 

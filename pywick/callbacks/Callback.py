@@ -1,4 +1,4 @@
-from typing import Collection
+from typing import Collection, Mapping
 
 
 class Callback:
@@ -8,11 +8,11 @@ class Callback:
     (e.g. at the beginning of epoch, end of epoch, beginning of batch, end of batch etc.)
     """
 
-    def __init__(self):
-        self.params = None
-        self.trainer = None
+    def __init__(self, params: dict = None, trainer=None, **_):
+        self.params = params
+        self.trainer = trainer
 
-    def set_params(self, params):
+    def set_params(self, params: dict):
         self.params = params
 
     def set_trainer(self, trainer):
@@ -69,3 +69,12 @@ class Callback:
         :return:
         """
         pass
+
+    def is_enabled(self):
+        """
+        Returns the status of this callback. Default = True but can be turned off with param['is_enabled'] = False
+        :return:
+        """
+        if self.params:
+            return self.params.get('is_enabled', True)
+        return True

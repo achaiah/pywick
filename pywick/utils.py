@@ -4,6 +4,11 @@ Utility functions
 
 import pickle
 import random
+from pathlib import Path
+from typing import Union
+
+import yaml
+
 from .optimizers import *
 from .callbacks import *
 
@@ -436,3 +441,26 @@ def class_factory(classname: str, params_dict: dict = None):
         params_dict = {}
     cls = globals()[classname]
     return cls(**params_dict)
+
+
+def load_yaml(yaml_path: Union[Path, str]) -> dict:
+    """
+    Loads configuration dictionary from a yaml file
+    Parses optional __include__ statements and merges all values with same keys into a single config dictionary
+
+    :param yaml_path: path to yaml file (Path or str)
+    :return:
+    """
+    result = {}
+    with open(yaml_path, 'r') as yaml_file:
+        yaml_config = yaml.safe_load(yaml_file)
+        includes = yaml_config.get('__include__', False)
+        if includes:
+            if type(includes) != list:
+                includes = [includes]
+            for include in includes:
+                parent = load_yaml(yaml_path=Path(Path(yaml_path).parent, include))
+                result.update(parent)
+        result.update(yaml_config)
+    result.pop('__include__', None)
+    return result

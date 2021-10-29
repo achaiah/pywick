@@ -1,5 +1,5 @@
 # This specification extends / overrides default.yaml where necessary
-__include__: default.yaml
+__include__: default.yaml         # use __include__ to specify parent definitions / defaults
 train:
   # define general variables to reuse
   lr: &lr 0.001                   # optimizer learning rate

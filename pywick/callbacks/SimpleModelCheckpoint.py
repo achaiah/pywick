@@ -39,7 +39,9 @@ class SimpleModelCheckpoint(Callback):
                  save_best_only=False,
                  save_weights_only=True,
                  max_save=-1,
-                 verbose=0):
+                 verbose=0,
+                 **kwargs):
+        super().__init__(**kwargs)
         if directory.startswith('~'):
             directory = os.path.expanduser(directory)
         self.directory = directory
@@ -56,7 +58,6 @@ class SimpleModelCheckpoint(Callback):
 
         # mode = 'min' only supported
         self.best_loss = float('inf')
-        super(SimpleModelCheckpoint, self).__init__()
 
     def save_checkpoint(self, epoch, file, is_best=False):
         """

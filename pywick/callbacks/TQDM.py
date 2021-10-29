@@ -9,16 +9,16 @@ class TQDM(Callback):
     Callback that displays progress bar and useful statistics in terminal
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         TQDM Progress Bar callback
 
         This callback is automatically applied to
         every SuperModule if verbose > 0
         """
+        super().__init__(**kwargs)
         self.progbar = None
         self.train_logs = None
-        super(TQDM, self).__init__()
 
     def __enter__(self):
         return self
