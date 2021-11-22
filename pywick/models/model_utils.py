@@ -103,7 +103,7 @@ def get_model(model_type: ModelType,
         torch_hub_names = torch.hub.list(rwightman_repo, force_reload=force_reload)
         if model_name in torch_hub_names:
             model = torch.hub.load(rwightman_repo, model_name, pretrained=pretrained, num_classes=num_classes)
-        elif custom_load_fn is not None:
+        elif custom_load_fn:
             model = custom_load_fn(model_name, pretrained, num_classes, **kwargs)
         else:
             # 1. Load model (pretrained or vanilla)
@@ -360,7 +360,7 @@ def diff_states(dict_canonical, dict_subset):
             yield (name, v1)
 
 
-def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, ignore_chkpt_layers=None):
+def load_checkpoint(checkpoint_path: str, model=None, device='cpu', strict: bool = True, ignore_chkpt_layers=None, debug: bool = False):
     """
     Loads weights from a checkpoint into memory. If model is not None then the weights are loaded into the model.
 
@@ -401,12 +401,14 @@ def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, igno
         # load data directly from a checkpoint
         checkpoint_path = os.path.expanduser(checkpoint_path)
         if os.path.isfile(checkpoint_path):
-            print('=> Loading checkpoint: {} onto device: {}'.format(checkpoint_path, device))
+            if debug:
+                print('=> Loading checkpoint: {} onto device: {}'.format(checkpoint_path, device))
             checkpoint = torch.load(checkpoint_path, map_location=device)
 
             pretrained_state = checkpoint['state_dict']
-            print("INFO: => loaded checkpoint {} (epoch {})".format(checkpoint_path, checkpoint.get('epoch')))
-            print('INFO: => checkpoint model name: ', checkpoint.get('modelname', checkpoint.get('model_name')), ' Make sure the checkpoint model name matches your model!!!')
+            if debug:
+                print("INFO: => loaded checkpoint {} (epoch {})".format(checkpoint_path, checkpoint.get('epoch')))
+                print('INFO: => checkpoint model name: ', checkpoint.get('modelname', checkpoint.get('model_name')), ' Make sure the checkpoint model name matches your model!!!')
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), checkpoint_path)
 
@@ -431,7 +433,8 @@ def load_checkpoint(checkpoint_path, model=None, device='cpu', strict=True, igno
 
         # finally load the model weights
         if model:
-            print('INFO: => Attempting to load checkpoint data onto model. Device: {}    Strict: {}'.format(device, strict))
+            if debug:
+                print('INFO: => Attempting to load checkpoint data onto model. Device: {}    Strict: {}'.format(device, strict))
             model.load_state_dict(checkpoint['state_dict'], strict=strict)
     return checkpoint
 
