@@ -26,6 +26,7 @@ dist
 .eggs
 
 .idea
+.vscode
 /pywick.egg-info/
 
 pywick/configs/train_classifier_local.yaml

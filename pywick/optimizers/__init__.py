@@ -24,5 +24,6 @@ from .radam import RAdam
 from .ralamb import Ralamb
 from .rangerlars import RangerLars
 from .sgdw import SGDW
+from .sgdp import SGDP
 from .swa import SWA
 from torch.optim import *
