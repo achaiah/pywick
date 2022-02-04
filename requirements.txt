@@ -15,6 +15,7 @@ requests
 scikit-image
 six
 tabulate
+timm
 tini
 tqdm
 yacs
